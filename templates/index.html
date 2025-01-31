@@ -17,13 +17,13 @@
         <!-- Head container -->
         <div class="flex flex-col items-center justify-center mt-16 text-center">
             <div class="text-lg font-semibold text-blue-700">Fast. Secure. Anonymous.</div>
-            <h1 class="text-4xl font-semibold mt-4">Upload & Analyze Your PCAP File</h1>
+            <h1 class="text-4xl font-semibold mt-4">Upload & Analyze Your .pcap File</h1>
             <p class="text-lg text-gray-600 mt-4">Gain detailed insights into your network traffic with a simple file upload.</p>
         </div>
 
         <!-- Upload container -->
         <div class="max-w-7xl m-auto pb-20 mt-16">
-            <label for="dropzone-file" class="m-auto flex flex-col items-center justify-center py-9 max-w-2xl border border-blue-700 border-dashed rounded-2xl cursor-pointer bg-gray-50">
+            <label for="dropzone-file" class="m-auto flex flex-col items-center justify-center py-12 max-w-2xl border border-blue-700 border-dashed rounded-2xl cursor-pointer bg-gray-50">
                 <div class="mb-3 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
                         <g id="Upload 02">
@@ -31,7 +31,7 @@
                         </g>
                     </svg>
                 </div>
-                <h2 class="text-center text-gray-400 text-xs font-normal leading-4 mb-1">.PCAP File Only, Max Size 500 MB</h2>
+                <h2 class="text-center text-gray-400 text-xs font-normal leading-4 mb-1">.pcap File Only, Max Size 500 MB</h2>
                 <h4 class="text-center text-gray-900 text-sm font-medium leading-snug">Click or Drag and Drop Your File Here</h4>
                 <input id="dropzone-file" type="file" class="hidden" />
             </label>
@@ -57,8 +57,8 @@
                 <div class="w-12 h-12 mb-4 flex items-center justify-center text-blue-700 text-3xl font-bold">
                     2.
                 </div>
-                <h3 class="text-xl font-semibold">Upload Your .PCAP File</h3>
-                <p class="text-gray-600 mt-2">Drag and drop your file or browse to select it. Max size: 500MB.</p>
+                <h3 class="text-xl font-semibold">Upload Your .pcap File</h3>
+                <p class="text-gray-600 mt-2">Drag and drop your file or browse to select it. The max file size is 500MB.</p>
             </div>
 
             <div class="p-6 text-black rounded-2xl flex flex-col items-center text-center shadow-md">
@@ -80,29 +80,33 @@
         <div class="max-w-5xl mx-auto">
             <div class="grid sm:grid-cols-2 gap-6 md:gap-12">
                 <div>
-                    <h3 class="text-lg font-semibold text-black"> Can I cancel at anytime? </h3>
-                    <p class="mt-2 text-gray-600"> Yes, you can cancel anytime no questions are asked while you cancel but we would highly appreciate if you will give us some feedback. </p>
+                    <h3 class="text-lg font-semibold text-black">Is this website free?</h3>
+                    <p class="mt-2 text-gray-600">
+                        Yes! This website is completely free to use. It was created as part of my Senior Capstone project at Georgia Southern University.
+                    </p>
                 </div>
+
                 <div>
-                    <h3 class="text-lg font-semibold text-black"> My team has credits. How do we use them? </h3>
-                    <p class="mt-2 text-gray-600"> Once your team signs up for a subscription plan. This is where we sit down, grab a cup of coffee and dial in the details. </p>
+                    <h3 class="text-lg font-semibold text-black">Do we store your .pcap file?</h3>
+                    <p class="mt-2 text-gray-600">
+                        Never! We simply process your .pcap file and display the results for you. Your data is not stored or shared.
+                    </p>
                 </div>
+
                 <div>
-                    <h3 class="text-lg font-semibold text-black"> How does Preline's pricing work? </h3>
-                    <p class="mt-2 text-gray-600"> Our subscriptions are tiered. Understanding the task at hand and ironing out the wrinkles is key. </p>
+                    <h3 class="text-lg font-semibold text-black">What types of insights does this tool provide?</h3>
+                    <p class="mt-2 text-gray-600">
+                        Our tool gives you a visual breakdown of your network traffic, including protocol distribution, packet timing, and detailed packet structure analysis.
+                    </p>
                 </div>
+
                 <div>
-                    <h3 class="text-lg font-semibold text-black"> How secure is Preline? </h3>
-                    <p class="mt-2 text-gray-600"> Protecting the data you trust to Preline is our first priority. This part is really crucial in keeping the project in line to completion. </p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-black"> Do you offer discounts? </h3>
-                    <p class="mt-2 text-gray-600"> We've built in discounts at each tier for teams. The time has come to bring those ideas and plans to life. </p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-black"> What is your refund policy? </h3>
-                    <p class="mt-2 text-gray-600"> We offer refunds. We aim high at being focused on building relationships with our clients and community. </p>
-                </div>
+                    <h3 class="text-lg font-semibold text-black">What file formats are supported?</h3>
+                    <p class="mt-2 text-gray-600">
+                        Currently, we support .pcap files. If you have a .pcapng file, you may need to convert it before uploading.
+                        The maximum file size for uploads is 500MB.
+                    </p>
+                </div>            
             </div>
         </div>
 
