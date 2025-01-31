@@ -1,31 +1,114 @@
 <!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{ imports|safe }} <!-- Importing content from 'imports.txt' -->
-    <title>PCAP Analyzer</title>
-</head>
-<body class=""> <!-- Pushes content below navbar -->
-    {% include 'navbar.html' %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {{ imports|safe }}
+        <!-- Importing content from 'imports.txt' -->
+        <title>PCAP Analyzer</title>
+    </head>
+    <body class="">
+        <!-- Include the navbar.html file -->
+        {% include 'navbar.html' %}
 
-    <h1 class="text-3xl font-semibold text-center mt-10 mb">Upload & Visualize Your PCAP File</h1>
+        <div class="pl-10 pr-10">
 
-    <div class="max-w-7xl m-auto mb-5 p-20">
-        <label for="dropzone-file" class="flex flex-col items-center justify-center py-9 w-full border border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gray-50">
-            <div class="mb-3 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <g id="Upload 02">
-                        <path id="icon" d="M16.296 25.3935L19.9997 21.6667L23.7034 25.3935M19.9997 35V21.759M10.7404 27.3611H9.855C6.253 27.3611 3.33301 24.4411 3.33301 20.8391C3.33301 17.2371 6.253 14.3171 9.855 14.3171V14.3171C10.344 14.3171 10.736 13.9195 10.7816 13.4326C11.2243 8.70174 15.1824 5 19.9997 5C25.1134 5 29.2589 9.1714 29.2589 14.3171H30.1444C33.7463 14.3171 36.6663 17.2371 36.6663 20.8391C36.6663 24.4411 33.7463 27.3611 30.1444 27.3611H29.2589" stroke="rgb(29 78 216)" stroke-width="1.6" stroke-linecap="round" />
-                    </g>
-                </svg>
+        <!-- Head container -->
+        <div class="flex flex-col items-center justify-center mt-16 text-center">
+            <div class="text-lg font-semibold text-blue-700">Fast. Secure. Anonymous.</div>
+            <h1 class="text-4xl font-semibold mt-4">Upload & Analyze Your PCAP File</h1>
+            <p class="text-lg text-gray-600 mt-4">Gain detailed insights into your network traffic with a simple file upload.</p>
+        </div>
+
+        <!-- Upload container -->
+        <div class="max-w-7xl m-auto pb-20 mt-16">
+            <label for="dropzone-file" class="m-auto flex flex-col items-center justify-center py-9 max-w-2xl border border-blue-700 border-dashed rounded-2xl cursor-pointer bg-gray-50">
+                <div class="mb-3 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <g id="Upload 02">
+                            <path id="icon" d="M16.296 25.3935L19.9997 21.6667L23.7034 25.3935M19.9997 35V21.759M10.7404 27.3611H9.855C6.253 27.3611 3.33301 24.4411 3.33301 20.8391C3.33301 17.2371 6.253 14.3171 9.855 14.3171V14.3171C10.344 14.3171 10.736 13.9195 10.7816 13.4326C11.2243 8.70174 15.1824 5 19.9997 5C25.1134 5 29.2589 9.1714 29.2589 14.3171H30.1444C33.7463 14.3171 36.6663 17.2371 36.6663 20.8391C36.6663 24.4411 33.7463 27.3611 30.1444 27.3611H29.2589" stroke="rgb(29 78 216)" stroke-width="1.6" stroke-linecap="round" />
+                        </g>
+                    </svg>
+                </div>
+                <h2 class="text-center text-gray-400 text-xs font-normal leading-4 mb-1">.PCAP File Only, Max Size 500 MB</h2>
+                <h4 class="text-center text-gray-900 text-sm font-medium leading-snug">Click or Drag and Drop Your File Here</h4>
+                <input id="dropzone-file" type="file" class="hidden" />
+            </label>
+        </div>
+
+        <!-- "How It Works" container -->
+        <div class="flex flex-col items-center justify-center mt-16 text-center">
+            <div class="text-lg font-semibold text-blue-700">3 Simple Steps</div>
+            <h2 class="text-4xl font-semibold mt-4">How It Works</h2>
+            <p class="text-lg text-gray-600 mt-4">Follow these quick steps to upload and analyze your network traffic.</p>
+        </div>
+
+        <div class="max-w-7xl mx-auto mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-16">
+            <div class="p-6 text-black rounded-2xl flex flex-col items-center text-center shadow-md">
+                <div class="w-12 h-12 mb-4 flex items-center justify-center text-blue-700 text-3xl font-bold">
+                    1.
+                </div>
+                <h3 class="text-xl font-semibold">Capture Your Network Traffic</h3>
+                <p class="text-gray-600 mt-2">Use Wireshark or another tool to record a packet capture.</p>
             </div>
-            <h2 class="text-center text-gray-400 text-xs font-normal leading-4 mb-1">.PCAP File Only, Max Size 500 MB</h2>
-            <h4 class="text-center text-gray-900 text-sm font-medium leading-snug">Click or Drag and Drop Your File Here</h4>
-            <input id="dropzone-file" type="file" class="hidden" />
-        </label>
-    </div>
-</body>
 
+            <div class="p-6 text-black rounded-2xl flex flex-col items-center text-center shadow-md">
+                <div class="w-12 h-12 mb-4 flex items-center justify-center text-blue-700 text-3xl font-bold">
+                    2.
+                </div>
+                <h3 class="text-xl font-semibold">Upload Your .PCAP File</h3>
+                <p class="text-gray-600 mt-2">Drag and drop your file or browse to select it. Max size: 500MB.</p>
+            </div>
+
+            <div class="p-6 text-black rounded-2xl flex flex-col items-center text-center shadow-md">
+                <div class="w-12 h-12 mb-4 flex items-center justify-center text-blue-700 text-3xl font-bold">
+                    3.
+                </div>
+                <h3 class="text-xl font-semibold">Visualize & Analyze</h3>
+                <p class="text-gray-600 mt-2">Gain insights through interactive charts and packet breakdowns.</p>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="max-w-[85rem] p-20 mx-auto mt-16">
+            <div class="flex flex-col items-center justify-center text-center">
+                <div class="text-lg font-semibold text-blue-700">Got a Question?</div>
+                <h2 class="text-4xl font-semibold mt-4">Frequently Asked Questions</h2>
+            </div>
+        </div>
+        <div class="max-w-5xl mx-auto">
+            <div class="grid sm:grid-cols-2 gap-6 md:gap-12">
+                <div>
+                    <h3 class="text-lg font-semibold text-black"> Can I cancel at anytime? </h3>
+                    <p class="mt-2 text-gray-600"> Yes, you can cancel anytime no questions are asked while you cancel but we would highly appreciate if you will give us some feedback. </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-black"> My team has credits. How do we use them? </h3>
+                    <p class="mt-2 text-gray-600"> Once your team signs up for a subscription plan. This is where we sit down, grab a cup of coffee and dial in the details. </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-black"> How does Preline's pricing work? </h3>
+                    <p class="mt-2 text-gray-600"> Our subscriptions are tiered. Understanding the task at hand and ironing out the wrinkles is key. </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-black"> How secure is Preline? </h3>
+                    <p class="mt-2 text-gray-600"> Protecting the data you trust to Preline is our first priority. This part is really crucial in keeping the project in line to completion. </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-black"> Do you offer discounts? </h3>
+                    <p class="mt-2 text-gray-600"> We've built in discounts at each tier for teams. The time has come to bring those ideas and plans to life. </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-black"> What is your refund policy? </h3>
+                    <p class="mt-2 text-gray-600"> We offer refunds. We aim high at being focused on building relationships with our clients and community. </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Include the footer.html file -->
+         {% include 'footer.html' %}
+
+        </div>
+    </body>
 </html>
