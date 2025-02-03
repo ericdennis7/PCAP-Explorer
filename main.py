@@ -6,8 +6,9 @@
 # Update Notes: Created the main.py file and added the basic flask app code.
 
 # Imports
-from flask import Flask, request, render_template, jsonify
 import os
+from datetime import datetime
+from flask import Flask, request, render_template, jsonify
 
 app = Flask(__name__)
 
@@ -24,35 +25,46 @@ def read_imports():
     except FileNotFoundError:
         return ""
 
-# Home Page
+# Index Page
 @app.route("/")
 def index():
     imports = read_imports()
     return render_template("index.html", imports = imports)
 
 # File Upload Route
-@app.route("/success", methods=["GET", "POST"])
+@app.route("/success", methods=["POST"])
 def success():
-    if request.method == "POST":
-        if "file" not in request.files:
-            return jsonify({"error": "No file uploaded"}), 400
+    # Check if file was uploaded
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
 
-        file = request.files["file"]
+    file = request.files["file"]
 
-        if file.filename == "" or not file.filename.endswith(".pcap"):
-            return jsonify({"error": "Invalid file type. Only .pcap files are allowed."}), 400
+    # Check if file is empty or not a .pcap file
+    if file.filename == "" or not file.filename.endswith(".pcap"):
+        return jsonify({"error": "Invalid file type. Only .pcap files are allowed."}), 400
 
-        if request.content_length > 50 * 1024 * 1024:  # 50MB limit
-            return jsonify({"error": "File too large. Max size is 50MB."}), 400
+    # Check if file is too large
+    if request.content_length > 50 * 1024 * 1024:
+        return jsonify({"error": "File too large. Max size is 50MB."}), 400
 
-        filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-        file.save(filepath)
+    # Get the current date and time, formatted as "YYYY-MM-DD_HH:MM:SS"
+    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    
+    # Split the original filename into name and extension
+    file_name, file_extension = os.path.splitext(file.filename)
 
-        imports = read_imports()
-        return render_template("analysis.html", name=file.filename, imports=imports)
-    else:
-        # Handle GET method for the page load if needed
-        return render_template("index.html")
+    # Create a new filename by appending the current date and time
+    new_filename = f"{file_name}_{current_datetime}{file_extension}"
 
+    # Save the file with the new filename
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+    file.save(filepath)
+
+    # Redirect to analysis page
+    imports = read_imports()
+    return render_template("analysis.html", name=new_filename, imports=imports)
+
+# Run the app
 if __name__ == "__main__":
     app.run(debug=True)
