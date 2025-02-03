@@ -23,18 +23,31 @@
 
         <!-- Upload container -->
         <div class="max-w-7xl m-auto pb-20 mt-16">
+            <form id="upload-form" enctype="multipart/form-data" method="POST" action="/success">
             <label for="dropzone-file" class="m-auto flex flex-col items-center justify-center py-12 max-w-2xl border border-blue-700 border-dashed rounded-2xl cursor-pointer bg-gray-50">
                 <div class="mb-3 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
                         <g id="Upload 02">
-                            <path id="icon" d="M16.296 25.3935L19.9997 21.6667L23.7034 25.3935M19.9997 35V21.759M10.7404 27.3611H9.855C6.253 27.3611 3.33301 24.4411 3.33301 20.8391C3.33301 17.2371 6.253 14.3171 9.855 14.3171V14.3171C10.344 14.3171 10.736 13.9195 10.7816 13.4326C11.2243 8.70174 15.1824 5 19.9997 5C25.1134 5 29.2589 9.1714 29.2589 14.3171H30.1444C33.7463 14.3171 36.6663 17.2371 36.6663 20.8391C36.6663 24.4411 33.7463 27.3611 30.1444 27.3611H29.2589" stroke="rgb(29 78 216)" stroke-width="1.6" stroke-linecap="round" />
+                        <path id="icon" d="M16.296 25.3935L19.9997 21.6667L23.7034 25.3935M19.9997 35V21.759M10.7404 27.3611H9.855C6.253 27.3611 3.33301 24.4411 3.33301 20.8391C3.33301 17.2371 6.253 14.3171 9.855 14.3171V14.3171C10.344 14.3171 10.736 13.9195 10.7816 13.4326C11.2243 8.70174 15.1824 5 19.9997 5C25.1134 5 29.2589 9.1714 29.2589 14.3171H30.1444C33.7463 14.3171 36.6663 17.2371 36.6663 20.8391C36.6663 24.4411 33.7463 27.3611 30.1444 27.3611H29.2589" stroke="rgb(29 78 216)" stroke-width="1.6" stroke-linecap="round" />
                         </g>
                     </svg>
                 </div>
-                <h2 class="text-center text-gray-400 text-xs font-normal leading-4 mb-1">.pcap File Only, Max Size 500 MB</h2>
+                <h2 class="text-center text-gray-400 text-xs font-normal leading-4 mb-1">.pcap File Only, Max Size 50 MB</h2>
                 <h4 class="text-center text-gray-900 text-sm font-medium leading-snug">Click or Drag and Drop Your File Here</h4>
-                <input id="dropzone-file" type="file" class="hidden" />
+                <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pcap" required />
             </label>
+            </form>
+            <p id="error-message" class="text-red-600 text-center mt-3 hidden">Invalid file. Please upload a .pcap file under 50MB.</p>
+            <div id="progress-container" class="text-center mt-3 hidden flex flex-col items-center">
+                <div class="flex justify-between mb-1 w-full max-w-xl">
+                    <span id="progress-text" class="text-base font-medium text-black">Uploading...</span>
+                    <span id="progress-percentage" class="text-sm font-medium text-black">0%</span>
+                </div>
+                <div class="w-full max-w-xl h-3 relative rounded-full overflow-hidden">
+                    <div class="w-full h-full bg-gray-200 absolute"></div>
+                    <div id="bar" class="transition-all ease-out duration-1000 h-full bg-green-500 relative"></div>
+                </div>
+            </div>                
         </div>
 
         <!-- "How It Works" container -->
@@ -114,5 +127,72 @@
          {% include 'footer.html' %}
 
         </div>
+
+        <!-- JavaScript for file upload -->
+        <script>
+            document.getElementById("dropzone-file").addEventListener("change", function () {
+                let file = this.files[0];
+                let errorMessage = document.getElementById("error-message");
+                let progressContainer = document.getElementById("progress-container");
+                let progressText = document.getElementById("progress-text");
+                let progressPercentage = document.getElementById("progress-percentage");
+                let progressBar = document.getElementById("bar");
+                let uploadSection = document.getElementById("upload-form");
+        
+                if (!file) return;
+        
+                if (!file.name.endsWith(".pcap")) {
+                    errorMessage.textContent = "Invalid file type. Please upload a .pcap file.";
+                    errorMessage.classList.remove("hidden");
+                    return;
+                }
+                if (file.size > 50 * 1024 * 1024) {
+                    errorMessage.textContent = "File too large. Max size is 50MB.";
+                    errorMessage.classList.remove("hidden");
+                    return;
+                }
+        
+                errorMessage.classList.add("hidden");
+        
+                // Hide the upload section and show the progress bar
+                uploadSection.classList.add("hidden");
+                progressContainer.classList.remove("hidden");
+        
+                let progress = 0;
+                progressBar.style.width = "0%";
+        
+                function updateProgress(status, target) {
+                    progressText.textContent = status;
+                    let interval = setInterval(() => {
+                        if (progress < target) {
+                            progress += 1;
+                            progressBar.style.width = progress + "%"; 
+                            progressPercentage.textContent = progress + "%";
+        
+                            // Update the text based on the progress percentage
+                            if (progress <= 30) {
+                                progressText.textContent = "Uploading...";
+                            } else if (progress <= 89) {
+                                progressText.textContent = "Processing...";
+                            } else {
+                                progressText.textContent = "Finishing...";
+                            }
+                        } else {
+                            clearInterval(interval);
+                            if (progress === 30) {
+                                updateProgress("Processing...", 89);
+                            } else if (progress === 89) {
+                                updateProgress("Finishing...", 100);
+                            }
+                        }
+                    }, 90);
+                }
+        
+                updateProgress("Uploading...", 30);
+                setTimeout(() => document.getElementById("upload-form").submit(), 10000);
+            });
+        </script>
+        
+
     </body>
 </html>

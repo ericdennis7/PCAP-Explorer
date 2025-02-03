@@ -6,12 +6,17 @@
 # Update Notes: Created the main.py file and added the basic flask app code.
 
 # Imports
-from flask import Flask, render_template
+from flask import Flask, request, render_template, jsonify
+import os
 
-# Create the Flask app
 app = Flask(__name__)
 
-# Function to read the contents of imports.txt
+# Set upload directory
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+# Function to read imports.txt
 def read_imports():
     try:
         with open("imports.txt", "r") as file:
@@ -19,11 +24,35 @@ def read_imports():
     except FileNotFoundError:
         return ""
 
-# Route for the home page (index.html)
+# Home Page
 @app.route("/")
 def index():
     imports = read_imports()
-    return render_template("index.html", imports=imports)
+    return render_template("index.html", imports = imports)
+
+# File Upload Route
+@app.route("/success", methods=["GET", "POST"])
+def success():
+    if request.method == "POST":
+        if "file" not in request.files:
+            return jsonify({"error": "No file uploaded"}), 400
+
+        file = request.files["file"]
+
+        if file.filename == "" or not file.filename.endswith(".pcap"):
+            return jsonify({"error": "Invalid file type. Only .pcap files are allowed."}), 400
+
+        if request.content_length > 50 * 1024 * 1024:  # 50MB limit
+            return jsonify({"error": "File too large. Max size is 50MB."}), 400
+
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+        file.save(filepath)
+
+        imports = read_imports()
+        return render_template("analysis.html", name=file.filename, imports=imports)
+    else:
+        # Handle GET method for the page load if needed
+        return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
