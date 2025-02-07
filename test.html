@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Packet Breakdown</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td, th {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .indent {
+            padding-left: 20px;
+        }
+        details summary {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        details {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Network Packet Breakdown</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Field</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Frame 1</td>
+                <td>
+                    <details>
+                        <summary>314 bytes on wire (2512 bits)</summary>
+                        <table>
+                            <tr><td>Encapsulation type</td><td>Ethernet (1)</td></tr>
+                            <tr><td>Arrival Time</td><td>Dec 5, 2004 14:16:24.317453000 EST</td></tr>
+                            <tr><td>Frame Number</td><td>1</td></tr>
+                            <tr><td>Protocols in frame</td><td>eth:ethertype:ip:udp:dhcp</td></tr>
+                        </table>
+                    </details>
+                </td>
+            </tr>
+            <tr>
+                <td>Ethernet II</td>
+                <td>
+                    <details>
+                        <summary>Ethernet Information</summary>
+                        <table>
+                            <tr><td>Source</td><td>GrandstreamN_01:fc:42 (00:0b:82:01:fc:42)</td></tr>
+                            <tr><td>Destination</td><td>Broadcast (ff:ff:ff:ff:ff:ff)</td></tr>
+                            <tr><td>Type</td><td>IPv4 (0x0800)</td></tr>
+                            <tr><td>Bit Details</td>
+                                <td>
+                                    <details>
+                                        <summary>Locally administered address</summary>
+                                        <table>
+                                            <tr><td>LG bit</td><td>Locally administered address</td></tr>
+                                        </table>
+                                    </details>
+                                    <details>
+                                        <summary>Group address (multicast/broadcast)</summary>
+                                        <table>
+                                            <tr><td>IG bit</td><td>Group address</td></tr>
+                                        </table>
+                                    </details>
+                                </td>
+                            </tr>
+                        </table>
+                    </details>
+                </td>
+            </tr>
+            <tr>
+                <td>Internet Protocol Version 4</td>
+                <td>
+                    <details>
+                        <summary>IP Information</summary>
+                        <table>
+                            <tr><td>Source IP</td><td>0.0.0.0</td></tr>
+                            <tr><td>Destination IP</td><td>255.255.255.255</td></tr>
+                            <tr><td>Version</td><td>4</td></tr>
+                        </table>
+                    </details>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Packet Breakdown</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td, th {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        details summary {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        details {
+            margin-bottom: 10px;
+        }
+        .indent {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Network Packet Breakdown</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Field</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Frame Section -->
+            <tr>
+                <td>Frame Information</td>
+                <td>
+                    <details>
+                        <summary>Frame Details</summary>
+                        <pre>{{ data.split('Ethernet II')[0] }}</pre>
+                    </details>
+                </td>
+            </tr>
+            
+            <!-- Ethernet Section -->
+            <tr>
+                <td>Ethernet Information</td>
+                <td>
+                    <details>
+                        <summary>Ethernet II</summary>
+                        <pre>{{ data.split('Ethernet II')[1].split('Internet Protocol Version 4')[0] }}</pre>
+                    </details>
+                </td>
+            </tr>
+            
+            <!-- IP Section -->
+            <tr>
+                <td>IP Information</td>
+                <td>
+                    <details>
+                        <summary>Internet Protocol Version 4</summary>
+                        <pre>{{ data.split('Internet Protocol Version 4')[1] }}</pre>
+                    </details>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

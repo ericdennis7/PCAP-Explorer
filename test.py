@@ -1,17 +1,19 @@
-from scapy.all import rdpcap
+import subprocess
 import json
 
-import pyshark
-import json
-    
-def pcap_to_json(pcap_file):
-    capture = pyshark.FileCapture(pcap_file)
-    packets_data = []
+# Path to TShark executable
+tshark_path = r"C:\Program Files\Wireshark\tshark.exe"
 
-    for packet in capture:
-        packet_data = {}
-        for layer in packet.layers:
-            packet_data[layer.layer_name] = layer._all_fields
-        packets_data.append(packet_data)
+# Path to your input pcap file
+input_pcap = r"C:\Users\ericd\Downloads\dhcp.pcap"  # Update this path to your actual .pcap file
 
-    return packet_data
+# Run TShark to print out the raw pcap content in JSON format
+result = subprocess.run(
+    [tshark_path, "-r", input_pcap, "-V"],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE
+)
+
+# Convert the result to a string
+output = result.stdout.decode("utf-8")
+print(output)

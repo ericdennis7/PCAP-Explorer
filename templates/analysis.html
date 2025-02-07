@@ -10,16 +10,17 @@
     <body class="">
         {% include 'navbar.html' %}
         
-        <div class="max-w-7xl p-6">
-            <div class="flex flex-col items-left justify-left mt-16 text-left">
+        <div class="max-w-7xl mx-auto p-6">
+            <div class="flex flex-col items-start justify-start mt-16 text-left">
                 <h1 class="text-4xl font-semibold mt-4">Dashboard</h1>
                 <p class="text-lg text-gray-600 mt-4">You are currently viewing data for {{ name }}.</p>
             </div>
             
+            <!-- Center the packet-list div -->
             <div class="max-w-7xl mx-auto bg-white shadow-lg rounded-2xl p-6">
                 <div class="space-y-4" id="packet-list"></div>
             </div>
-        </div>
+        </div>            
             
         <script>
             const packetData = {{ packet_data|safe }};
