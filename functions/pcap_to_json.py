@@ -31,12 +31,13 @@ def pcap_to_json(pcap_file):
 
     # Define patterns
     packet_start = r"^Frame \d+:.*"
-    other_headers = r"^(?!Frame \d+: ).\S.*"
-    four_spaces = r"^    (.*)"
+    other_headers = r"^(?!Frame \d+: )\S.*"
+    four_spaces = r"^ {4}(?! ).*"
     eight_spaces = r"^        (.*)"
 
     # Initialize an empty list to store the formatted results
     formatted_results = []
+    inside_eight_space_list = False
     current_frame = None
 
     # Loop through each line and match with the patterns
@@ -58,12 +59,13 @@ def pcap_to_json(pcap_file):
         
         # If the line matches the other headers pattern, extract the key-value pairs
         elif other_headers_match:
+            print(f"Matched other_header: {line}")
             stripped_line = line.strip()
             if ":" in stripped_line:
                 key, value = line.split(":", 1)
                 formatted_line = f"""        }}\n        '{key.strip()}': '{value.strip()}' {{"""
             else:
-                formatted_line = f"""            '{stripped_line}'"""
+                formatted_line = f"""        '{stripped_line}' {{"""
             formatted_results.append(formatted_line)
 
         # If the line matches the four spaces pattern, extract the key-value pairs
@@ -73,11 +75,20 @@ def pcap_to_json(pcap_file):
                 key, value = stripped_line.split(":", 1)
                 formatted_line = f"""            '{key.strip()}': '{value.strip()}',"""
             else:
-                formatted_line = f"""            '{stripped_line}'"""
+                formatted_line = f"""            '{stripped_line}',"""
             formatted_results.append(formatted_line)
 
+        # If the line matches the eight spaces pattern, extract the key-value pairs
+        elif eight_space_match:
+            stripped_line = line.strip()
+            if ":" in stripped_line:
+                key, value = stripped_line.split(":", 1)
+                formatted_line = f"""                '{key.strip()}': '{value.strip()}',"""
+            else:
+                formatted_line = f"""                '{stripped_line}'"""
+            formatted_results.append(formatted_line)
 
-
+    formatted_results.append("        }\n    }\n}")
 
     # Now join all the formatted results into a single string
     final_output = "\n".join(formatted_results)
