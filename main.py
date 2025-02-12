@@ -11,7 +11,7 @@ from datetime import datetime
 from flask import Flask, request, render_template, jsonify
 
 # Function imports
-from functions.pcap_to_json import pcap_to_json
+from functions.data_extraction import raw_pcap_json, start_date
 
 app = Flask(__name__)
 
@@ -37,31 +37,40 @@ def index():
 # File Upload Route
 @app.route("/success", methods=["POST"])
 def success():
+    # Check if a file was uploaded.
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files["file"]
 
+    # Check if the file is a .pcap file. If not, return an error message.
     if file.filename == "" or not file.filename.endswith(".pcap"):
         return jsonify({"error": "Invalid file type. Only .pcap files are allowed."}), 400
 
+    # Check if the file is too large. If so, return an error message.
     if request.content_length > 50 * 1024 * 1024:
         return jsonify({"error": "File too large. Max size is 50MB."}), 400
 
+    # Save the uploaded .pcap file to the uploads folder.
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     file_name, file_extension = os.path.splitext(file.filename)
     new_filename = f"{file_name}_{current_datetime}{file_extension}"
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
     file.save(filepath)
 
-    # Convert the .pcap file to JSON
+    # Attempting to process the uploaded .pcap file. If an error occurs, return an error message.
     try:
-        packet_data = pcap_to_json(filepath)
+        packet_data = raw_pcap_json(filepath)
+        start_date_value = start_date(packet_data)
     except Exception as e:
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
+    # Remove the uploaded .pcap file after processing
+    os.remove(filepath)
+
+    # Render the analysis.html template with the packet data and imports.
     imports = read_imports()
-    return render_template("analysis.html", name=file_name + file_extension, imports=imports, packet_data=packet_data)
+    return render_template("analysis.html", name=file_name + file_extension, imports=imports, packet_data=packet_data, start_date=start_date_value)
 
 # Run the app
 if __name__ == "__main__":

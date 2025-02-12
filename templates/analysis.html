@@ -7,74 +7,44 @@
         <title>Uploading File</title>
     </head>
     
-    <body class="">
+    <body class="font-mono">
         {% include 'navbar.html' %}
         
         <div class="max-w-7xl mx-auto p-6">
-            <div class="flex flex-col items-start justify-start mt-16 text-left">
-                <h1 class="text-4xl font-semibold mt-4">Dashboard</h1>
-                <p class="text-lg text-gray-600 mt-4">You are currently viewing data for {{ name }}.</p>
+            <div class="flex flex-col items-start justify-start mt-8 text-left">
+                <h1 class="text-4xl font-semibold mt-4 flex items-center justify-between w-full">
+                    <span>Dashboard</span>
+                    <!-- Toggle Switch -->
+                    <label for="toggle" class="flex items-center cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" id="toggle" class="hidden" />
+                            <div class="block bg-gray-400 w-10 h-6 rounded-full"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+                        </div>
+                    </label>
+                </h1>
             </div>
             
-            <!-- Center the packet-list div -->
+            <!-- Center the dropdown-container div, hidden by default -->
             <div class="max-w-7xl mx-auto bg-white shadow-lg rounded-2xl p-6">
-                <div class="space-y-4" id="packet-list"></div>
+                <div class="space-y-4 hidden" id="dropdown-container">
+                    <p>Name: {{ name }}</p>
+                    <p>Start Date: {{ start_date }}</p>
+                </div>
             </div>
         </div>            
-            
-        <script>
-            const packetData = {{ packet_data|safe }};
-    
-            const packetList = document.getElementById('packet-list');
-    
-            packetData.forEach((packet, index) => {
-                const packetCard = document.createElement('div');
-                packetCard.className = 'border rounded-lg shadow-sm';
-    
-                const header = document.createElement('div');
-                header.className = 'flex justify-between items-center bg-gray-200 p-4 cursor-pointer';
-                header.innerHTML = `<span class="font-medium">Packet ${index + 1}</span><span class="text-sm text-gray-600">Click to expand</span>`;
-    
-                const content = document.createElement('div');
-                content.className = 'hidden p-4 bg-gray-50';
-    
-                // Create hierarchical structure for packet layers
-                for (const layer in packet) {
-                    const layerDiv = document.createElement('div');
-                    layerDiv.className = 'mb-2';
-    
-                    const layerHeader = document.createElement('div');
-                    layerHeader.className = 'font-semibold text-gray-800 cursor-pointer';
-                    layerHeader.textContent = layer;
-    
-                    const layerContent = document.createElement('div');
-                    layerContent.className = 'ml-4 mt-2 hidden text-sm text-gray-700';
-    
-                    for (const field in packet[layer]) {
-                        const fieldDiv = document.createElement('div');
-                        fieldDiv.textContent = `${field}: ${packet[layer][field]}`;
-                        layerContent.appendChild(fieldDiv);
-                    }
-    
-                    layerHeader.addEventListener('click', () => {
-                        layerContent.classList.toggle('hidden');
-                    });
-    
-                    layerDiv.appendChild(layerHeader);
-                    layerDiv.appendChild(layerContent);
-                    content.appendChild(layerDiv);
-                }
-    
-                header.addEventListener('click', () => {
-                    content.classList.toggle('hidden');
-                });
-    
-                packetCard.appendChild(header);
-                packetCard.appendChild(content);
-                packetList.appendChild(packetCard);
-            });
-        </script>
         
         {% include 'footer.html' %}
+
+        <script>
+            // Get the toggle switch and dropdown-container
+            const toggle = document.getElementById('toggle');
+            const dropdownContainer = document.getElementById('dropdown-container');
+
+            // Toggle visibility when checkbox changes
+            toggle.addEventListener('change', () => {
+                dropdownContainer.classList.toggle('hidden'); // Toggle the 'hidden' class
+            });
+        </script>
     </body>
 </html>
