@@ -1,50 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        {{ imports|safe }}
-        <title>Uploading File</title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{ imports|safe }}
+    <title>Uploading File</title>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+</head>
+
+<body class="font-mono">
+    {% include 'navbar.html' %}
     
-    <body class="font-mono">
-        {% include 'navbar.html' %}
-        
-        <div class="max-w-7xl mx-auto p-6">
-            <div class="flex flex-col items-start justify-start mt-8 text-left">
+    <div class="max-w-7xl w-full mx-auto p-6">
+        <div class="flex flex-col w-full">
+            <div class="border-b border-slate-200 w-full">
                 <h1 class="text-4xl font-semibold mt-4 flex items-center justify-between w-full">
-                    <span>Dashboard</span>
-                    <!-- Toggle Switch -->
-                    <label for="toggle" class="flex items-center cursor-pointer">
-                        <div class="relative">
-                            <input type="checkbox" id="toggle" class="hidden" />
-                            <div class="block bg-gray-400 w-10 h-6 rounded-full"></div>
-                            <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
-                        </div>
-                    </label>
+                    <span>PCAP Analyzer</span>
                 </h1>
-            </div>
-            
-            <!-- Center the dropdown-container div, hidden by default -->
-            <div class="max-w-7xl mx-auto bg-white shadow-lg rounded-2xl p-6">
-                <div class="space-y-4 hidden" id="dropdown-container">
-                    <p>Name: {{ name }}</p>
-                    <p>Start Date: {{ start_date }}</p>
+
+                <hr class="h-px my-8 bg-slate-200 border-0">
+
+                <h2 class="font-bold text-xl">File Statistics</h2>
+    
+                <div class="text-base text-slate-900 w-full">
+                    <!-- File Name Tooltip -->
+                    <span class="flex items-center mt-6">
+                        <div class="relative w-max group">
+                            <button type="button" class="text-black">
+                                (?)&nbsp;
+                            </button>
+                            <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
+                                File name is the name of the file that was uploaded by the user.
+                            </div>
+                        </div>
+                        File Name:&nbsp;<p class="font-bold">{{ file_info.name }}</p>
+                    </span>                    
+                
+                    <!-- File Size Tooltip -->
+                    <span class="flex items-center mt-4">
+                        <div class="relative w-max group">
+                            <button type="button" class="text-black">
+                                (?)&nbsp;
+                            </button>
+                            <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
+                                The size of the .pcap file that was uploaded by the user.
+                            </div>
+                        </div>
+                        File Size:&nbsp;<span class="font-bold">{{ file_info.size_mb }}</span>
+                    </span>
+                
+                    <!-- Upload Time Tooltip -->
+                    <span class="flex items-center mt-4">
+                        <div class="relative w-max group">
+                            <button type="button" class="text-black">
+                                (?)&nbsp;
+                            </button>
+                            <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
+                                The time at which the file was uploaded by the user.
+                            </div>
+                        </div>
+                        Upload Time:&nbsp;<span class="font-bold">{{ file_info.submission_date }}</span>
+                    </span>
+                
+                    <!-- Start Date Tooltip -->
+                    <span class="flex items-center mt-4 mb-8">
+                        <div class="relative w-max group">
+                            <button type="button" class="text-black">
+                                (?)&nbsp;
+                            </button>
+                            <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
+                                The date and time of the first packet recorded in the .pcap file.
+                            </div>
+                        </div>
+                        Start Date:&nbsp;<span class="font-bold">{{ file_info.start_date }}</span>
+                    </span>
+                </div>
+                
                 </div>
             </div>
-        </div>            
+        </div>
+    </div>
+          
+
+    {% include 'footer.html' %}
+
+    <script>
+        function toggleAccordion(index) {
+            const content = document.getElementById(`content-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
         
-        {% include 'footer.html' %}
+            // SVG for Minus icon
+            const minusSVG = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                    <path d="M3.75 7.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z" />
+                </svg>
+            `;
+        
+            // SVG for Plus icon
+            const plusSVG = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                    <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
+                </svg>
+            `;
+        
+            // Toggle the content's max-height for smooth opening and closing
+            if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                content.style.maxHeight = '0';
+                icon.innerHTML = plusSVG;
+            } else {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.innerHTML = minusSVG;
+            }
+        }
+    </script>
 
-        <script>
-            // Get the toggle switch and dropdown-container
-            const toggle = document.getElementById('toggle');
-            const dropdownContainer = document.getElementById('dropdown-container');
-
-            // Toggle visibility when checkbox changes
-            toggle.addEventListener('change', () => {
-                dropdownContainer.classList.toggle('hidden'); // Toggle the 'hidden' class
-            });
-        </script>
-    </body>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+</body>
 </html>

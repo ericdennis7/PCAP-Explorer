@@ -1,6 +1,7 @@
 # This file extracts data from a .pcap file for statistical analysis.
 import json
 import subprocess
+from datetime import datetime
 
 def raw_pcap_json(filepath):
 
@@ -30,7 +31,14 @@ def raw_pcap_json(filepath):
 # Extract the start date from the packet data
 def start_date(packet_data):
     try:
-        date = packet_data[0]["_source"]["layers"]["frame"]["frame.time"]
-        return date
+        date = "Dec  5, 2004 14:16:24.317453000 Eastern Standard Time"
+        
+        # Remove the timezone and fix microseconds length
+        date_part = " ".join(date.split()[:-3])  # Remove "Eastern Standard Time"
+        date_part = date_part[:date_part.find(".") + 7]  # Keep only 6 microseconds digits
+
+        dt = datetime.strptime(date_part, "%b %d, %Y %H:%M:%S.%f")
+        formatted_date = dt.strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/")
+        return formatted_date
     except KeyError:
         return "Start date not found in packet data"

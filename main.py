@@ -7,6 +7,7 @@
 
 # Imports
 import os
+import humanize
 from datetime import datetime
 from flask import Flask, request, render_template, jsonify
 
@@ -37,6 +38,7 @@ def index():
 # File Upload Route
 @app.route("/success", methods=["POST"])
 def success():
+
     # Check if a file was uploaded.
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
@@ -58,19 +60,30 @@ def success():
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
     file.save(filepath)
 
-    # Attempting to process the uploaded .pcap file. If an error occurs, return an error message.
+    # Extract packet data
+    packet_data = raw_pcap_json(filepath)
+    print(packet_data)
+
     try:
-        packet_data = raw_pcap_json(filepath)
-        start_date_value = start_date(packet_data)
+        # Collect file characteristics
+        file_info = {
+            "name": file_name + file_extension,
+            "size_mb": humanize.naturalsize(os.path.getsize(filepath)), # MB
+            "submission_date": datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/"),
+            "start_date": start_date(packet_data)
+        }
     except Exception as e:
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
     # Remove the uploaded .pcap file after processing
     os.remove(filepath)
 
-    # Render the analysis.html template with the packet data and imports.
+    # Render the analysis.html template with extracted data
     imports = read_imports()
-    return render_template("analysis.html", name=file_name + file_extension, imports=imports, packet_data=packet_data, start_date=start_date_value)
+    return render_template("analysis.html", 
+                           imports=imports, 
+                           file_info=file_info, 
+                           packet_data=packet_data)
 
 # Run the app
 if __name__ == "__main__":
