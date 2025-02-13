@@ -22,119 +22,15 @@
                 <h2 class="font-bold text-xl">File Statistics</h2>
                 
                 <!-- Grid Layout -->
-                <div class="grid grid-cols-1 md:grid-cols-2 md:gap-6 md:gap-0 text-base text-slate-900 w-full">
-                    <div>
-                        <!-- First Column -->
-                        <span class="flex items-center mt-6">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    File name is the name of the file that was uploaded by the user.
-                                </div>
-                            </div>
-                            File Name:&nbsp;<p class="font-bold truncate">{{ file_info.name }}</p>
-                        </span>
-                
-                        <span class="flex items-center mt-4">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The size of the .pcap file that was uploaded by the user.
-                                </div>
-                            </div>
-                            File Size:&nbsp;<span class="font-bold truncate">{{ file_info.size_mb }}</span>
-                        </span>
-                
-                        <span class="flex items-center mt-4">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The time at which the file was uploaded by the user.
-                                </div>
-                            </div>
-                            Upload:&nbsp;<span class="font-bold truncate">{{ file_info.submission_date }}</span>
-                        </span>
-                
-                        <span class="flex items-center mt-4">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The date and time of the first packet recorded in the .pcap file.
-                                </div>
-                            </div>
-                            Start:&nbsp;<span class="font-bold truncate">{{ file_info.start_date }}</span>
-                        </span>
-                
-                        <span class="flex items-center mt-4">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The date and time of the last packet recorded in the .pcap file.
-                                </div>
-                            </div>
-                            End:&nbsp;<span class="font-bold truncate">{{ file_info.end_date }}</span>
-                        </span>
-                    </div>
-                
-                    <div class="mt-0 md:mt-6">
-                        <!-- Second Column -->
-                        <span class="flex items-center mt-4 md:mt-0 md:pt-0">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The time difference between the first and last packet.
-                                </div>
-                            </div>
-                            Time Span:&nbsp;<span class="font-bold truncate">{{ file_info.time_difference }}</span>
-                        </span>
-                
-                        <span class="flex items-center mt-4">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The total number of packets in the .pcap file.
-                                </div>
-                            </div>
-                            Total Packets:&nbsp;<span class="font-bold truncate">{{ file_info.total_packets }}</span>
-                        </span>
-                
-                        <span class="flex items-center mt-4">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The total number of unique IP addresses in the .pcap file.
-                                </div>
-                            </div>
-                            Unique IPs:&nbsp;<span class="font-bold truncate">{{ file_info.unique_ip_addresses }}</span>
-                        </span>
-                
-                        <span class="flex items-center mt-4">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The number of unique IP-to-IP flows.
-                                </div>
-                            </div>
-                            Unique Flows:&nbsp;<span class="font-bold truncate">{{ file_info.unique_ip_flows }}</span>
-                        </span>
-                
-                        <span class="flex items-center mt-4">
-                            <div class="relative w-max group">
-                                <button type="button" class="text-black">﹖&nbsp;</button>
-                                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                                    The MD5 hash of the uploaded file.
-                                </div>
-                            </div>
-                            MD5:&nbsp;<span class="font-bold truncate truncate">{{ file_info.md5_hash }}</span>
-                        </span>
-                    </div>
-                </div>
+                {% include 'file_statistics.html' %}
+
+                <hr class="h-px my-8 bg-slate-200 border-0">
+
+                <h2 class="font-bold text-xl">File Analytics</h2>
             </div>
         </div>
     </div>
           
-
     {% include 'footer.html' %}
-
 </body>
 </html>
