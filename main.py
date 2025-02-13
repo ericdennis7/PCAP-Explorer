@@ -12,7 +12,7 @@ from datetime import datetime
 from flask import Flask, request, render_template, jsonify
 
 # Function imports
-from functions.data_extraction import raw_pcap_json, start_date
+from functions.data_extraction import *
 
 app = Flask(__name__)
 
@@ -62,16 +62,23 @@ def success():
 
     # Extract packet data
     packet_data = raw_pcap_json(filepath)
-    print(packet_data)
 
     try:
         # Collect file characteristics
+        start_date, end_date, time_diff = packet_times_and_difference(packet_data)  # Using the updated function
+        
         file_info = {
             "name": file_name + file_extension,
-            "size_mb": humanize.naturalsize(os.path.getsize(filepath)), # MB
+            "size_mb": humanize.naturalsize(os.path.getsize(filepath)),  # MB
             "submission_date": datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/"),
-            "start_date": start_date(packet_data)
+            "start_date": start_date,
+            "end_date": end_date,
+            "time_difference": time_diff,
+            "total_packets": total_packets(packet_data)
         }
+    except Exception as e:
+        return jsonify({"error": f"Error processing file: {str(e)}"}), 500
+
     except Exception as e:
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
