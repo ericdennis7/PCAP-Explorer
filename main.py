@@ -52,6 +52,8 @@ def success():
     # Check if the file is too large. If so, return an error message.
     if request.content_length > 50 * 1024 * 1024:
         return jsonify({"error": "File too large. Max size is 50MB."}), 400
+    
+    file_md5 = md5_hash(file)
 
     # Save the uploaded .pcap file to the uploads folder.
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -65,16 +67,20 @@ def success():
 
     try:
         # Collect file characteristics
-        start_date, end_date, time_diff = packet_times_and_difference(packet_data)  # Using the updated function
+        start_date, end_date, time_diff = packet_times_and_difference(packet_data)
+        ip_count, ip_flow_count = unique_ips_and_flows(packet_data)
         
         file_info = {
             "name": file_name + file_extension,
             "size_mb": humanize.naturalsize(os.path.getsize(filepath)),  # MB
+            "md5_hash": file_md5,
             "submission_date": datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/"),
             "start_date": start_date,
             "end_date": end_date,
             "time_difference": time_diff,
-            "total_packets": total_packets(packet_data)
+            "total_packets": total_packets(packet_data),
+            "unique_ip_addresses": ip_count,
+            "unique_ip_flows": ip_flow_count
         }
     except Exception as e:
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500

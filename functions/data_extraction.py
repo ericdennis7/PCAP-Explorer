@@ -1,5 +1,6 @@
 # This file extracts data from a .pcap file for statistical analysis.
 import json
+import hashlib
 import humanize
 import subprocess
 from datetime import datetime
@@ -64,3 +65,53 @@ def total_packets(packet_data):
         return total
     except Exception as e:
         return "-"
+
+# Count of unique IP addresses
+def unique_ips_and_flows(packet_data):
+    unique_ip_set = set()  # Stores all unique IPs
+    unique_flows = set()   # Stores all unique (src, dst) pairs
+
+    try:
+        for packet in packet_data:
+            layers = packet["_source"]["layers"]
+
+            # Extract IPv4 source and destination
+            src_ip = layers.get("ip", {}).get("ip.src")
+            dst_ip = layers.get("ip", {}).get("ip.dst")
+
+            # Extract IPv6 source and destination
+            src_ipv6 = layers.get("ipv6", {}).get("ipv6.src")
+            dst_ipv6 = layers.get("ipv6", {}).get("ipv6.dst")
+
+            # Add unique IPs to the set
+            if src_ip:
+                unique_ip_set.add(src_ip)
+            if dst_ip:
+                unique_ip_set.add(dst_ip)
+            if src_ipv6:
+                unique_ip_set.add(src_ipv6)
+            if dst_ipv6:
+                unique_ip_set.add(dst_ipv6)
+
+            # Add unique IP-to-IP flows to the set
+            if src_ip and dst_ip:
+                unique_flows.add((src_ip, dst_ip))
+            if src_ipv6 and dst_ipv6:
+                unique_flows.add((src_ipv6, dst_ipv6))
+
+        return len(unique_ip_set), len(unique_flows)
+
+    except KeyError:
+        return 0, 0
+
+# Getting the MD5 hash of the .pcap file.
+def md5_hash(file_storage):
+    """Compute MD5 hash of an uploaded file (Flask FileStorage object)."""
+    hasher = hashlib.md5()
+    try:
+        while chunk := file_storage.read(4096):  # Read directly from FileStorage
+            hasher.update(chunk)
+        file_storage.seek(0)  # Reset file pointer after reading
+        return hasher.hexdigest()
+    except Exception as e:
+        return f"Error processing file: {str(e)}"
