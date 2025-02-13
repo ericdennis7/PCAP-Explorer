@@ -66,10 +66,11 @@ def total_packets(packet_data):
     except Exception as e:
         return "-"
 
-# Count of unique IP addresses
+# Count of unique IPv4 and IPv6 addresses and flows, with combined IP count
 def unique_ips_and_flows(packet_data):
-    unique_ip_set = set()  # Stores all unique IPs
-    unique_flows = set()   # Stores all unique (src, dst) pairs
+    unique_ipv4_set = set()  # Stores all unique IPv4 IPs
+    unique_ipv6_set = set()  # Stores all unique IPv6 IPs
+    unique_flows = set()     # Stores all unique (src, dst) pairs
 
     try:
         for packet in packet_data:
@@ -83,26 +84,31 @@ def unique_ips_and_flows(packet_data):
             src_ipv6 = layers.get("ipv6", {}).get("ipv6.src")
             dst_ipv6 = layers.get("ipv6", {}).get("ipv6.dst")
 
-            # Add unique IPs to the set
+            # Add unique IPv4 IPs to the set
             if src_ip:
-                unique_ip_set.add(src_ip)
+                unique_ipv4_set.add(src_ip)
             if dst_ip:
-                unique_ip_set.add(dst_ip)
-            if src_ipv6:
-                unique_ip_set.add(src_ipv6)
-            if dst_ipv6:
-                unique_ip_set.add(dst_ipv6)
+                unique_ipv4_set.add(dst_ip)
 
-            # Add unique IP-to-IP flows to the set
+            # Add unique IPv6 IPs to the set
+            if src_ipv6:
+                unique_ipv6_set.add(src_ipv6)
+            if dst_ipv6:
+                unique_ipv6_set.add(dst_ipv6)
+
+            # Add unique IP-to-IP flows to the set (separating IPv4 and IPv6 flows)
             if src_ip and dst_ip:
                 unique_flows.add((src_ip, dst_ip))
             if src_ipv6 and dst_ipv6:
                 unique_flows.add((src_ipv6, dst_ipv6))
 
-        return len(unique_ip_set), len(unique_flows)
+        # Calculate the combined IP count
+        combined_ip_count = len(unique_ipv4_set) + len(unique_ipv6_set)
+
+        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows)
 
     except KeyError:
-        return 0, 0
+        return 0, 0, 0, 0
 
 # Getting the MD5 hash of the .pcap file.
 def md5_hash(file_storage):

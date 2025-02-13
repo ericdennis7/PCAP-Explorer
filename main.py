@@ -68,7 +68,7 @@ def success():
     try:
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
-        ip_count, ip_flow_count = unique_ips_and_flows(packet_data)
+        ip_count, ipv4_addresses, ipv6_addresses, ip_flow_count = unique_ips_and_flows(packet_data)
         
         file_info = {
             "name": file_name + file_extension,
@@ -79,6 +79,8 @@ def success():
             "end_date": end_date,
             "time_difference": time_diff,
             "total_packets": total_packets(packet_data),
+            "ipv4": ipv4_addresses,
+            "ipv6": ipv6_addresses,
             "unique_ip_addresses": ip_count,
             "unique_ip_flows": ip_flow_count
         }

@@ -19,14 +19,62 @@
 
                 <hr class="h-px my-8 bg-slate-200 border-0">
 
-                <h2 class="font-bold text-xl">File Statistics</h2>
+                <h2 class="font-bold text-2xl mb-6">File Statistics</h2>
                 
                 <!-- Grid Layout -->
                 {% include 'file_statistics.html' %}
 
                 <hr class="h-px my-8 bg-slate-200 border-0">
 
-                <h2 class="font-bold text-xl">File Analytics</h2>
+                <h2 class="font-bold text-2xl mb-6">File Analytics</h2>
+
+                <div style="width: 50%; margin: 0 auto;">
+                    <canvas id="ipChart"></canvas>
+                </div>
+            
+                <script>
+                    // Get the data from the Flask template
+                    const ipv4Count = {{ file_info.ipv4 }};
+                    const ipv6Count = {{ file_info.ipv6 }};
+            
+                    // Create a doughnut chart
+                    const ctx = document.getElementById('ipChart').getContext('2d');
+                    const ipChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['IPv4', 'IPv6'],
+                            datasets: [{
+                                data: [ipv4Count, ipv6Count],  // Data from Flask
+                                backgroundColor: ['#00b894', '#0984e3'],
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            cutout: '70%',
+                            borderRadius: 17,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            return tooltipItem.label + ': ' + tooltipItem.raw;
+                                        }
+                                    }
+                                }
+                            },
+                            // elements : {
+                            //     arc: {
+                            //         borderWidth: 10,
+                            //         borderColor: 'white'
+                            //     }
+                            // }
+                        }
+                    });
+                </script>
+                
             </div>
         </div>
     </div>
