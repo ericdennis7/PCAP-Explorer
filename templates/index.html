@@ -7,6 +7,33 @@
         {{ imports|safe }}
         <!-- Importing content from 'imports.txt' -->
         <title>PCAP Visualizer</title>
+        <style>
+            .loader {
+                width: 50px;
+                aspect-ratio: 1;
+                display: grid;
+                border: 4px solid #0000;
+                border-radius: 50%;
+                border-right-color: #25b09b;
+                animation: l15 1s infinite linear;
+            }
+            .loader::before,
+            .loader::after {    
+                content: "";
+                grid-area: 1/1;
+                margin: 2px;
+                border: inherit;
+                border-radius: 50%;
+                animation: l15 2s infinite;
+            }
+            .loader::after {
+                margin: 8px;
+                animation-duration: 3s;
+            }
+            @keyframes l15{ 
+                100%{transform: rotate(1turn)}
+            }
+        </style>
     </head>
     <body class="">
         <!-- Include the navbar.html file -->
@@ -24,7 +51,7 @@
         <!-- Upload container -->
         <div class="max-w-7xl m-auto pb-20 mt-16">
             <!-- Dropzone container -->
-            <label for="dropzone-file" class="m-auto flex flex-col items-center justify-center py-12 max-w-2xl border border-blue-700 border-dashed rounded-2xl cursor-pointer bg-gray-50">
+            <label for="dropzone-file" id="upload-box" class="m-auto flex flex-col items-center justify-center py-12 max-w-2xl border border-blue-700 border-dashed rounded-2xl cursor-pointer bg-gray-50">
                 <div class="mb-3 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
                         <g id="Upload 02">
@@ -43,10 +70,12 @@
             <!-- Error message -->
             <p id="error-message" class="text-red-600 text-center mt-3 hidden">Invalid file. Please upload a .pcap file under 50MB.</p>
 
-            <!-- Loading container -->
-            <div id="loading" class="max-w-7xl m-auto" style="display: none;">
-                <p>Processing your file, please wait...</p>
-                <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+            <!-- Centered Wrapper -->
+            <div class="flex justify-center mt-5">
+                <div id="loading" class="text-center" style="display: none;">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-2">Uploading & processing your file...</p>
+                </div>
             </div>
         </div>
 
@@ -131,51 +160,57 @@
         <!-- JavaScript for file upload -->
         <script>
             document.getElementById("dropzone-file").addEventListener("change", function () {
-                let file = this.files[0];
-                let errorMessage = document.getElementById("error-message");
-        
-                // Validate file type and size
-                if (!file) return;
-        
-                if (!file.name.endsWith(".pcap")) {
-                    errorMessage.textContent = "Invalid file type. Please upload a .pcap file.";
-                    errorMessage.classList.remove("hidden");
-                    return;
+            let file = this.files[0];
+            let errorMessage = document.getElementById("error-message");
+            let uploadBox = document.getElementById("upload-box");
+            let loading = document.getElementById("loading");
+
+            // Validate file type and size
+            if (!file) return;
+
+            if (!file.name.endsWith(".pcap")) {
+                errorMessage.textContent = "Invalid file type. Please upload a .pcap file.";
+                errorMessage.classList.remove("hidden");
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) {  // Max 50MB
+                errorMessage.textContent = "File too large. Max size is 50MB.";
+                errorMessage.classList.remove("hidden");
+                return;
+            }
+
+            errorMessage.classList.add("hidden");
+
+            // Hide upload box and show loading animation
+            uploadBox.style.display = "none";
+            loading.style.display = "block";
+
+            let formData = new FormData();
+            formData.append("file", file);
+
+            // Send the form data via AJAX
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.error);
+                    // Show upload box again in case of error
+                    uploadBox.style.display = "flex";
+                    loading.style.display = "none";
                 }
-        
-                if (file.size > 50 * 1024 * 1024) {  // Max 50MB
-                    errorMessage.textContent = "File too large. Max size is 50MB.";
-                    errorMessage.classList.remove("hidden");
-                    return;
-                }
-        
-                errorMessage.classList.add("hidden");
-        
-                // Show loading animation and hide form content
-                document.getElementById("loading").style.display = "block";
-        
-                let formData = new FormData();
-                formData.append("file", file);
-        
-                // Send the form data via AJAX
-                fetch("/upload", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect;  // Redirect to analysis.html
-                    } else {
-                        alert(data.error);
-                    }
-                })
-                .catch(error => console.error("Error:", error))
-                .finally(() => {
-                    // Hide loading animation
-                    document.getElementById("loading").style.display = "none";
-                });
+            })
+            .catch(error => console.error("Error:", error))
+            .finally(() => {
+                // Hide loading animation if there's an issue
+                loading.style.display = "none";
             });
+        });
         </script>
         
     </body>
