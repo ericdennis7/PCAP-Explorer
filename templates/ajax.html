@@ -1,0 +1,53 @@
+<body>
+    <div id="loading" style="display: none;">
+        <p>Processing your file, please wait...</p>
+        <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+    </div>
+
+    <div id="content">
+        <h3>Upload a .pcap File:</h3>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="file" id="fileInput">
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById("uploadForm").onsubmit = function(event) {
+        event.preventDefault();  // Prevent normal form submission
+        
+        let formData = new FormData();
+        let fileInput = document.getElementById("fileInput").files[0];
+        if (!fileInput) {
+            alert("Please select a file first.");
+            return;
+        }
+        formData.append("file", fileInput);
+
+        // Show loading animation and hide form
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("content").style.display = "none";
+
+        fetch("/upload", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect;  // Redirect to analysis.html
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error))
+        .finally(() => {
+            // Hide loading animation and show result
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("content").style.display = "block";
+        });
+    };
+    </script>
+</body>
