@@ -112,12 +112,11 @@ def unique_ips_and_flows(packet_data):
 
 # Getting the MD5 hash of the .pcap file.
 def md5_hash(file_storage):
-    """Compute MD5 hash of an uploaded file (Flask FileStorage object)."""
     hasher = hashlib.md5()
     try:
-        while chunk := file_storage.read(4096):  # Read directly from FileStorage
+        while chunk := file_storage.read(4096):
             hasher.update(chunk)
-        file_storage.seek(0)  # Reset file pointer after reading
+        file_storage.seek(0)
         return hasher.hexdigest()
     except Exception as e:
         return f"Error processing file: {str(e)}"

@@ -36,15 +36,15 @@
                     // Get the data from the Flask template
                     const ipv4Count = {{ file_info.ipv4 }};
                     const ipv6Count = {{ file_info.ipv6 }};
-            
+                
                     // Create a doughnut chart
                     const ctx = document.getElementById('ipChart').getContext('2d');
                     const ipChart = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
-                            labels: ['IPv4', 'IPv6'],
+                            labels: ['IPv6', 'IPv4'],
                             datasets: [{
-                                data: [ipv4Count, ipv6Count],  // Data from Flask
+                                data: [ipv4Count, ipv6Count],
                                 backgroundColor: ['#00b894', '#0984e3'],
                                 hoverOffset: 4
                             }]
@@ -58,19 +58,29 @@
                                     position: 'top',
                                 },
                                 tooltip: {
+                                    borderWidth: 0,
                                     callbacks: {
                                         label: function(tooltipItem) {
-                                            return tooltipItem.label + ': ' + tooltipItem.raw;
+                                            let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
+                                            let value = tooltipItem.raw;
+                                            return `${label}: ${value}`;
+                                        },
+                                        labelColor: function (context) {
+                                            return {
+                                                borderColor: "rgba(0,0,0,0)",
+                                                backgroundColor: context.dataset.backgroundColor[context.dataIndex],
+                                                borderWidth: 0
+                                            };
                                         }
                                     }
                                 }
                             },
-                            // elements : {
-                            //     arc: {
-                            //         borderWidth: 10,
-                            //         borderColor: 'white'
-                            //     }
-                            // }
+                            elements: {
+                                arc: {
+                                    borderWidth: 10,
+                                    borderColor: 'white'
+                                }
+                            }
                         }
                     });
                 </script>
