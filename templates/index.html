@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {{ imports|safe }}
         <!-- Importing content from 'imports.txt' -->
-        <title>PCAP Visualizer</title>
+        <title>PCAPNG Visualizer</title>
         <style>
             .loader {
                 width: 50px;
@@ -14,7 +14,7 @@
                 display: grid;
                 border: 4px solid #0000;
                 border-radius: 50%;
-                border-right-color: #25b09b;
+                border-right-color: rgb(29 78 216);
                 animation: l15 1s infinite linear;
             }
             .loader::before,
@@ -44,7 +44,7 @@
         <!-- Head container -->
         <div class="flex flex-col items-center justify-center mt-16 text-center">
             <div class="text-lg font-semibold text-blue-700">Fast. Secure. Anonymous.</div>
-            <h1 class="text-4xl font-semibold mt-4">Upload & Analyze Your .pcap File</h1>
+            <h1 class="text-4xl font-semibold mt-4">Upload & Analyze Your .pcapng or .pcap File</h1>
             <p class="text-lg text-gray-600 mt-4">Gain detailed insights into your network traffic with a simple file upload.</p>
         </div>
 
@@ -59,16 +59,15 @@
                         </g>
                     </svg>
                 </div>
-                <h2 class="text-center text-gray-400 text-xs font-normal leading-4 mb-1">.pcap File Only, Max Size 50 MB</h2>
-                <h4 class="text-center text-gray-900 text-sm font-medium leading-snug">Click or Drag and Drop Your File Here</h4>
+                <h2 class="text-center text-gray-400 text-xs font-normal leading-4 mb-1">.pcapng or .pcap (max size 500 MB)</h2>
+                <h4 class="text-center text-gray-900 text-sm font-medium leading-snug">Upload Your File Here</h4>
                 
                 <!-- Hidden file input that will be triggered by the label -->
-                <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pcap" required />
-                
+                <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pcap,.pcapng" required />
             </label>
 
             <!-- Error message -->
-            <p id="error-message" class="text-red-600 text-center mt-3 hidden">Invalid file. Please upload a .pcap file under 50MB.</p>
+            <p id="error-message" class="text-red-600 text-center mt-3 hidden">Invalid file. Please upload a .pcapng or .pcap file under 50MB.</p>
 
             <!-- Centered Wrapper -->
             <div class="flex justify-center mt-5">
@@ -99,7 +98,7 @@
                 <div class="w-12 h-12 mb-4 flex items-center justify-center text-blue-700 text-3xl font-bold">
                     2.
                 </div>
-                <h3 class="text-xl font-semibold">Upload Your .pcap File</h3>
+                <h3 class="text-xl font-semibold">Upload Your .pcapng or .pcap File</h3>
                 <p class="text-gray-600 mt-2">Drag and drop your file or browse to select it. The max file size is 500MB.</p>
             </div>
 
@@ -129,9 +128,9 @@
                 </div>
 
                 <div>
-                    <h3 class="text-lg font-semibold text-black">Do we store your .pcap file?</h3>
+                    <h3 class="text-lg font-semibold text-black">Do we store your .pcapng or .pcap file?</h3>
                     <p class="mt-2 text-gray-600">
-                        Never! We simply process your .pcap file and display the results for you. Your data is not stored or shared.
+                        Never! We simply process your .pcapng or .pcap file and display the results for you. Your data is not stored or shared.
                     </p>
                 </div>
 
@@ -145,8 +144,7 @@
                 <div>
                     <h3 class="text-lg font-semibold text-black">What file formats are supported?</h3>
                     <p class="mt-2 text-gray-600">
-                        Currently, we support .pcap files. If you have a .pcapng file, you may need to convert it before uploading.
-                        The maximum file size for uploads is 500MB.
+                        Currently, we support .pcapng or .pcapng and .pcapng or .pcap files. The maximum file size for uploads is 500MB.
                     </p>
                 </div>            
             </div>
@@ -168,14 +166,14 @@
             // Validate file type and size
             if (!file) return;
 
-            if (!file.name.endsWith(".pcap")) {
-                errorMessage.textContent = "Invalid file type. Please upload a .pcap file.";
+            if (!file.name.endsWith(".pcap") && !file.name.endsWith(".pcapng")) {
+                errorMessage.textContent = "Invalid file type. Please upload a .pcapng or .pcap file.";
                 errorMessage.classList.remove("hidden");
                 return;
             }
 
             if (file.size > 50 * 1024 * 1024) {  // Max 50MB
-                errorMessage.textContent = "File too large. Max size is 50MB.";
+                errorMessage.textContent = "File too large. Max size is 500MB.";
                 errorMessage.classList.remove("hidden");
                 return;
             }

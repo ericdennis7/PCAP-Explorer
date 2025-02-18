@@ -58,8 +58,8 @@ def upload_file():
     file = request.files["file"]
 
     # Validate file type and size
-    if file.filename == "" or not file.filename.endswith(".pcap"):
-        return jsonify({"error": "Invalid file type. Only .pcap files are allowed."}), 400
+    if file.filename == "" or not file.filename.endswith((".pcap", ".pcapng")):
+        return jsonify({"error": "Invalid file type. Only .pcap or .pcapng files are allowed."}), 400
 
     if request.content_length > 50 * 1024 * 1024:  # 50MB limit
         return jsonify({"error": "File too large. Max size is 50MB."}), 400
@@ -102,7 +102,7 @@ def upload_file():
             json.dump(packet_data, f)
 
         # Remove file after processing
-        os.remove(filepath)
+        # os.remove(filepath)
 
         # Store the file reference in session (store the temp file name)
         session['file_info'] = file_info
@@ -130,7 +130,7 @@ def analysis():
         packet_data = json.load(f)
 
     # Optional: Remove the temporary file after reading
-    os.remove(packet_data_file)
+    # os.remove(packet_data_file)
 
     imports = read_imports()
     return render_template("analysis.html", file_info=file_info, packet_data=packet_data, imports=imports)

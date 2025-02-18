@@ -1,0 +1,34 @@
+<script>
+    // Get the buttons and containers
+    const chartButton = document.getElementById("chartButton");
+    const tableButton = document.getElementById("tableButton");
+    const chartContainer = document.getElementById("chartContainer");
+    const tableContainer = document.getElementById("tableContainer");
+
+    // Set up event listeners to toggle between chart and table
+    chartButton.addEventListener("click", () => {
+        chartButton.classList.add("bg-blue-700");
+        chartButton.classList.remove("bg-slate-300");
+        tableButton.classList.add("bg-slate-300");
+        tableButton.classList.remove("bg-blue-700");
+
+        chartContainer.classList.remove("hidden");
+        tableContainer.classList.add("hidden");
+    });
+
+    tableButton.addEventListener("click", () => {
+        tableButton.classList.add("bg-blue-700");
+        tableButton.classList.remove("bg-slate-300");
+        chartButton.classList.add("bg-slate-300");
+        chartButton.classList.remove("bg-blue-700");
+
+        tableContainer.classList.remove("hidden");
+        chartContainer.classList.add("hidden");
+    });
+
+    // Set default to show chart
+    chartButton.classList.add("bg-blue-700");
+    tableButton.classList.add("bg-slate-300");
+    chartContainer.classList.remove("hidden");
+    tableContainer.classList.add("hidden");
+</script>

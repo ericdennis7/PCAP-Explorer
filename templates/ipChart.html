@@ -1,0 +1,81 @@
+<script>
+    // Get the data from the Flask template
+    const ipv4Count = {{ file_info.ipv4 }};
+    const ipv6Count = {{ file_info.ipv6 }};
+    
+    // Calculate total to get percentage
+    const total = ipv4Count + ipv6Count;
+    const ipv4Percent = ((ipv4Count / total) * 100).toFixed(2);
+    const ipv6Percent = ((ipv6Count / total) * 100).toFixed(2);
+    
+    // Create a doughnut chart
+    const ctx = document.getElementById('ipChart').getContext('2d');
+    const ipChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['IPv4', 'IPv6'],  // Only the names, not the percentage
+            datasets: [{
+                data: [ipv6Count, ipv4Count],
+                backgroundColor: ['#227093', '#218c74'],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '70%',
+            borderRadius: 17,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        font: {
+                            size: 16,
+                            weight: 'bold',
+                            family: 'monospace'
+                        },
+                        generateLabels: function(chart) {
+                        const data = chart.data;
+                        return data.labels.map((label, index) => {
+                            const value = data.datasets[0].data[index];
+                            const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(2);
+                            return {
+                                text: `‎ ${label} ${percentage}%`,
+                                fillStyle: data.datasets[0].backgroundColor[index],
+                                strokeStyle: data.datasets[0].backgroundColor[index],
+                                lineWidth: 1,
+                            };
+                        });
+                    }
+                    }
+                },
+                tooltip: {
+                    borderWidth: 0,
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
+                            let value = tooltipItem.raw;
+                            return `${label}: ${value}`;
+                        },
+                        labelColor: function (context) {
+                            return {
+                                borderColor: "rgba(0,0,0,0)",
+                                backgroundColor: context.dataset.backgroundColor[context.dataIndex],
+                                borderWidth: 0
+                            };
+                        }
+                    }
+                }
+            },
+            elements: {
+                arc: {
+                    borderWidth: 7,
+                    borderColor: '#F8FAFC'
+                }
+            }
+        }
+    });
+</script>
