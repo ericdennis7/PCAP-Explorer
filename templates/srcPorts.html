@@ -1,0 +1,110 @@
+<script>
+    // Get the data from the Flask template
+    const l4SourcePortData = {{ file_info.l4_src_ports | tojson }};  // Data passed from Flask with source port counts
+    console.log(l4SourcePortData);
+
+    // Sort and get the top 5 source ports
+    const topSourcePorts = Object.entries(l4SourcePortData)
+        .sort((a, b) => b[1] - a[1])  // Sort by count, descending
+        .slice(0, 5);  // Take only the top 5 or fewer
+
+    // Extract labels and data from top source ports
+    const sourcePortLabels = topSourcePorts.map(item => item[0]);
+    const sourcePortData = topSourcePorts.map(item => item[1]);
+
+    // If there's only one source port, make sure the chart can still display it
+    if (sourcePortLabels.length === 0) {
+        sourcePortLabels.push("No Data");
+        sourcePortData.push(0);
+    }
+
+    // Draw Pie Chart for the Source Port Distribution (Using Fallback for Single Data Point)
+    function drawSourcePortPieChart(value, maxValue) {
+        var ctx = document.getElementById("sourcePortChart").getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: sourcePortLabels,  // Source port numbers
+                datasets: [{
+                    data: sourcePortData,  // Source port counts
+                    backgroundColor: ['#227093', '#218c74', '#e74c3c', '#f39c12', '#8e44ad'],  // Custom colors for top 5
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                borderRadius: 17,
+                tooltips: {
+                    enabled: false
+                },
+                plugins: {
+                    datalabels: {
+                        backgroundColor: function(context) {
+                            return context.dataset.backgroundColor;
+                        },
+                        display: function(context) {
+                            var dataset = context.dataset;            
+                            var value = dataset.data[context.dataIndex];
+                            return value > 0;
+                        },
+                        color: 'white'
+                    },
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            font: {
+                                size: 16,
+                                weight: 'bold',
+                                family: 'monospace'
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, index) => {
+                                    const value = data.datasets[0].data[index];
+                                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(2);
+                                    return {
+                                        text: `‎ ${label} ${percentage}%`,
+                                        fillStyle: data.datasets[0].backgroundColor[index],
+                                        strokeStyle: data.datasets[0].backgroundColor[index],
+                                        lineWidth: 1,
+                                    };
+                                });
+                            }
+                        }
+                    },
+                    tooltip: {
+                    borderWidth: 0,
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
+                            let value = tooltipItem.raw;
+                            return `${label}: ${value}`;
+                        },
+                        labelColor: function (context) {
+                            return {
+                                borderColor: "rgba(0,0,0,0)",
+                                backgroundColor: context.dataset.backgroundColor[context.dataIndex],
+                                borderWidth: 0
+                            };
+                        }
+                    }
+                }
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 7,
+                        borderColor: '#F8FAFC'
+                    }
+                }
+            }
+        });
+    }
+
+    // Call the function to draw the pie chart for source ports
+    drawSourcePortPieChart(sourcePortData[0] || 0, 5);
+</script>

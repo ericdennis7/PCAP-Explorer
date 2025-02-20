@@ -21,14 +21,6 @@ from functions.data_extraction import *
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
-# Function to read imports.txt
-def read_imports():
-    try:
-        with open("imports.txt", "r") as file:
-            return file.read()
-    except FileNotFoundError:
-        return ""
-
 # Set upload directory
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -79,10 +71,13 @@ def upload_file():
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
         ip_count, ipv4_addresses, ipv6_addresses, ip_flow_count = unique_ips_and_flows(packet_data)
-
+        l4_port_counts = transport_layer_ports(packet_data)
+        l4_src_port_counts = l4_port_counts["top_source_ports"]
+        l4_dst_port_counts = l4_port_counts["top_destination_ports"]
+    
         file_info = {
             "name": file_name + file_extension,
-            "size_mb": humanize.naturalsize(os.path.getsize(filepath)),  # Human-readable file size
+            "size_mb": humanize.naturalsize(os.path.getsize(filepath)),
             "md5_hash": file_md5,
             "submission_date": datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/"),
             "start_date": start_date,
@@ -92,8 +87,14 @@ def upload_file():
             "ipv4": ipv4_addresses,
             "ipv6": ipv6_addresses,
             "unique_ip_addresses": ip_count,
-            "unique_ip_flows": ip_flow_count
+            "unique_ip_flows": ip_flow_count,
+            "protocols": protocol_distribution(packet_data),
+            "l4_src_ports": l4_src_port_counts,
+            "l4_dst_ports": l4_dst_port_counts
         }
+
+        print(file_info["l4_src_ports"])
+        print(file_info["l4_dst_ports"])
 
         # Store packet data in a temporary file
         temp_file = tempfile.NamedTemporaryFile(delete=False, mode='w', encoding='utf-8')

@@ -9,8 +9,8 @@
     const ipv6Percent = ((ipv6Count / total) * 100).toFixed(2);
     
     // Create a doughnut chart
-    const ctx = document.getElementById('ipChart').getContext('2d');
-    const ipChart = new Chart(ctx, {
+    const ipCtx = document.getElementById('ipChart').getContext('2d');  // Renamed 'ctx' to 'ipCtx'
+    const ipChart = new Chart(ipCtx, {
         type: 'doughnut',
         data: {
             labels: ['IPv4', 'IPv6'],  // Only the names, not the percentage
@@ -37,19 +37,19 @@
                             family: 'monospace'
                         },
                         generateLabels: function(chart) {
-                        const data = chart.data;
-                        return data.labels.map((label, index) => {
-                            const value = data.datasets[0].data[index];
-                            const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            const percentage = ((value / total) * 100).toFixed(2);
-                            return {
-                                text: `‎ ${label} ${percentage}%`,
-                                fillStyle: data.datasets[0].backgroundColor[index],
-                                strokeStyle: data.datasets[0].backgroundColor[index],
-                                lineWidth: 1,
-                            };
-                        });
-                    }
+                            const data = chart.data;
+                            return data.labels.map((label, index) => {
+                                const value = data.datasets[0].data[index];
+                                const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(2);
+                                return {
+                                    text: `‎ ${label} ${percentage}%`,
+                                    fillStyle: data.datasets[0].backgroundColor[index],
+                                    strokeStyle: data.datasets[0].backgroundColor[index],
+                                    lineWidth: 1,
+                                };
+                            });
+                        }
                     }
                 },
                 tooltip: {
@@ -79,3 +79,6 @@
         }
     });
 </script>
+
+
+<!-- -->
