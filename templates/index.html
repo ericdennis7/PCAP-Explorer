@@ -8,7 +8,7 @@
         <!-- Importing content from 'imports.txt' -->
         <title>PCAPNG Visualizer</title>
         <style>
-            .loader {
+            /* .loader {
                 width: 50px;
                 aspect-ratio: 1;
                 display: grid;
@@ -32,7 +32,261 @@
             }
             @keyframes l15{ 
                 100%{transform: rotate(1turn)}
+            } */
+
+            .loading-body {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: center;
+                    -ms-flex-pack: center;
+                        justify-content: center;
+                -webkit-box-align: center;
+                    -ms-flex-align: center;
+                        align-items: center;
+                background-color: rgb(255, 255, 255);
             }
+
+            i {
+                font-size: 30px; /* Smaller font size */
+                margin: 8px; /* Smaller margin */
+                color: black;
+            }
+
+            .loading-container {
+                position: relative;
+                height: 40px; /* Smaller height */
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: justify;
+                    -ms-flex-pack: justify;
+                        justify-content: space-between;
+                -webkit-box-align: center;
+                    -ms-flex-align: center;
+                        align-items: center;
+            }
+
+            .center {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: center;
+                    -ms-flex-pack: center;
+                        justify-content: center;
+                -webkit-box-align: center;
+                    -ms-flex-align: center;
+                        align-items: center;
+                width: 100px; /* Smaller size */
+                height: 100px; /* Smaller size */
+                border-radius: 100%;
+                background-color: #fff;
+                border: 6px solid black; /* Smaller border */
+                overflow: hidden;
+            }
+
+            .loading-container::before {
+                content: "";
+                position: absolute;
+                top: 140px; /* Smaller top position */
+                left: 18px; /* Smaller left position */
+                width: 60px; /* Smaller width */
+                height: 20px; /* Smaller height */
+                border-radius: 100%;
+                background-color: rgba(222, 225, 228, 0.4);
+            }
+
+            .wrap {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: justify;
+                    -ms-flex-pack: justify;
+                        justify-content: space-between;
+                -webkit-box-orient: horizontal;
+                -webkit-box-direction: normal;
+                    -ms-flex-direction: row;
+                        flex-direction: row;
+            }
+
+            .load-span::before {
+                content: "";
+                position: absolute;
+                width: 36px; /* Smaller width */
+                height: 4px; /* Smaller height */
+                background-color: black;
+                -webkit-transform: rotate(45deg);
+                        transform: rotate(45deg);
+            }
+
+            .load-span::after {
+                content: "";
+                position: absolute;
+                left: 22px; /* Smaller left position */
+                top: 15px; /* Smaller top position */
+                width: 24px; /* Smaller width */
+                height: 8px; /* Smaller height */
+                background-color: black;
+                -webkit-transform: rotate(45deg);
+                        transform: rotate(45deg);
+                border-radius: 0 3px 3px 0;
+            }
+
+            .box-1 {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: justify;
+                    -ms-flex-pack: justify;
+                        justify-content: space-between;
+            }
+
+            .box-2 {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: justify;
+                    -ms-flex-pack: justify;
+                        justify-content: space-between;
+            }
+
+            /* animation */
+            @-webkit-keyframes rowup-1 {
+                0% {
+                    -webkit-transform: translate3d(0, 0, 0);
+                            transform: translate3d(0, 0, 0);
+                }
+                100% {
+                    -webkit-transform: translate3d(50%, 0, 0);
+                            transform: translate3d(50%, 0, 0);
+                }
+            }
+
+            @keyframes rowup-1 {
+                0% {
+                    -webkit-transform: translate3d(0, 0, 0);
+                            transform: translate3d(0, 0, 0);
+                }
+                100% {
+                    -webkit-transform: translate3d(50%, 0, 0);
+                            transform: translate3d(50%, 0, 0);
+                }
+            }
+
+            @-webkit-keyframes rowup-2 {
+                0% {
+                    -webkit-transform: translate3d(0, 0, 0);
+                            transform: translate3d(0, 0, 0);
+                }
+                100% {
+                    -webkit-transform: translate3d(50%, 0, 0);
+                            transform: translate3d(50%, 0, 0);
+                }
+            }
+
+            @keyframes rowup-2 {
+                0% {
+                    -webkit-transform: translate3d(0, 0, 0);
+                            transform: translate3d(0, 0, 0);
+                }
+                100% {
+                    -webkit-transform: translate3d(50%, 0, 0);
+                            transform: translate3d(50%, 0, 0);
+                }
+            }
+
+            @-webkit-keyframes cloud-loop {
+                0% {
+                    -webkit-transform: translate(0, 10px); /* Smaller movement */
+                    transform: translate(0, 10px);
+                }
+                100% {
+                    -webkit-transform: translate(0, 0);
+                    transform: translate(0, 0);
+                }
+            }
+
+            @-webkit-keyframes shadow-loop {
+                0% {
+                    -webkit-transform: translate(0, -25px) scale(1.05, 0.25); /* Smaller scale */
+                    transform: translate(0, -25px) scale(1.05, 0.25);
+                }
+                100% {
+                    -webkit-transform: translate(0, -25px) scale(1, 0.25);
+                    transform: translate(0, -25px) scale(1, 0.25);
+                }
+            }
+
+            @keyframes shadow-loop {
+                0% {
+                    -webkit-transform: translate(0, -25px) scale(1.05, 0.25); /* Smaller scale */
+                    transform: translate(0, -25px) scale(1.05, 0.25);
+                }
+                100% {
+                    -webkit-transform: translate(0, -25px) scale(1, 0.25);
+                    transform: translate(0, -25px) scale(1, 0.25);
+                }
+            }
+
+            .box-1 {
+                -webkit-animation: 1s rowup-1 linear infinite normal;
+                        animation: 1s rowup-1 linear infinite normal;
+            }
+
+            .box-2 {
+                -webkit-animation: 1s rowup-2 linear infinite normal;
+                        animation: 1s rowup-2 linear infinite normal;
+            }
+
+            .center {
+                -webkit-animation-name: cloud-loop;
+                animation-name: cloud-loop;
+                -webkit-animation-duration: 0.5s; /* Smaller duration */
+                animation-duration: 0.5s; /* Smaller duration */
+                -webkit-animation-iteration-count: infinite;
+                animation-iteration-count: infinite;
+                -webkit-animation-timing-function: ease;
+                animation-timing-function: ease;
+                -webkit-animation-direction: alternate;
+                animation-direction: alternate;
+            }
+
+            .load-span {
+                position: relative;
+                left: 80px; /* Smaller left position */
+                top: 40px; /* Smaller top position */
+                -webkit-animation-name: cloud-loop;
+                animation-name: cloud-loop;
+                -webkit-animation-duration: 0.5s; /* Smaller duration */
+                animation-duration: 0.5s; /* Smaller duration */
+                -webkit-animation-iteration-count: infinite;
+                animation-iteration-count: infinite;
+                -webkit-animation-timing-function: ease;
+                animation-timing-function: ease;
+                -webkit-animation-direction: alternate;
+                animation-direction: alternate;
+            }
+
+            .loading-container::before {
+                -webkit-animation-name: shadow-loop;
+                animation-name: shadow-loop;
+                -webkit-animation-duration: 0.5s; /* Smaller duration */
+                animation-duration: 0.5s; /* Smaller duration */
+                -webkit-animation-iteration-count: infinite;
+                animation-iteration-count: infinite;
+                -webkit-animation-timing-function: ease;
+                animation-timing-function: ease;
+                -webkit-animation-direction: alternate;
+                animation-direction: alternate;
+            }
+
+            .dr {
+                position: absolute;
+                bottom: 8px; /* Smaller bottom position */
+                right: 8px; /* Smaller right position */
+                width: 60px; /* Smaller width */
+            }
+
         </style>
     </head>
     <body class="font-mono">
@@ -69,12 +323,30 @@
             <!-- Error message -->
             <p id="error-message" class="text-red-600 text-center mt-3 hidden">Invalid file. Please upload a .pcapng or .pcap file under 50MB.</p>
 
-            <!-- Centered Wrapper -->
-            <div class="flex justify-center mt-5">
+            <!-- Magnifying Loader -->
+            <div class="mt-5">
                 <div id="loading" class="text-center" style="display: none;">
-                    <div class="loader mx-auto"></div>
-                    <p class="mt-2">Uploading & processing your file...</p>
-                </div>
+                    <div class="loading-body">
+                        <div class="loading-container">
+                            <span class="load-span"></span>
+                            <div class="center">
+                                <div class="wrap">
+                                    <div class="box-1 box">
+                                        <i class="fa-solid fa-square-binary" style="color: rgb(29, 78, 216);"></i>
+                                        <i class="fa-solid fa-square-binary" style="color: rgb(29, 78, 216);"></i>
+                                    </div>
+                                    <div class="box-2 box">
+                                        <i class="fa-solid fa-square-binary" style="color: rgb(29, 78, 216);"></i>
+                                        <i class="fa-solid fa-square-binary" style="color: rgb(29, 78, 216);"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-24">
+                        <p class="mt-2">Uploading & analyzing your file...</p>
+                    </div>
+                </div>                
             </div>
         </div>
 
