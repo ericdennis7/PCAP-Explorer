@@ -2,8 +2,8 @@
 # Started: 1/30/2025
 # Description: This is a flask app that allows users to analyze their .pcap data with visuals and statistics.
 
-# Last Updated: 2/14/2025
-# Update Notes: Implemented AJAX-based file upload processing.
+# Last Updated: 2/25/2025
+# Update Notes: Changed loader, added L4 port distribution, and changed secret key to os.urandom(24).
 
 # Imports
 import os
@@ -19,7 +19,7 @@ from flask import Flask, request, render_template, jsonify, redirect, url_for, s
 from functions.data_extraction import *
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.secret_key = os.urandom(24)
 
 # Set upload directory
 UPLOAD_FOLDER = "uploads"
@@ -92,9 +92,6 @@ def upload_file():
             "l4_src_ports": l4_src_port_counts,
             "l4_dst_ports": l4_dst_port_counts
         }
-
-        print(file_info["l4_src_ports"])
-        print(file_info["l4_dst_ports"])
 
         # Store packet data in a temporary file
         temp_file = tempfile.NamedTemporaryFile(delete=False, mode='w', encoding='utf-8')
