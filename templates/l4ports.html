@@ -1,0 +1,106 @@
+<script>
+    // Get the data from the Flask template
+    const topPortsDataFromFlask = {{ file_info.top_ports | tojson }};  // Data passed from Flask
+
+    // Ensure the data is valid
+    if (!topPortsDataFromFlask || typeof topPortsDataFromFlask !== "object") {
+        console.error("Invalid data received:", topPortsDataFromFlask);
+    }
+
+    // Extract the actual "top_ports" object
+    const topPortsObj = topPortsDataFromFlask.top_ports || {}; // Ensure valid object
+
+    // Sort and get the top 5 ports
+    const topPortsArray = Object.entries(topPortsObj)
+        .map(([port, count]) => [parseInt(port, 10), count]) // Ensure ports are numbers
+        .sort((a, b) => b[1] - a[1])  // Sort by count, descending
+        .slice(0, 5);  // Take only the top 5 or fewer
+
+    // Extract labels and data from top ports
+    const topPortsLabels = topPortsArray.map(item => item[0].toString());  // Convert to string for chart labels
+    const topPortsDataArray = topPortsArray.map(item => item[1]);  // Renamed variable to avoid conflict
+
+    // If there's no valid data, provide fallback
+    if (topPortsLabels.length === 0) {
+        topPortsLabels.push("No Data");
+        topPortsDataArray.push(0);
+    }
+
+    // Draw Pie Chart for Port Distribution
+    function drawTopPortsPieChart() {
+        var ctxTopPorts = document.getElementById("portChart").getContext('2d');
+        var topPortsChart = new Chart(ctxTopPorts, {
+            type: 'doughnut',
+            data: {
+                labels: topPortsLabels,  // Port numbers
+                datasets: [{
+                    data: topPortsDataArray,  // Port counts
+                    backgroundColor: ['#227093', '#218c74', '#e74c3c', '#f39c12', '#8e44ad'],  // Custom colors for top 5
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                borderRadius: 17,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            font: {
+                                size: 16,
+                                weight: 'bold',
+                                family: 'monospace'
+                            },
+                            // Setting text color for the legend inside generateLabels
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, index) => {
+                                    const value = data.datasets[0].data[index];
+                                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(2);
+                                    return {
+                                        text: `‎ ${label} ${percentage}%`,
+                                        fillStyle: data.datasets[0].backgroundColor[index],
+                                        strokeStyle: data.datasets[0].backgroundColor[index],
+                                        lineWidth: 1,
+                                        fontColor: '#ffffff'
+                                    };
+                                });
+                            }
+                        }
+                    },
+                    tooltip: {
+                        borderWidth: 0,
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
+                                let value = tooltipItem.raw;
+                                return `${label}: ${value}`;
+                            },
+                            labelColor: function (context) {
+                                return {
+                                    borderColor: "rgba(0,0,0,0)",
+                                    backgroundColor: context.dataset.backgroundColor[context.dataIndex],
+                                    borderWidth: 0
+                                };
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 7,
+                        borderColor: '#282828'
+                    }
+                }
+            }
+        });
+    }
+
+    // Call the function to draw the pie chart for top ports
+    drawTopPortsPieChart();
+</script>

@@ -71,9 +71,6 @@ def upload_file():
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
         ip_count, ipv4_addresses, ipv6_addresses, ip_flow_count = unique_ips_and_flows(packet_data)
-        l4_port_counts = transport_layer_ports(packet_data)
-        l4_src_port_counts = l4_port_counts["top_source_ports"]
-        l4_dst_port_counts = l4_port_counts["top_destination_ports"]
     
         file_info = {
             "name": file_name + file_extension,
@@ -89,8 +86,7 @@ def upload_file():
             "unique_ip_addresses": ip_count,
             "unique_ip_flows": ip_flow_count,
             "protocols": protocol_distribution(packet_data),
-            "l4_src_ports": l4_src_port_counts,
-            "l4_dst_ports": l4_dst_port_counts
+            "top_ports": transport_layer_ports(packet_data)
         }
 
         # Store packet data in a temporary file

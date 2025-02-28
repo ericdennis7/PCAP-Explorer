@@ -10,7 +10,7 @@
 <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]">
     {% include 'navbar.html' %} <!-- Contains the navigation bar -->
     
-    <div class="max-w-7xl w-full mx-auto p-6">
+    <div class="max-w-7xl w-full mx-auto p-6 animate__animated animate__fadeInUpBig">
         <div class="flex flex-col w-full">
             <div class="pb-8 border-b border-slate-200 w-full">
                 <h1 class="text-3xl font-semibold mt-4 flex items-center justify-between w-full text-[--clr-primary-a30]">
@@ -28,7 +28,7 @@
                 <h2 class="font-bold text-2xl mb-6">File Analytics</h2>
 
                 <div class="grid grid-cols-2 gap-4 max-w-7xl mx-auto">
-                    <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[#F8FAFC]">
+                    <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]">
                         <div class="relative p-4">
                             <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">IP Address Version Distribution</h4>
                             <div class="absolute top-2 right-2 flex ">
@@ -46,7 +46,7 @@
                         <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer">
                         </div>
                     </div>
-                    <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[#F8FAFC]">
+                    <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]">
                         <div class="relative p-4">
                             <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">L4 Protocol Distribution</h4>
                             <div class="absolute top-2 right-2 flex ">
@@ -64,9 +64,9 @@
                         <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer">
                         </div>
                     </div>
-                    <!-- <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[#F8FAFC]">
+                    <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]">
                         <div class="relative p-4">
-                            <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">Source Port Distribution</h4>
+                            <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">L4 Port Distribution</h4>
                             <div class="absolute top-2 right-2 flex ">
                                 <button id="chartButton" class="p-2 bg-blue-500 text-white rounded-l-lg active-button">
                                     <i class="fa-solid fa-chart-pie"></i>
@@ -77,36 +77,17 @@
                             </div>
                         </div>
                         <div class="flex justify-center items-center h-full p-2" id="chartContainer">
-                            <canvas id="sourcePortChart"></canvas>
+                            <canvas id="portChart"></canvas>
                         </div>
                         <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer">
                         </div>
                     </div>
-                    <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[#F8FAFC]">
-                        <div class="relative p-4">
-                            <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">Destination Port Distribution</h4>
-                            <div class="absolute top-2 right-2 flex ">
-                                <button id="chartButton" class="p-2 bg-blue-500 text-white rounded-l-lg active-button">
-                                    <i class="fa-solid fa-chart-pie"></i>
-                                </button>
-                                <button id="tableButton" class="p-2 bg-slate-300 text-white rounded-r-lg">
-                                    <i class="fa-solid fa-table"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex justify-center items-center h-full p-2" id="chartContainer">
-                            <canvas id="destinationPortChart"></canvas>
-                        </div>
-                        <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer">
-                        </div>
-                    </div> -->
                 </div>
                 
                 {% include 'button-view.html' %} <!-- Contains the button view script -->
                 {% include 'ipChart.html' %} <!-- Contains the IP doughnut chart -->
                 {% include 'l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
-                 <!-- {% include 'srcPorts.html' %} Contains the source port doughnut chart -->
-                 <!-- {% include 'dstPorts.html' %} Contains the destination port doughnut chart -->
+                {% include 'l4ports.html' %} <!-- Contains the L4 port doughnut chart -->
                 
             </div>
         </div>

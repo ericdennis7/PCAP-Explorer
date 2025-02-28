@@ -169,8 +169,7 @@ def md5_hash(file_storage):
 
 # Function to fetch L4 port numbers
 def transport_layer_ports(packet_data):
-    src_ports = Counter()
-    dst_ports = Counter()
+    port_counts = Counter()
 
     try:
         for packet in packet_data:
@@ -189,15 +188,14 @@ def transport_layer_ports(packet_data):
 
             # Increment the count for each port
             if src_port:
-                src_ports[src_port] += 1
+                port_counts[src_port] += 1
             if dst_port:
-                dst_ports[dst_port] += 1
+                port_counts[dst_port] += 1
 
     except Exception as e:
         print(f"Error processing packet: {e}")
 
-    # Keep only the top 10 most frequent ports in each category
-    top_src_ports = dict(src_ports.most_common(10))
-    top_dst_ports = dict(dst_ports.most_common(10))
-
-    return {"top_source_ports": top_src_ports, "top_destination_ports": top_dst_ports}
+    # Keep only the top 10 most frequent ports overall
+    top_ports = dict(port_counts.most_common(10))
+    
+    return {"top_ports": top_ports}
