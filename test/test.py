@@ -1,62 +1,52 @@
-import yfinance as yf
-import pandas as pd
-import time
+# This file extracts data from a .pcap file for statistical analysis.
+import csv
+import json
+import hashlib
+import humanize
+import subprocess
+from datetime import datetime
+from collections import Counter, defaultdict
 
-# Trading Parameters
-SYMBOL = "MESH25.CME"  # Micro E-mini S&P 500 Futures
-SHORT_MA = 5  # Short Moving Average
-LONG_MA = 20  # Long Moving Average
-TRADE_QUANTITY = 1  # Number of contracts per trade
+# Convert the .pcap file to JSON using TShark
+def raw_pcap_json(filepath):
+    tshark_path = r"C:\Program Files\Wireshark\tshark.exe"
 
-# Paper Trading Account
-balance = 2000  # Starting cash
-position = 0  # Number of open contracts
-entry_price = 0  # Price at which position was opened
+    result = subprocess.run(
+        [tshark_path, "-r", filepath, "-T", "json"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
 
-def get_historical_data():
-    """Fetches historical futures data from Yahoo Finance."""
-    df = yf.download(SYMBOL, period="7d", interval="1h")  # Last 7 days, 1-hour candles
-    df["Short_MA"] = df["Close"].rolling(SHORT_MA).mean()
-    df["Long_MA"] = df["Close"].rolling(LONG_MA).mean()
-    return df
+    if result.returncode != 0:
+        raise Exception(f"TShark error: {result.stderr.decode('utf-8')}")
 
-def calculate_signal(df):
-    """Determines buy/sell signals based on MA crossover."""
-    if df["Short_MA"].iloc[-1] > df["Long_MA"].iloc[-1]:
-        return "BUY"
-    elif df["Short_MA"].iloc[-1] < df["Long_MA"].iloc[-1]:
-        return "SELL"
-    return "HOLD"
-
-def execute_trade(action, price):
-    """Simulates trade execution in paper trading."""
-    global balance, position, entry_price
-
-    if action == "BUY" and position == 0:
-        position += TRADE_QUANTITY
-        entry_price = price
-        print(f"🟢 BUY {TRADE_QUANTITY} contracts at {price}")
+    output = result.stdout.decode("utf-8").strip()
     
-    elif action == "SELL" and position > 0:
-        profit = (price - entry_price) * position * 5  # Assuming $5 per point
-        balance += profit
-        position = 0
-        print(f"🔴 SELL {TRADE_QUANTITY} contracts at {price} | PnL: ${profit:.2f}")
+    if not output:  
+        raise Exception("TShark returned empty output.")
 
-    print(f"💰 Balance: ${balance:.2f}, Position: {position}, Entry: {entry_price}")
+    try:
+        return json.loads(output)
+    except json.JSONDecodeError:
+        raise Exception("Error decoding JSON from TShark output")
+    
+# Function to count L7 protocols
+def application_layer_protocols(packet_data):
+    protocol_counts = defaultdict(int)
 
-def main():
-    """Main trading loop."""
-    while True:
-        df = get_historical_data()
-        if df is not None and not df.empty:
-            action = calculate_signal(df)
-            last_price = df["Close"].iloc[-1]
-            execute_trade(action, last_price)
-        else:
-            print("⚠ No market data available.")
+    for packet in packet_data:
+        layers = packet["_source"]["layers"]
 
-        time.sleep(20)
+        # Extract IPv4 source and destination
+        protocols = layers.get("frame", {}).get("frame.protocols", "")
 
-if __name__ == "__main__":
-    main()
+        protocol_list = protocols.split(":")
+
+        if len(protocol_list) >= 5:
+            l7_protocol = protocol_list[4]
+            protocol_counts[l7_protocol] += 1
+
+    return dict(protocol_counts)
+
+packet_data = raw_pcap_json("C:\\Users\\ericd\\Downloads\\http-chunked-gzip.pcap")
+print(application_layer_protocols(packet_data))

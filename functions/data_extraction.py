@@ -5,7 +5,7 @@ import hashlib
 import humanize
 import subprocess
 from datetime import datetime
-from collections import Counter
+from collections import Counter, defaultdict
 
 # Convert the .pcap file to JSON using TShark
 def raw_pcap_json(filepath):
@@ -169,6 +169,7 @@ def md5_hash(file_storage):
 
 # Function to fetch L4 port numbers
 def transport_layer_ports(packet_data):
+
     port_counts = Counter()
 
     try:
@@ -199,3 +200,27 @@ def transport_layer_ports(packet_data):
     top_ports = dict(port_counts.most_common(10))
     
     return {"top_ports": top_ports}
+
+# Function to count L7 protocols
+def application_layer_protocols(packet_data):
+    protocol_counts = defaultdict(int)
+
+    try:
+        for packet in packet_data:
+            layers = packet["_source"]["layers"]
+
+            # Extract IPv4 source and destination
+            protocols = layers.get("frame", {}).get("frame.protocols", "")
+
+            protocol_list = protocols.split(":")
+
+            if len(protocol_list) >= 5:
+                l7_protocol = protocol_list[4]
+                protocol_counts[l7_protocol] += 1
+    except Exception as e:
+        print(f"Error processing packet: {e}")
+
+    # Convert defaultdict to Counter to use most_common()
+    top_protocols = dict(Counter(protocol_counts).most_common(10))
+
+    return {"top_protocols": top_protocols}

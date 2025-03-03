@@ -82,12 +82,31 @@
                         <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer">
                         </div>
                     </div>
+                    <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]">
+                        <div class="relative p-4">
+                            <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">L7 Protocol Distribution</h4>
+                            <div class="absolute top-2 right-2 flex ">
+                                <button id="chartButton" class="p-2 bg-blue-500 text-white rounded-l-lg active-button">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                </button>
+                                <button id="tableButton" class="p-2 bg-slate-300 text-white rounded-r-lg">
+                                    <i class="fa-solid fa-table"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-center items-center h-full p-2" id="chartContainer">
+                            <canvas id="l7protocolChart"></canvas>
+                        </div>
+                        <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer">
+                        </div>
+                    </div>
                 </div>
                 
                 {% include 'button-view.html' %} <!-- Contains the button view script -->
                 {% include 'ipChart.html' %} <!-- Contains the IP doughnut chart -->
                 {% include 'l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
                 {% include 'l4ports.html' %} <!-- Contains the L4 port doughnut chart -->
+                {% include 'l7protocols.html' %} <!-- Contains the L7 protocol doughnut chart -->
                 
             </div>
         </div>

@@ -1,0 +1,107 @@
+<script>
+    // Get the data from the Flask template
+    const topL7ProtocolsDataFromFlask = {{ file_info.top_protocols | tojson }};  // Data passed from Flask
+    console.log(topL7ProtocolsDataFromFlask);
+
+    // Ensure the data is valid
+    if (!topL7ProtocolsDataFromFlask || typeof topL7ProtocolsDataFromFlask !== "object") {
+        console.error("Invalid data received:", topL7ProtocolsDataFromFlask);
+    }
+
+    // Extract the actual "top_protocolss" object
+    const topL7ProtocolsObj = topL7ProtocolsDataFromFlask.top_protocols || {};
+
+    // Sort and get the top 5 protocolss
+    const topL7ProtocolsArray = Object.entries(topL7ProtocolsObj)
+    .map(([protocol, count]) => [protocol, count])
+        .sort((a, b) => b[1] - a[1])  // Sort by count, descending
+        .slice(0, 5);  // Take only the top 5 or fewer
+
+    // Extract labels and data from top protocolss
+    const topL7ProtocolsLabels = topL7ProtocolsArray.map(item => item[0].toString());  // Convert to string for chart labels
+    const topL7ProtocolsDataArray = topL7ProtocolsArray.map(item => item[1]);  // Renamed variable to avoid conflict
+
+    // If there's no valid data, provide fallback
+    if (topL7ProtocolsLabels.length === 0) {
+        topL7ProtocolsLabels.push("No Data");
+        topL7ProtocolsDataArray.push(0);
+    }
+
+    // Draw Pie Chart for Protocols Distribution
+    function drawTopL7ProtocolsPieChart() {
+        var ctxTopL7Protocols = document.getElementById("l7protocolChart").getContext('2d');
+        var topL7ProtocolsChart = new Chart(ctxTopL7Protocols, {
+            type: 'doughnut',
+            data: {
+                labels: topL7ProtocolsLabels,  // Protocols numbers
+                datasets: [{
+                    data: topL7ProtocolsDataArray,  // Protocols counts
+                    backgroundColor: ['#227093', '#218c74', '#e74c3c', '#f39c12', '#8e44ad'],  // Custom colors for top 5
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                borderRadius: 17,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            font: {
+                                size: 16,
+                               // weight: 'bold',
+                                family: 'monospace'
+                            },
+                            // Setting text color for the legend inside generateLabels
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, index) => {
+                                    const value = data.datasets[0].data[index];
+                                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(2);
+                                    return {
+                                        text: `‎ ${label} ${percentage}%`,
+                                        fillStyle: data.datasets[0].backgroundColor[index],
+                                        strokeStyle: data.datasets[0].backgroundColor[index],
+                                        lineWidth: 1,
+                                        fontColor: '#ffffff'
+                                    };
+                                });
+                            }
+                        }
+                    },
+                    tooltip: {
+                        borderWidth: 0,
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
+                                let value = tooltipItem.raw;
+                                return `${label}: ${value}`;
+                            },
+                            labelColor: function (context) {
+                                return {
+                                    borderColor: "rgba(0,0,0,0)",
+                                    backgroundColor: context.dataset.backgroundColor[context.dataIndex],
+                                    borderWidth: 0
+                                };
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 7,
+                        borderColor: '#282828'
+                    }
+                }
+            }
+        });
+    }
+
+    // Call the function to draw the pie chart for top protocolss
+    drawTopL7ProtocolsPieChart();
+</script>

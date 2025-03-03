@@ -86,8 +86,11 @@ def upload_file():
             "unique_ip_addresses": ip_count,
             "unique_ip_flows": ip_flow_count,
             "protocols": protocol_distribution(packet_data),
-            "top_ports": transport_layer_ports(packet_data)
+            "top_ports": transport_layer_ports(packet_data),
+            "top_protocols": application_layer_protocols(packet_data)
         }
+
+        print(application_layer_protocols(packet_data))
 
         # Store packet data in a temporary file
         temp_file = tempfile.NamedTemporaryFile(delete=False, mode='w', encoding='utf-8')
@@ -123,7 +126,7 @@ def analysis():
     with open(packet_data_file, 'r', encoding='utf-8') as f:
         packet_data = json.load(f)
 
-    # Optional: Remove the temporary file after reading
+    # Remove the temporary file after reading
     # os.remove(packet_data_file)
 
     imports = read_imports()
