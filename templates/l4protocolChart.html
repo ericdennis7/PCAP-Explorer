@@ -1,5 +1,25 @@
+<div class="relative rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]">
+    <div class="relative p-4">
+        <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">L4 Protocol Distribution</h4>
+        <div class="absolute top-2 right-2 flex ">
+            <button id="chartButton2" class="p-2 text-white rounded-l-lg active-button">
+                <i class="fa-solid fa-chart-pie"></i>
+            </button>
+            <button id="tableButton2" class="p-2 text-[--clr-surface-a30] rounded-r-lg">
+                <i class="fa-solid fa-table"></i>
+            </button>
+        </div>
+    </div>
+    <div class="flex justify-center items-center h-full p-2" id="chartContainer2">
+        <canvas id="protocolChart"></canvas>
+    </div>
+    <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer2">
+    </div>
+</div>
+
 <script>
     // Get the data from the Flask template
+
     const protocolData = {{ file_info.protocols | tojson }};  // Data passed from Flask with protocol counts
 
     // Sort and get the top 5 protocols
@@ -26,7 +46,7 @@
                 labels: labels,  // Protocol names
                 datasets: [{
                     data: data,  // Protocol counts
-                    backgroundColor: ['#227093', '#218c74', '#e74c3c', '#f39c12', '#8e44ad'],  // Custom colors for top 5
+                    backgroundColor: ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'],  // Custom colors for top 5
                     hoverOffset: 4
                 }]
             },
@@ -67,7 +87,7 @@
                                     const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
                                     const percentage = ((value / total) * 100).toFixed(2);
                                     return {
-                                        text: `‎ ${label} ${percentage}%`,
+                                        text: `‎ ${label} - ${percentage}%`,
                                         fillStyle: data.datasets[0].backgroundColor[index],
                                         strokeStyle: data.datasets[0].backgroundColor[index],
                                         lineWidth: 1,

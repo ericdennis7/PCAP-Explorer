@@ -1,34 +1,135 @@
 <script>
-    // Get the buttons and containers
-    const chartButton = document.getElementById("chartButton");
-    const tableButton = document.getElementById("tableButton");
-    const chartContainer = document.getElementById("chartContainer");
-    const tableContainer = document.getElementById("tableContainer");
-
+    // Get the buttons and containers for instance 1
+    const chartButton1 = document.getElementById("chartButton1");
+    const tableButton1 = document.getElementById("tableButton1");
+    const chartContainer1 = document.getElementById("chartContainer1");
+    const tableContainer1 = document.getElementById("tableContainer1");
+    
     // Set up event listeners to toggle between chart and table
-    chartButton.addEventListener("click", () => {
-        chartButton.classList.add("bg-blue-700");
-        chartButton.classList.remove("bg-slate-300");
-        tableButton.classList.add("bg-slate-300");
-        tableButton.classList.remove("bg-blue-700");
-
-        chartContainer.classList.remove("hidden");
-        tableContainer.classList.add("hidden");
+    chartButton1.addEventListener("click", () => {
+        // Activate chart button (text white)
+        chartButton1.classList.add("text-white");
+        chartButton1.classList.remove("text-[--clr-surface-a30]");
+        
+        // Deactivate table button (text [--clr-surface-a30])
+        tableButton1.classList.add("text-[--clr-surface-a30]");
+        tableButton1.classList.remove("text-white");
+    
+        // Show the chart container, hide the table container
+        chartContainer1.classList.remove("hidden");
+        tableContainer1.classList.add("hidden");
     });
-
-    tableButton.addEventListener("click", () => {
-        tableButton.classList.add("bg-blue-700");
-        tableButton.classList.remove("bg-slate-300");
-        chartButton.classList.add("bg-slate-300");
-        chartButton.classList.remove("bg-blue-700");
-
-        tableContainer.classList.remove("hidden");
-        chartContainer.classList.add("hidden");
+    
+    tableButton1.addEventListener("click", () => {
+        // Activate table button (text white)
+        tableButton1.classList.add("text-white");
+        tableButton1.classList.remove("text-[--clr-surface-a30]");
+        
+        // Deactivate chart button (text [--clr-surface-a30])
+        chartButton1.classList.add("text-[--clr-surface-a30]");
+        chartButton1.classList.remove("text-white");
+    
+        // Show the table container, hide the chart container
+        tableContainer1.classList.remove("hidden");
+        chartContainer1.classList.add("hidden");
     });
-
-    // Set default to show chart
-    chartButton.classList.add("bg-blue-700");
-    tableButton.classList.add("bg-slate-300");
-    chartContainer.classList.remove("hidden");
-    tableContainer.classList.add("hidden");
+    
+    // Set default to show chart and apply the correct text color classes
+    chartButton1.classList.add("text-white");
+    tableButton1.classList.add("text-[--clr-surface-a30]");
+    chartContainer1.classList.remove("hidden");
+    tableContainer1.classList.add("hidden");
+    
+    
+    // Get the buttons and containers for instance 2
+    const chartButton2 = document.getElementById("chartButton2");
+    const tableButton2 = document.getElementById("tableButton2");
+    const chartContainer2 = document.getElementById("chartContainer2");
+    const tableContainer2 = document.getElementById("tableContainer2");
+    
+    // Set up event listeners to toggle between chart and table
+    chartButton2.addEventListener("click", () => {
+        chartButton2.classList.add("text-white");
+        chartButton2.classList.remove("text-[--clr-surface-a30]");
+        tableButton2.classList.add("text-[--clr-surface-a30]");
+        tableButton2.classList.remove("text-white");
+        chartContainer2.classList.remove("hidden");
+        tableContainer2.classList.add("hidden");
+    });
+    
+    tableButton2.addEventListener("click", () => {
+        tableButton2.classList.add("text-white");
+        tableButton2.classList.remove("text-[--clr-surface-a30]");
+        chartButton2.classList.add("text-[--clr-surface-a30]");
+        chartButton2.classList.remove("text-white");
+        tableContainer2.classList.remove("hidden");
+        chartContainer2.classList.add("hidden");
+    });
+    
+    chartButton2.classList.add("text-white");
+    tableButton2.classList.add("text-[--clr-surface-a30]");
+    chartContainer2.classList.remove("hidden");
+    tableContainer2.classList.add("hidden");
+    
+    
+    // Get the buttons and containers for instance 3
+    const chartButton3 = document.getElementById("chartButton3");
+    const tableButton3 = document.getElementById("tableButton3");
+    const chartContainer3 = document.getElementById("chartContainer3");
+    const tableContainer3 = document.getElementById("tableContainer3");
+    
+    chartButton3.addEventListener("click", () => {
+        chartButton3.classList.add("text-white");
+        chartButton3.classList.remove("text-[--clr-surface-a30]");
+        tableButton3.classList.add("text-[--clr-surface-a30]");
+        tableButton3.classList.remove("text-white");
+        chartContainer3.classList.remove("hidden");
+        tableContainer3.classList.add("hidden");
+    });
+    
+    tableButton3.addEventListener("click", () => {
+        tableButton3.classList.add("text-white");
+        tableButton3.classList.remove("text-[--clr-surface-a30]");
+        chartButton3.classList.add("text-[--clr-surface-a30]");
+        chartButton3.classList.remove("text-white");
+        tableContainer3.classList.remove("hidden");
+        chartContainer3.classList.add("hidden");
+    });
+    
+    chartButton3.classList.add("text-white");
+    tableButton3.classList.add("text-[--clr-surface-a30]");
+    chartContainer3.classList.remove("hidden");
+    tableContainer3.classList.add("hidden");
+    
+    
+    // Get the buttons and containers for instance 4
+    const chartButton4 = document.getElementById("chartButton4");
+    const tableButton4 = document.getElementById("tableButton4");
+    const chartContainer4 = document.getElementById("chartContainer4");
+    const tableContainer4 = document.getElementById("tableContainer4");
+    
+    chartButton4.addEventListener("click", () => {
+        chartButton4.classList.add("text-white");
+        chartButton4.classList.remove("text-[--clr-surface-a30]");
+        tableButton4.classList.add("text-[--clr-surface-a30]");
+        tableButton4.classList.remove("text-white");
+        chartContainer4.classList.remove("hidden");
+        tableContainer4.classList.add("hidden");
+    });
+    
+    tableButton4.addEventListener("click", () => {
+        tableButton4.classList.add("text-white");
+        tableButton4.classList.remove("text-[--clr-surface-a30]");
+        chartButton4.classList.add("text-[--clr-surface-a30]");
+        chartButton4.classList.remove("text-white");
+        tableContainer4.classList.remove("hidden");
+        chartContainer4.classList.add("hidden");
+    });
+    
+    chartButton4.classList.add("text-white");
+    tableButton4.classList.add("text-[--clr-surface-a30]");
+    chartContainer4.classList.remove("hidden");
+    tableContainer4.classList.add("hidden");
+    
 </script>
+    

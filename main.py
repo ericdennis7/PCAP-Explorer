@@ -90,8 +90,6 @@ def upload_file():
             "top_protocols": application_layer_protocols(packet_data)
         }
 
-        print(application_layer_protocols(packet_data))
-
         # Store packet data in a temporary file
         temp_file = tempfile.NamedTemporaryFile(delete=False, mode='w', encoding='utf-8')
         temp_file_name = temp_file.name
@@ -127,8 +125,8 @@ def analysis():
         packet_data = json.load(f)
 
     # Remove the temporary file after reading
-    # os.remove(packet_data_file)
-
+    # os.remove(packet_data_file)  
+ 
     imports = read_imports()
     return render_template("analysis.html", file_info=file_info, packet_data=packet_data, imports=imports)
 

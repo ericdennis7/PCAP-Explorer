@@ -223,4 +223,8 @@ def application_layer_protocols(packet_data):
     # Convert defaultdict to Counter to use most_common()
     top_protocols = dict(Counter(protocol_counts).most_common(10))
 
+    # Check if 'data' is one of the keys and change it to 'unknown'
+    if 'data' in top_protocols:
+        top_protocols['unk.'] = top_protocols.pop('data')
+
     return {"top_protocols": top_protocols}
