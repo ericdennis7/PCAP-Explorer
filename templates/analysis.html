@@ -17,26 +17,48 @@
                     <span>Dashboard</span>
                 </h1>
 
-                <hr class="h-px my-8 bg-slate-200 border-0">
+                <hr class="h-px my-8 bg-[#222222] border-0">
 
-                <h2 class="font-bold text-2xl mb-6">File Statistics</h2>
+                <h2 class="font-bold text-2xl mb-6">File Stats</h2>
                 
                 {% include 'file_statistics.html' %} <!-- Contains the file statistics -->
 
-                <hr class="h-px my-8 bg-slate-200 border-0">
+                <hr class="h-px my-8 bg-[#222222] border-0">
 
-                <h2 class="font-bold text-2xl mb-6">Summary of <i class="text-[--clr-primary-a50]">{{ file_info.name }}</i></h2>
+                <h2 class="font-bold text-2xl mb-6">Packet Structure Stats</h2>
 
                 <div class="grid grid-cols-2 gap-4 max-w-7xl mx-auto">
-                
                     {% include 'ipChart.html' %} <!-- Contains the IP doughnut chart -->
                     {% include 'l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
                     {% include 'l4ports.html' %} <!-- Contains the L4 port doughnut chart -->
                     {% include 'l7protocols.html' %} <!-- Contains the L7 protocol doughnut chart -->
                     {% include 'button-view.html' %} <!-- Contains the button view script -->
+                </div>
 
+                <hr class="h-px my-8 bg-[#222222] border-0">
+
+                <h2 class="font-bold text-2xl mb-6">Timing Stats</h2>
+                
+                <!-- Place Timing Metrics Here -->
+                <div class="flex gap-4 w-full">
+                    <div class="metric-card bg-[--clr-surface-a10] my-8 rounded-lg p-4 flex-1">
+                        <div class="flex items-center text-gray-900 dark:text-gray-100">Minimum Duration</div>
+                        <p class="mt-2 text-3xl font-bold spacing-sm text-black dark:text-white">0.000s</p>
+                    </div>
+                    <div class="metric-card bg-[--clr-surface-a10] my-8 rounded-lg p-4 flex-1">
+                        <div class="flex items-center text-gray-900 dark:text-gray-100">Average Duration</div>
+                        <p class="mt-2 text-3xl font-bold spacing-sm text-black dark:text-white">0.000s</p>
+                    </div>
+                    <div class="metric-card bg-[--clr-surface-a10] my-8 rounded-lg p-4 flex-1">
+                        <div class="flex items-center text-gray-900 dark:text-gray-100">Maximum Duration</div>
+                        <p class="mt-2 text-3xl font-bold spacing-sm text-black dark:text-white">0.000s</p>
+                    </div>
                 </div>
                 
+                <!-- Place Timing Chart Here-->
+
+                <!-- Place Traffic Amounts Here -->
+
             </div>
         </div>
     </div>

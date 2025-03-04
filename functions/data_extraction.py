@@ -156,7 +156,7 @@ def protocol_distribution(packet_data, csv_file="information-sheets/protocol-num
 
     return protocol_counts
 
-# Getting the MD5 hash of the .pcap file.
+# Getting the MD5 hash of the .pcap file
 def md5_hash(file_storage):
     hasher = hashlib.md5()
     try:
@@ -223,8 +223,69 @@ def application_layer_protocols(packet_data):
     # Convert defaultdict to Counter to use most_common()
     top_protocols = dict(Counter(protocol_counts).most_common(10))
 
-    # Check if 'data' is one of the keys and change it to 'unknown'
-    if 'data' in top_protocols:
-        top_protocols['unk.'] = top_protocols.pop('data')
-
     return {"top_protocols": top_protocols}
+
+# Function to calculate min, max, and avg session duration per flow
+def durations(packet_data):
+    flows = {}
+
+    # Iterate through packet data to extract session information
+    for packet in packet_data:
+        try:
+            layers = packet["_source"]["layers"]
+
+            # Determine if packet is IPv4 or IPv6
+            if "ip" in layers:
+                src_ip = layers["ip"]["ip_src"]
+                dst_ip = layers["ip"]["ip_dst"]
+            elif "ipv6" in layers:
+                src_ip = layers["ipv6"]["ipv6_src"]
+                dst_ip = layers["ipv6"]["ipv6_dst"]
+            else:
+                continue  # Skip non-IP packets
+
+            # Extract transport layer information
+            if "tcp" in layers:
+                src_port = layers["tcp"]["tcp_srcport"]
+                dst_port = layers["tcp"]["tcp_dstport"]
+            elif "udp" in layers:
+                src_port = layers["udp"]["udp_srcport"]
+                dst_port = layers["udp"]["udp_dstport"]
+            elif "icmp" in layers or "icmpv6" in layers:
+                src_port = "ICMP"
+                dst_port = "ICMP"
+            else:
+                continue  # Skip non-TCP/UDP/ICMP packets
+
+            # Unique flow key (excluding protocol)
+            flow_key = (src_ip, dst_ip, src_port, dst_port)
+
+            # Extract frame timestamp
+            frame_time = float(layers["frame"]["frame_time_relative"])
+
+            # Update first and last timestamp per flow
+            if flow_key not in flows:
+                flows[flow_key] = {"first": frame_time, "last": frame_time}
+            else:
+                flows[flow_key]["last"] = frame_time  # Update last seen timestamp
+
+        except (KeyError, ValueError):
+            continue  # Skip packets with missing data
+
+    session_durations = []
+
+    # Compute session duration per flow
+    for flow_data in flows.values():
+        session_duration = flow_data["last"] - flow_data["first"]
+        session_durations.append(session_duration)
+
+    if not session_durations:
+        return None, None, None  # No valid session durations found
+
+    min_duration = min(session_durations)
+    max_duration = max(session_durations)
+    avg_duration = sum(session_durations) / len(session_durations)
+
+    print(min_duration, max_duration, avg_duration)
+
+    return min_duration, max_duration, avg_duration
