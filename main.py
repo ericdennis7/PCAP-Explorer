@@ -67,11 +67,13 @@ def upload_file():
 
         # Extract packet data
         packet_data = raw_pcap_json(filepath)
+        packet_summaries = pcap_packet_summaries(filepath)
 
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
         ip_count, ipv4_addresses, ipv6_addresses, ip_flow_count = unique_ips_and_flows(packet_data)
-    
+        tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
+
         file_info = {
             "name": file_name + file_extension,
             "size_mb": humanize.naturalsize(os.path.getsize(filepath)),
@@ -85,6 +87,9 @@ def upload_file():
             "ipv6": ipv6_addresses,
             "unique_ip_addresses": ip_count,
             "unique_ip_flows": ip_flow_count,
+            "tcp_min_flow": tcp_min_flow,
+            "tcp_max_flow": tcp_max_flow,
+            "tcp_avg_flow": tcp_avg_flow,
             "protocols": protocol_distribution(packet_data),
             "top_ports": transport_layer_ports(packet_data),
             "top_protocols": application_layer_protocols(packet_data)
@@ -129,6 +134,38 @@ def analysis():
  
     imports = read_imports()
     return render_template("analysis.html", file_info=file_info, packet_data=packet_data, imports=imports)
+
+
+
+
+@app.route('/api/pcap_data', methods=['GET'])
+def pcap_data():
+    pcap_file = "C:\\Users\\ericd\\Downloads\\capture.pcap"
+    
+    # Get data from pcap function
+    data = pcap_packet_summaries(pcap_file)
+
+    # Get the search value from DataTables
+    search_value = request.args.get('search[value]', '').lower()
+
+    # Filter the data based on the search query
+    if search_value:
+        data = [item for item in data if any(search_value in str(value).lower() for value in item.values())]
+
+    # DataTables request parameters
+    start = int(request.args.get('start', 0))  # The starting index for data
+    length = int(request.args.get('length', 10))  # The page length
+
+    # Pagination: slice the data to return only the required portion
+    paginated_data = data[start:start + length]
+    
+    # Return the data in the format DataTables expects
+    return jsonify({
+        'draw': int(request.args.get('draw', 0)),  # Incrementing number sent by DataTables
+        'recordsTotal': len(data),  # Total number of records
+        'recordsFiltered': len(data),  # Number of records after filtering
+        'data': paginated_data  # Data to display on the current page
+    })
 
 # Run the app
 if __name__ == "__main__":

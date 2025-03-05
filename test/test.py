@@ -1,9 +1,21 @@
 import subprocess
+import pandas as pd
+import json
 
-def extract_min_max_avg(pcap_file):
-    # Construct the tshark command to get flow statistics for TCP
+# Get packet summaries from a .pcap file
+def pcap_packet_summaries(pcap_file):
+    # Construct the tshark command to extract the required fields
     command = [
-        'tshark', '-r', pcap_file, '-q', '-z', 'conv,tcp'
+        'tshark', '-r', pcap_file, '-T', 'fields',
+        '-e', 'frame.time',        # Timestamp
+        '-e', 'frame.protocols',    # Frame Protocols
+        '-e', 'ip.src',                  # Source IP
+        '-e', 'tcp.srcport',             # Source Port
+        '-e', 'ip.dst',                  # Destination IP
+        '-e', 'tcp.dstport',             # Destination Port
+        '-e', 'eth.src',                 # Source MAC
+        '-e', 'eth.dst',                 # Destination MAC
+        '-e', 'frame.len'                # Packet Size
     ]
     
     # Run tshark command
@@ -13,32 +25,26 @@ def extract_min_max_avg(pcap_file):
         print("Error running tshark:", result.stderr)
         return
     
-    # Process tshark output to remove headers, footer, and sort by bytes
-    output = result.stdout
-    lines = output.splitlines()
+    # Initialize a list to hold all packet data
+    data = []
 
-    # Skip the header lines (first 5) and the last footer line
-    lines = lines[5:-1]
+    # Add column headers as the first row
+    data.append([
+        "Timestamp", "Protocols", "Source IP", "Source Port", 
+        "Destination IP", "Destination Port", "Source MAC", "Destination MAC", "Packet Size"
+    ])
 
-    # Extract the last value from each line (which is the time value)
-    last_values = []
-    for line in lines:
-        last_value = line.split()[-1]  # Extract the last element from the split line
-        last_values.append(float(last_value))  # Convert to float for calculations
+    print(data)
 
-    # Calculate min, max, and average
-    if last_values:
-        min_value = min(last_values)
-        max_value = max(last_values)
-        avg_value = sum(last_values) / len(last_values)
-        
-        # Print results
-        print("Min:", min_value)
-        print("Max:", max_value)
-        print("Average:", f'{avg_value:.4f}')
-    else:
-        print("No valid data to process.")
+    # Process output and store the result as a list of lists
+    for line in result.stdout.splitlines():
+        fields = line.split('\t')  # Tshark separates fields with tab characters
+        if len(fields) == 9:
+            data.append(fields)
+
+    # Return the list of lists
+    return data
 
 # Example usage
 pcap_file = "C:\\Users\\ericd\\Downloads\\newformat-large.pcapng"
-extract_min_max_avg(pcap_file)
+print(pcap_packet_summaries(pcap_file))

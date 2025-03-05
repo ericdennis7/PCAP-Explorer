@@ -30,6 +30,101 @@ def raw_pcap_json(filepath):
     except json.JSONDecodeError:
         raise Exception("Error decoding JSON from TShark output")
 
+# Extract the TCP flows min, max, and avg duration
+def tcp_min_max_avg(pcap_file):
+    # Construct the tshark command to get flow statistics for TCP
+    command = [
+        'tshark', '-r', pcap_file, '-q', '-z', 'conv,tcp'
+    ]
+    
+    # Run tshark command
+    result = subprocess.run(command, capture_output=True, text=True)
+    
+    if result.returncode != 0:
+        print("Error running tshark:", result.stderr)
+        return
+    
+    # Process tshark output to remove headers, footer, and sort by bytes
+    output = result.stdout
+    lines = output.splitlines()
+
+    # Skip the header lines (first 5) and the last footer line
+    lines = lines[5:-1]
+
+    # Extract the last value from each line (which is the time value)
+    last_values = []
+    for line in lines:
+        last_value = line.split()[-1]  # Extract the last element from the split line
+        last_values.append(float(last_value))  # Convert to float for calculations
+
+    # Calculate min, max, and average
+    if last_values:
+        min_value = min(last_values)
+        max_value = max(last_values)
+        avg_value = sum(last_values) / len(last_values)
+        
+    return round(min_value, 4), round(max_value, 4), round(avg_value, 4)
+
+# Get packet summaries from a .pcap file
+def format_timestamp(timestamp):
+    try:
+        # Example: "Dec 24, 2024 06:28:25.354984000 Eastern Standard Time"
+        dt = datetime.strptime(timestamp[:-25], "%b %d, %Y %H:%M:%S.%f")  # Remove the timezone
+        formatted_time = dt.strftime("%H:%M:%S.%f")[:-3]  # Keep milliseconds (trim to 3 decimals)
+        formatted_date = dt.strftime("%b %d, %Y")
+        return f"{formatted_time}\n{formatted_date}"  # New format with newline
+    except ValueError:
+        return timestamp  # Return as-is if parsing fails
+
+# Get packet summaries from a .pcap file
+def pcap_packet_summaries(pcap_file):
+    command = [
+        'tshark', '-r', pcap_file, '-T', 'fields',
+        '-e', 'frame.time',
+        '-e', 'frame.protocols',
+        '-e', 'ip.src',
+        '-e', 'udp.srcport',
+        '-e', 'ip.dst',
+        '-e', 'udp.dstport',
+        '-e', 'eth.src',
+        '-e', 'eth.dst',
+        '-e', 'frame.len'
+    ]
+    
+    result = subprocess.run(command, capture_output=True, text=True)
+    
+    if result.returncode != 0:
+        print("Error running tshark:", result.stderr)
+        return []
+
+    data = []
+    headers = [
+        "Timestamp", "Protocols", "Source", "Source Port",
+        "Destination", "Destination Port", "Source MAC", "Destination MAC", "Size"
+    ]
+
+    for line in result.stdout.splitlines():
+        fields = line.split('\t')
+        if len(fields) == 9:
+            packet_data = dict(zip(headers, fields))
+
+            # Append ports to IPs
+            src_ip = packet_data["Source"]
+            src_port = packet_data["Source Port"]
+            dst_ip = packet_data["Destination"]
+            dst_port = packet_data["Destination Port"]
+
+            packet_data["Source"] = f"{src_ip}:{src_port}" if src_port else src_ip
+            packet_data["Destination"] = f"{dst_ip}:{dst_port}" if dst_port else dst_ip
+            
+            # Format timestamp
+            packet_data["Timestamp"] = format_timestamp(packet_data["Timestamp"])  
+
+            data.append(packet_data)
+
+    return data
+
+
 # Extract the start date and end date, and calculate the time difference
 def packet_times_and_difference(packet_data):
     try:
@@ -224,68 +319,3 @@ def application_layer_protocols(packet_data):
     top_protocols = dict(Counter(protocol_counts).most_common(10))
 
     return {"top_protocols": top_protocols}
-
-# Function to calculate min, max, and avg session duration per flow
-def durations(packet_data):
-    flows = {}
-
-    # Iterate through packet data to extract session information
-    for packet in packet_data:
-        try:
-            layers = packet["_source"]["layers"]
-
-            # Determine if packet is IPv4 or IPv6
-            if "ip" in layers:
-                src_ip = layers["ip"]["ip_src"]
-                dst_ip = layers["ip"]["ip_dst"]
-            elif "ipv6" in layers:
-                src_ip = layers["ipv6"]["ipv6_src"]
-                dst_ip = layers["ipv6"]["ipv6_dst"]
-            else:
-                continue  # Skip non-IP packets
-
-            # Extract transport layer information
-            if "tcp" in layers:
-                src_port = layers["tcp"]["tcp_srcport"]
-                dst_port = layers["tcp"]["tcp_dstport"]
-            elif "udp" in layers:
-                src_port = layers["udp"]["udp_srcport"]
-                dst_port = layers["udp"]["udp_dstport"]
-            elif "icmp" in layers or "icmpv6" in layers:
-                src_port = "ICMP"
-                dst_port = "ICMP"
-            else:
-                continue  # Skip non-TCP/UDP/ICMP packets
-
-            # Unique flow key (excluding protocol)
-            flow_key = (src_ip, dst_ip, src_port, dst_port)
-
-            # Extract frame timestamp
-            frame_time = float(layers["frame"]["frame_time_relative"])
-
-            # Update first and last timestamp per flow
-            if flow_key not in flows:
-                flows[flow_key] = {"first": frame_time, "last": frame_time}
-            else:
-                flows[flow_key]["last"] = frame_time  # Update last seen timestamp
-
-        except (KeyError, ValueError):
-            continue  # Skip packets with missing data
-
-    session_durations = []
-
-    # Compute session duration per flow
-    for flow_data in flows.values():
-        session_duration = flow_data["last"] - flow_data["first"]
-        session_durations.append(session_duration)
-
-    if not session_durations:
-        return None, None, None  # No valid session durations found
-
-    min_duration = min(session_durations)
-    max_duration = max(session_durations)
-    avg_duration = sum(session_durations) / len(session_durations)
-
-    print(min_duration, max_duration, avg_duration)
-
-    return min_duration, max_duration, avg_duration
