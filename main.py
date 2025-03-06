@@ -104,7 +104,7 @@ def upload_file():
             json.dump(packet_data, f)
 
         # Remove file after processing
-        # os.remove(filepath)
+        os.remove(filepath)
 
         # Store the file reference in session (store the temp file name)
         session['file_info'] = file_info

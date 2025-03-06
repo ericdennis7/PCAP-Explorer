@@ -1,24 +1,30 @@
-<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table class="sortable w-full text-left rtl:text-right text-white">
-        <thead class="text-lg text-white bg-[--clr-surface-a10]">
+<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg hover:scale-105 transition-transform duration-300">
+    <table class="sortable w-full text-left rtl:text-right text-white" id="macTable">
+        <thead class="text-lg text-white bg-[--clr-surface-a5]">
             <tr>
                 <th scope="col" class="px-6 py-3">
                     MAC Address
                 </th>
                 <th scope="col" class="px-6 py-3">
+                    OUI Resolved
+                </th>
+                <th scope="col" class="px-6 py-3">
                     Count
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Percentage of Total
+                    Percent %
                 </th>
             </tr>
         </thead>
         <tbody>
             {% for mac, data in file_info['mac_addresses']['top_macs'].items() %}
-                <tr class="bg-[--clr-surface-a10]">
-                    <th scope="row" class="px-6 py-4 text-white whitespace-nowrap">
+                <tr class="bg-[--clr-surface-a10] border-b border-[--clr-surface-a5] hover:bg-[--clr-surface-a20]">
+                    <td scope="row" class="px-6 py-4 text-white whitespace-nowrap">
                         {{ mac }}
-                    </th>
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ data['oui_resolved']}}
+                    </td>
                     <td class="px-6 py-4">
                         {{ data['count'] }}
                     </td>
@@ -30,3 +36,19 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const table = document.getElementById("macTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort((rowA, rowB) => {
+            const cellA = Number(rowA.children[1].textContent.trim()); // Count column
+            const cellB = Number(rowB.children[1].textContent.trim()); // Count column
+            return cellB - cellA; // Sort descending
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    });
+</script>
