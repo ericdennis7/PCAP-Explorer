@@ -1,0 +1,107 @@
+<div class="relative rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]">
+    <div class="relative p-4">
+        <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">Top MAC Addresses</h4>
+        <div class="absolute top-2 right-2 flex ">
+            <button id="chartButton2" class="p-2 text-white rounded-l-lg active-button">
+                <i class="fa-solid fa-chart-pie"></i>
+            </button>
+            <button id="tableButton2" class="p-2 text-[--clr-surface-a30] rounded-r-lg">
+                <i class="fa-solid fa-table"></i>
+            </button>
+        </div>
+    </div>
+    <div class="flex justify-center items-center h-full p-2" id="chartContainer2">
+        <canvas id="uniqueMACChart"></canvas>
+    </div>
+    <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer2">
+    </div>
+</div>
+
+<script>
+    function drawPieChart(topUniqueMACsdata, maxValue) {
+        var uniqueMACctx = document.getElementById("uniqueMACChart").getContext('2d');
+        var uniqueMACChart = new Chart(uniqueMACctx, {
+            type: 'doughnut',
+            data: {
+                labels: topUniqueMACslabels,  // Unique MAC addresses
+                datasets: [{
+                    data: topUniqueMACsdata,  // Unique MAC counts
+                    backgroundColor: ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'],  // Custom colors for top 5
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                borderRadius: 17,
+                tooltips: {
+                    enabled: false
+                },
+                plugins: {
+                    datalabels: {
+                        backgroundColor: function(context) {
+                            return context.dataset.backgroundColor;
+                        },
+                        display: function(context) {
+                            var dataset = context.dataset;
+                            var value = dataset.data[context.dataIndex];
+                            return value > 0;
+                        },
+                        color: 'white'
+                    },
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            font: {
+                                size: 16,
+                                family: 'monospace'
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, index) => {
+                                    const value = data.datasets[0].data[index];
+                                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(2);
+                                    return {
+                                        text: `‎ ${label} - ${percentage}%`,
+                                        fillStyle: data.datasets[0].backgroundColor[index],
+                                        strokeStyle: data.datasets[0].backgroundColor[index],
+                                        lineWidth: 1,
+                                        fontColor: '#ffffff'
+                                    };
+                                });
+                            }
+                        }
+                    },
+                    tooltip: {
+                        borderWidth: 0,
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
+                                let value = tooltipItem.raw;
+                                return `${label}: ${value}`;
+                            },
+                            labelColor: function (context) {
+                                return {
+                                    borderColor: "rgba(0,0,0,0)",
+                                    backgroundColor: context.dataset.backgroundColor[context.dataIndex],
+                                    borderWidth: 0
+                                };
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 7,
+                        borderColor: '#282828'
+                    }
+                }
+            }
+        });
+    }
+
+</script>

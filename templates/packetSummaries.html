@@ -1,0 +1,55 @@
+<section class="w-full">
+    <label>
+        <input class="peer/showLabel absolute scale-0" type="checkbox" />
+        <span class="block max-h-14 overflow-hidden rounded-lg bg-[--clr-surface-a10] px-4 py-0 text-white shadow-lg transition-all duration-300 peer-checked/showLabel:h-auto peer-checked/showLabel:max-h-screen">
+            <h3 class="flex text-lg h-14 cursor-pointer items-center font-bold">
+                Packet Summaries Table
+                <svg class="w-6 h-6 text-gray-800 dark:text-white ml-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 20V7m0 13-4-4m4 4 4-4m4-12v13m0-13 4 4m-4-4-4 4"/>
+                </svg>
+            </h3>
+            <table class="text-white bg-[--clr-surface-a10] my-2" id="pcapTable" class="display" cellspacing="0" width="100%">
+                <thead>
+                    <tr class="no-wrap">
+                        <th class="whitespace-nowrap text-left">Timestamp</th>
+                        <th class="whitespace-nowrap text-left">Protocols</th>
+                        <th class="whitespace-nowrap text-left">Source</th>
+                        <th class="whitespace-nowrap text-left">Destination</th>
+                        <th class="whitespace-nowrap text-left">Size</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-[--clr-surface-a10]">
+                    <!-- Data will be populated here by DataTables -->
+                </tbody>
+            </table>
+        </span>
+    </label>
+</section>                            
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#pcapTable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "paging": true,
+        "scrollX": true,
+        "fixedHeader": true,
+        "responsive": true,
+        "colReorder": true,
+        "pageLength": 15,
+        "lengthMenu": [ [5, 10, 15, 25, 50, 100], [5, 10, 15, 25, 50, 100] ],
+        "ajax": {
+            "url": "/api/pcap_data",  // Your API route for DataTable data
+            "type": "GET",
+            "dataSrc": "data"  // This tells DataTables to use the 'data' property from the response
+        },
+        "columns": [
+            { "data": "Timestamp" },
+            { "data": "Protocols" },
+            { "data": "Source" },
+            { "data": "Destination" },
+            { "data": "Size" }
+        ]
+    });
+});
+</script>

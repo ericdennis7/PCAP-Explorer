@@ -1,50 +1,53 @@
 import subprocess
 import pandas as pd
 import json
+from collections import Counter, defaultdict
 
-# Get packet summaries from a .pcap file
-def pcap_packet_summaries(pcap_file):
-    # Construct the tshark command to extract the required fields
-    command = [
-        'tshark', '-r', pcap_file, '-T', 'fields',
-        '-e', 'frame.time',        # Timestamp
-        '-e', 'frame.protocols',    # Frame Protocols
-        '-e', 'ip.src',                  # Source IP
-        '-e', 'tcp.srcport',             # Source Port
-        '-e', 'ip.dst',                  # Destination IP
-        '-e', 'tcp.dstport',             # Destination Port
-        '-e', 'eth.src',                 # Source MAC
-        '-e', 'eth.dst',                 # Destination MAC
-        '-e', 'frame.len'                # Packet Size
-    ]
-    
-    # Run tshark command
-    result = subprocess.run(command, capture_output=True, text=True)
-    
+# Function to read the pcap file
+def raw_pcap_json(filepath):
+    tshark_path = r"C:\Program Files\Wireshark\tshark.exe"
+
+    result = subprocess.run(
+        [tshark_path, "-r", filepath, "-T", "json"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
     if result.returncode != 0:
-        print("Error running tshark:", result.stderr)
-        return
+        raise Exception(f"TShark error: {result.stderr.decode('utf-8')}")
+
+    output = result.stdout.decode("utf-8").strip()
     
-    # Initialize a list to hold all packet data
-    data = []
+    if not output:  
+        raise Exception("TShark returned empty output.")
 
-    # Add column headers as the first row
-    data.append([
-        "Timestamp", "Protocols", "Source IP", "Source Port", 
-        "Destination IP", "Destination Port", "Source MAC", "Destination MAC", "Packet Size"
-    ])
+    try:
+        return json.loads(output)
+    except json.JSONDecodeError:
+        raise Exception("Error decoding JSON from TShark output")
 
-    print(data)
+# Function to get the top 10 MAC addresses
+def mac_address_counts(packet_data):
+    mac_counts = Counter()
 
-    # Process output and store the result as a list of lists
-    for line in result.stdout.splitlines():
-        fields = line.split('\t')  # Tshark separates fields with tab characters
-        if len(fields) == 9:
-            data.append(fields)
+    try:
+        for packet in packet_data:
+            layers = packet["_source"]["layers"]
+            src_mac = layers.get("eth", {}).get("eth.src")
+            dst_mac = layers.get("eth", {}).get("eth.dst")
 
-    # Return the list of lists
-    return data
+            if src_mac:
+                mac_counts[src_mac] += 1
+            if dst_mac:
+                mac_counts[dst_mac] += 1
+
+    except Exception as e:
+        print(f"Error processing packet: {e}")
+
+    top_macs = dict(mac_counts.most_common(10))
+
+    return {"top_macs": top_macs}
 
 # Example usage
-pcap_file = "C:\\Users\\ericd\\Downloads\\newformat-large.pcapng"
-print(pcap_packet_summaries(pcap_file))
+packet_data = raw_pcap_json("C:\\Users\\ericd\\Downloads\\newformat-large.pcapng")
+print(mac_address_counts(packet_data))

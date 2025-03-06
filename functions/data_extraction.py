@@ -32,38 +32,41 @@ def raw_pcap_json(filepath):
 
 # Extract the TCP flows min, max, and avg duration
 def tcp_min_max_avg(pcap_file):
-    # Construct the tshark command to get flow statistics for TCP
-    command = [
-        'tshark', '-r', pcap_file, '-q', '-z', 'conv,tcp'
-    ]
-    
-    # Run tshark command
-    result = subprocess.run(command, capture_output=True, text=True)
-    
-    if result.returncode != 0:
-        print("Error running tshark:", result.stderr)
-        return
-    
-    # Process tshark output to remove headers, footer, and sort by bytes
-    output = result.stdout
-    lines = output.splitlines()
-
-    # Skip the header lines (first 5) and the last footer line
-    lines = lines[5:-1]
-
-    # Extract the last value from each line (which is the time value)
-    last_values = []
-    for line in lines:
-        last_value = line.split()[-1]  # Extract the last element from the split line
-        last_values.append(float(last_value))  # Convert to float for calculations
-
-    # Calculate min, max, and average
-    if last_values:
-        min_value = min(last_values)
-        max_value = max(last_values)
-        avg_value = sum(last_values) / len(last_values)
+    try:
+        # Construct the tshark command to get flow statistics for TCP
+        command = [
+            'tshark', '-r', pcap_file, '-q', '-z', 'conv,tcp'
+        ]
         
-    return round(min_value, 4), round(max_value, 4), round(avg_value, 4)
+        # Run tshark command
+        result = subprocess.run(command, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            print("Error running tshark:", result.stderr)
+            return
+        
+        # Process tshark output to remove headers, footer, and sort by bytes
+        output = result.stdout
+        lines = output.splitlines()
+
+        # Skip the header lines (first 5) and the last footer line
+        lines = lines[5:-1]
+
+        # Extract the last value from each line (which is the time value)
+        last_values = []
+        for line in lines:
+            last_value = line.split()[-1]  # Extract the last element from the split line
+            last_values.append(float(last_value))  # Convert to float for calculations
+
+        # Calculate min, max, and average
+        if last_values:
+            min_value = min(last_values)
+            max_value = max(last_values)
+            avg_value = sum(last_values) / len(last_values)
+            
+        return round(min_value, 4), round(max_value, 4), round(avg_value, 4)
+    except:
+        return "N/A", "N/A", "N/A"
 
 # Get packet summaries from a .pcap file
 def format_timestamp(timestamp):
@@ -124,7 +127,6 @@ def pcap_packet_summaries(pcap_file):
 
     return data
 
-
 # Extract the start date and end date, and calculate the time difference
 def packet_times_and_difference(packet_data):
     try:
@@ -168,6 +170,8 @@ def unique_ips_and_flows(packet_data):
     unique_ipv4_set = set()  # Stores all unique IPv4 IPs
     unique_ipv6_set = set()  # Stores all unique IPv6 IPs
     unique_flows = set()     # Stores all unique (src, dst) pairs
+    ipv4_counts = Counter()  # Count occurrences of each IPv4 address
+    ipv6_counts = Counter()  # Count occurrences of each IPv6 address
 
     try:
         for packet in packet_data:
@@ -181,17 +185,21 @@ def unique_ips_and_flows(packet_data):
             src_ipv6 = layers.get("ipv6", {}).get("ipv6.src")
             dst_ipv6 = layers.get("ipv6", {}).get("ipv6.dst")
 
-            # Add unique IPv4 IPs to the set
+            # Add unique IPv4 IPs to the set and count occurrences
             if src_ip:
                 unique_ipv4_set.add(src_ip)
+                ipv4_counts[src_ip] += 1
             if dst_ip:
                 unique_ipv4_set.add(dst_ip)
+                ipv4_counts[dst_ip] += 1
 
-            # Add unique IPv6 IPs to the set
+            # Add unique IPv6 IPs to the set and count occurrences
             if src_ipv6:
                 unique_ipv6_set.add(src_ipv6)
+                ipv6_counts[src_ipv6] += 1
             if dst_ipv6:
                 unique_ipv6_set.add(dst_ipv6)
+                ipv6_counts[dst_ipv6] += 1
 
             # Add unique IP-to-IP flows to the set (separating IPv4 and IPv6 flows)
             if src_ip and dst_ip:
@@ -202,11 +210,15 @@ def unique_ips_and_flows(packet_data):
         # Calculate the combined IP count
         combined_ip_count = len(unique_ipv4_set) + len(unique_ipv6_set)
 
-        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows)
+        # Combine the top 10 most frequent IPv4 and IPv6 addresses
+        combined_top_ips = dict(ipv4_counts.most_common(10))
+        combined_top_ips.update(ipv6_counts.most_common(10))
+
+        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows), combined_top_ips
 
     except KeyError:
-        return 0, 0, 0, 0
-    
+        return 0, 0, 0, 0, {}
+
 # Load protocol numbers into a dictionary
 def load_protocol_mapping(csv_file):
     protocol_mapping = {}
@@ -298,6 +310,7 @@ def transport_layer_ports(packet_data):
 
 # Function to count L7 protocols
 def application_layer_protocols(packet_data):
+
     protocol_counts = defaultdict(int)
 
     try:
@@ -319,3 +332,41 @@ def application_layer_protocols(packet_data):
     top_protocols = dict(Counter(protocol_counts).most_common(10))
 
     return {"top_protocols": top_protocols}
+
+# Function to get the top 10 MAC addresses and their percentages
+def mac_address_counts(packet_data):
+    mac_counts = Counter()
+
+    try:
+        for packet in packet_data:
+            layers = packet["_source"]["layers"]
+            src_mac = layers.get("eth", {}).get("eth.src")
+            dst_mac = layers.get("eth", {}).get("eth.dst")
+
+            if src_mac:
+                mac_counts[src_mac] += 1
+            if dst_mac:
+                mac_counts[dst_mac] += 1
+
+    except Exception as e:
+        print(f"Error processing packet: {e}")
+
+    # Calculate total MAC count
+    total_count = sum(mac_counts.values())
+
+    # Calculate percentage for each MAC address
+    mac_percentage = {
+        mac: {
+            "count": count,
+            "percentage": (count / total_count) * 100 if total_count > 0 else 0
+        }
+        for mac, count in mac_counts.items()
+    }
+
+    # Sort by percentage in descending order and return top 10
+    sorted_macs = sorted(mac_percentage.items(), key=lambda x: x[1]['percentage'], reverse=True)[:10]
+
+    # Convert back to a dictionary for use in the template
+    sorted_mac_percentage = {mac: data for mac, data in sorted_macs}
+
+    return {"top_macs": sorted_mac_percentage}

@@ -1,0 +1,32 @@
+<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="sortable w-full text-left rtl:text-right text-white">
+        <thead class="text-lg text-white bg-[--clr-surface-a10]">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    MAC Address
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Count
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Percentage of Total
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mac, data in file_info['mac_addresses']['top_macs'].items() %}
+                <tr class="bg-[--clr-surface-a10]">
+                    <th scope="row" class="px-6 py-4 text-white whitespace-nowrap">
+                        {{ mac }}
+                    </th>
+                    <td class="px-6 py-4">
+                        {{ data['count'] }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ "%.2f"|format(data['percentage']) }}%
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

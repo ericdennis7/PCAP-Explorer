@@ -71,7 +71,7 @@ def upload_file():
 
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
-        ip_count, ipv4_addresses, ipv6_addresses, ip_flow_count = unique_ips_and_flows(packet_data)
+        ip_count, ipv4_addresses, ipv6_addresses, ip_flow_count, unique_ip_addresses = unique_ips_and_flows(packet_data)
         tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
 
         file_info = {
@@ -85,6 +85,7 @@ def upload_file():
             "total_packets": total_packets(packet_data),
             "ipv4": ipv4_addresses,
             "ipv6": ipv6_addresses,
+            "unique_ips": unique_ip_addresses,
             "unique_ip_addresses": ip_count,
             "unique_ip_flows": ip_flow_count,
             "tcp_min_flow": tcp_min_flow,
@@ -92,7 +93,8 @@ def upload_file():
             "tcp_avg_flow": tcp_avg_flow,
             "protocols": protocol_distribution(packet_data),
             "top_ports": transport_layer_ports(packet_data),
-            "top_protocols": application_layer_protocols(packet_data)
+            "top_protocols": application_layer_protocols(packet_data),
+            "mac_addresses": mac_address_counts(packet_data)
         }
 
         # Store packet data in a temporary file
