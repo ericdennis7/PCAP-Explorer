@@ -1,11 +1,10 @@
-<link rel="stylesheet" href="/static/colors.css"> <!-- Custom colors CSS -->
 <script src="https://cdn.tailwindcss.com"></script> <!-- Tailwind CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/> <!-- Animate.css -->
-
-<link rel="icon" type="image/x-icon" href="/static/images/logo.png"> <!-- Favicon -->
-<script src="https://kit.fontawesome.com/fb4fbf1c3b.js" crossorigin="anonymous"></script> <!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CSS -->
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script> <!-- Chart.js -->
+<script src="https://kit.fontawesome.com/fb4fbf1c3b.js" crossorigin="anonymous"></script> <!-- Font Awesome -->
+
+<link rel="stylesheet" href="/static/colors.css"> <!-- Custom colors CSS -->
+<link rel="icon" type="image/x-icon" href="/static/images/logo.png"> <!-- Favicon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/> <!-- Animate.css -->
 
 <script src="https://cdn.jsdelivr.net/gh/tofsjonas/sortable@latest/dist/sortable.min.js"></script> <!-- Sortable.js -->
