@@ -30,8 +30,10 @@
 </head>
 
 <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]">
-    {% include 'navbar.html' %} <!-- Contains the navigation bar -->
+    <!-- Navbar -->
+    {% include 'navbar.html' %}
     
+    <!-- Main body -->
     <div class="max-w-[1600px] w-full mx-auto p-6 animate__animated animate__fadeInUpBig">
         <div class="flex flex-col w-full">
             <div class="pb-8 w-full">
@@ -39,54 +41,63 @@
                     <span>Dashboard</span>
                 </h1>
 
+                <!-- Contains the file statistics section -->
                 <hr class="h-px my-8 bg-[#222222] border-0">
                 <h2 class="font-bold text-2xl mb-6">File Stats</h2>
-                
-                {% include 'file_statistics.html' %} <!-- Contains the file statistics -->
+                {% include 'file_statistics.html' %}
 
                 <hr class="h-px my-8 bg-[#222222] border-0">
-                <h2 class="font-bold text-2xl mb-6">Packet Structure Stats</h2>
 
+                <!-- Doughnut Charts -->
+                <h2 class="font-bold text-2xl mb-6">Packet Structure Stats</h2>
                 <div class="grid grid-cols-2 gap-4 max-w-[1600px] mx-auto">
                     {% include 'ipChart.html' %} <!-- Contains the IP doughnut chart -->
                     {% include 'l7protocols.html' %} <!-- Contains the L7 protocol doughnut chart -->
                     {% include 'l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
                     {% include 'l4ports.html' %} <!-- Contains the L4 port doughnut chart -->
-                    {% include 'button-view.html' %} <!-- Contains the button view script -->
                 </div>
-
+                
                 <hr class="h-px my-8 bg-[#222222] border-0">
-                <h2 class="font-bold text-2xl mb-6">Top 10 IP Addresses</h2>
-
+                
+                <!-- Top IP Address and MAC address tables -->
+                <div class="flex items-center justify-between mb-6">
+                    <h2 id="tableTitle" class="font-bold text-2xl">Top 10 IP Addresses</h2>
+                    <button onclick="toggleTables()" id="toggleButton" 
+                        class="px-4 py-2 bg-transparent border-2 border-transparent text-[--clr-primary-a30] rounded-lg shadow-md hover:bg-transparent hover:border-[--clr-primary-a30] focus:outline-none">
+                        Show MAC Table
+                    </button>
+                </div>
+            
                 <div class="max-w-[1600px] mx-auto">
-                    {% include 'topIPaddresses.html' %} <!-- Contains the top IP addresses table -->
+                    <div id="ipTableContainer">
+                        {% include 'topIPaddresses.html' %}
+                        <p class="text-[--clr-surface-a30] mt-2 text-center">* A bogon IP address is an IP address from reserved or unallocated space that should not appear on the public Internet (unallocated and private IP addresses) *</p>
+                    </div>
+                    <div id="macTableContainer" class="hidden">
+                        {% include 'topMACaddresses.html' %}
+                    </div>
                 </div>
-
+            
                 <hr class="h-px my-8 bg-[#222222] border-0">
-                <h2 class="font-bold text-2xl mb-6">Top 10 MAC Addresses</h2>
 
-                <div class="max-w-[1600px] mx-auto">
-                    {% include 'topMACaddresses.html' %} <!-- Contains the top IP addresses table -->
-                </div>
-
-                <hr class="h-px my-8 bg-[#222222] border-0">
+                <!-- Contains the timing metric cards such as flows -->
                 <h2 class="font-bold text-2xl mb-6">Timing Stats</h2>
-                
-                {% include 'tcpFlowDurations.html' %} <!-- Contains the TCP flow durations chart -->
-                
-                <!-- Place Timing Chart Here-->
-
-                <!-- Place Traffic Amounts Here -->
+                {% include 'tcpFlowDurations.html' %}
 
                 <hr class="h-px my-8 bg-[#222222] border-0">
+
+                <!-- Table of packet summaries -->
                 <h2 class="font-bold text-2xl mb-6">Other</h2>
-
-                {% include 'packetSummaries.html' %} <!-- Contains table of packet summaries -->
-
+                <!-- {% include 'packetSummaries.html' %} -->
+                
             </div>
         </div>
     </div>
-          
+    
+    <!-- Footer -->
     {% include 'footer.html' %}
+    
+    <!-- JavaScript -->
+    {% include 'button-view.html' %} <!-- Contains the button view script -->
 </body>
 </html>

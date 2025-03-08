@@ -1,4 +1,4 @@
-<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg hover:scale-105 transition-transform duration-300">
+<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg">
     <table class="sortable w-full text-left rtl:text-right text-white" id="ipTable">
         <thead class="text-lg text-white bg-[--clr-surface-a5]">
             <tr>
@@ -6,7 +6,7 @@
                     IP Address
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Hostname
+                    Organization
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Location
@@ -22,15 +22,18 @@
         <tbody>
             {% for ip, data in file_info['unique_ips']['top_ips'].items() %}
                 <tr class="bg-[--clr-surface-a10] border-b border-[--clr-surface-a5] hover:bg-[--clr-surface-a20]">
-                    <td scope="row" class="px-6 py-4 text-white">
+                    <td class="px-6 py-4 text-white">
                         {{ ip }}
                     </td>
                     <td class="px-6 py-4"> <!-- max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap -->
-                        {{ data['hostname'] }}
+                        {{ data['org'] }}
                     </td>                    
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 flex items-center gap-2">
+                        <img src="static\images\flags\{{ 'xx' if data['country']|lower == 'bogon' else data['country']|lower }}.svg" 
+                             width="16" 
+                             alt="{{ data['country']|lower }}">
                         {{ data['location'] }}
-                    </td>
+                    </td>                                      
                     <td class="px-6 py-4">
                         {{ data['count']}}
                     </td>
@@ -50,8 +53,8 @@
         const rows = Array.from(tbody.querySelectorAll("tr"));
 
         rows.sort((rowA, rowB) => {
-            const cellA = Number(rowA.children[4].textContent.trim());
-            const cellB = Number(rowB.children[4].textContent.trim());
+            const cellA = Number(rowA.children[3].textContent.trim());
+            const cellB = Number(rowB.children[3].textContent.trim());
             return cellB - cellA; 
         });
 

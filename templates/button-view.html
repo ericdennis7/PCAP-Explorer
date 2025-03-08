@@ -1,3 +1,5 @@
+<!-- Button logic for switching from doughnut chart to table -->
+
 <script>
     // Get the buttons and containers for instance 1
     const chartButton1 = document.getElementById("chartButton1");
@@ -132,4 +134,26 @@
     tableContainer4.classList.add("hidden");
     
 </script>
+
+<!-- Top IP and MAC Address table button -->
+
+<script>
+    function toggleTables() {
+        const ipTable = document.getElementById('ipTableContainer');
+        const macTable = document.getElementById('macTableContainer');
+        const button = document.getElementById('toggleButton');
+        const title = document.getElementById('tableTitle');
     
+        if (ipTable.classList.contains('hidden')) {
+            ipTable.classList.remove('hidden');
+            macTable.classList.add('hidden');
+            title.textContent = "Top 10 IP Addresses"; // Change h2 text
+            button.textContent = "Show MAC Table"; // Update button text
+        } else {
+            ipTable.classList.add('hidden');
+            macTable.classList.remove('hidden');
+            title.textContent = "Top 10 MAC Addresses"; // Change h2 text
+            button.textContent = "Show IP Table"; // Update button text
+        }
+    }
+</script>

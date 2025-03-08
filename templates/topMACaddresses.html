@@ -1,4 +1,4 @@
-<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg hover:scale-105 transition-transform duration-300">
+<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg">
     <table class="sortable w-full text-left rtl:text-right text-white" id="macTable">
         <thead class="text-lg text-white bg-[--clr-surface-a5]">
             <tr>
@@ -29,7 +29,7 @@
                         {{ data['count'] }}
                     </td>
                     <td class="px-6 py-4">
-                        {{ "%.2f"|format(data['percentage']) }}%
+                        {{ "%.2f"|format(data['percentage']) }}
                     </td>
                 </tr>
             {% endfor %}
