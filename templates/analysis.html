@@ -49,17 +49,24 @@
 
                 <div class="grid grid-cols-2 gap-4 max-w-[1600px] mx-auto">
                     {% include 'ipChart.html' %} <!-- Contains the IP doughnut chart -->
+                    {% include 'l7protocols.html' %} <!-- Contains the L7 protocol doughnut chart -->
                     {% include 'l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
                     {% include 'l4ports.html' %} <!-- Contains the L4 port doughnut chart -->
-                    {% include 'l7protocols.html' %} <!-- Contains the L7 protocol doughnut chart -->
                     {% include 'button-view.html' %} <!-- Contains the button view script -->
                 </div>
 
                 <hr class="h-px my-8 bg-[#222222] border-0">
-                <h2 class="font-bold text-2xl mb-6">Top IP & MAC Addresses</h2>
+                <h2 class="font-bold text-2xl mb-6">Top 10 IP Addresses</h2>
 
-                <div class="grid grid-cols-2 gap-4 max-w-[1600px] mx-auto">
+                <div class="max-w-[1600px] mx-auto">
                     {% include 'topIPaddresses.html' %} <!-- Contains the top IP addresses table -->
+                </div>
+
+                <hr class="h-px my-8 bg-[#222222] border-0">
+                <h2 class="font-bold text-2xl mb-6">Top 10 MAC Addresses</h2>
+
+                <div class="max-w-[1600px] mx-auto">
+                    {% include 'topMACaddresses.html' %} <!-- Contains the top IP addresses table -->
                 </div>
 
                 <hr class="h-px my-8 bg-[#222222] border-0">

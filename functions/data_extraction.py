@@ -211,10 +211,24 @@ def unique_ips_and_flows(packet_data):
         combined_ip_count = len(unique_ipv4_set) + len(unique_ipv6_set)
 
         # Combine the top 10 most frequent IPv4 and IPv6 addresses
-        combined_top_ips = dict(ipv4_counts.most_common(10))
+        combined_top_ips = {}
+        combined_top_ips.update(ipv4_counts.most_common(10))
         combined_top_ips.update(ipv6_counts.most_common(10))
 
-        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows), combined_top_ips
+        # Calculate total IP count
+        total_count = sum(combined_top_ips.values())
+
+        # Calculate percentage for each IP address
+        ip_details = {
+            ip: {
+                "count": count,
+                "percentage": (count / total_count) * 100 if total_count > 0 else 0
+            }
+            for ip, count in combined_top_ips.items()
+        }
+
+        # Return the values as variables
+        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows), {"top_ips": ip_details}
 
     except KeyError:
         return 0, 0, 0, 0, {}

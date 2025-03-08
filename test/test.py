@@ -1,6 +1,8 @@
 import subprocess
+import requests
 import pandas as pd
 import json
+import myipaddress as myip
 from collections import Counter, defaultdict
 
 # Function to read the pcap file
@@ -26,48 +28,81 @@ def raw_pcap_json(filepath):
     except json.JSONDecodeError:
         raise Exception("Error decoding JSON from TShark output")
 
-def mac_address_counts(packet_data):
-    mac_counts = Counter()
-    mac_details = {}
+def analyze_packet_data(packet_data):
+    unique_ipv4_set = set()
+    unique_ipv6_set = set()
+    unique_flows = set()
+    ipv4_counts = Counter()
+    ipv6_counts = Counter()
 
     try:
         for packet in packet_data:
-            layers = packet["_source"]["layers"]
-            eth_layer = layers.get("eth", {})
+            layers = packet.get("_source", {}).get("layers", {})
+            
+            src_ip = layers.get("ip", {}).get("ip.src")
+            dst_ip = layers.get("ip", {}).get("ip.dst")
+            src_ipv6 = layers.get("ipv6", {}).get("ipv6.src")
+            dst_ipv6 = layers.get("ipv6", {}).get("ipv6.dst")
+            
+            if src_ip:
+                unique_ipv4_set.add(src_ip)
+                ipv4_counts[src_ip] += 1
+            if dst_ip:
+                unique_ipv4_set.add(dst_ip)
+                ipv4_counts[dst_ip] += 1
+            
+            if src_ipv6:
+                unique_ipv6_set.add(src_ipv6)
+                ipv6_counts[src_ipv6] += 1
+            if dst_ipv6:
+                unique_ipv6_set.add(dst_ipv6)
+                ipv6_counts[dst_ipv6] += 1
+            
+            if src_ip and dst_ip:
+                unique_flows.add((src_ip, dst_ip))
+            if src_ipv6 and dst_ipv6:
+                unique_flows.add((src_ipv6, dst_ipv6))
+        
+        combined_ip_count = len(unique_ipv4_set) + len(unique_ipv6_set)
+        combined_top_ips = dict(ipv4_counts.most_common(10))
+        combined_top_ips.update(dict(ipv6_counts.most_common(10)))
+        total_count = sum(combined_top_ips.values())
 
-            src_mac = eth_layer.get("eth.src")
-            dst_mac = eth_layer.get("eth.dst")
-
-            # Fetch OUI-resolved names from eth.src_tree and eth.dst_tree
-            src_oui = eth_layer.get("eth.src_tree", {}).get("eth.src.oui_resolved", "Unknown")
-            dst_oui = eth_layer.get("eth.dst_tree", {}).get("eth.dst.oui_resolved", "Unknown")
-
-            if src_mac:
-                mac_counts[src_mac] += 1
-                mac_details[src_mac] = src_oui  
-
-            if dst_mac:
-                mac_counts[dst_mac] += 1
-                mac_details[dst_mac] = dst_oui  
-
-    except Exception as e:
-        print(f"Error processing packet: {e}")
-
-    # Calculate total MAC count
-    total_count = sum(mac_counts.values())
-
-    # Calculate percentage for each MAC address
-    mac_percentage = {
-        mac: {
-            "count": count,
-            "percentage": (count / total_count) * 100 if total_count > 0 else 0,
-            "oui_resolved": mac_details.get(mac, "Unknown")  
+        top_ips_data = {
+            ip: {
+                "count": count,
+                "percentage": (count / total_count) * 100 if total_count > 0 else 0
+            }
+            for ip, count in combined_top_ips.items()
         }
-        for mac, count in mac_counts.most_common(10)
-    }
-
-    return {"top_macs": mac_percentage}
+        
+        def probe_ip(ip):
+            try:
+                response = requests.get(f"https://ipinfo.io/{ip}/json")
+                if response.status_code == 200:
+                    return response.json()
+            except requests.RequestException:
+                return {}
+            return {}
+        
+        for ip in top_ips_data:
+            ip_info = probe_ip(ip)
+            if ip_info.get("bogon", False):
+                ip_info.update({
+                    "hostname": "bogon", "city": "bogon", "region": "bogon",
+                    "country": "bogon", "loc": "bogon", "org": "bogon",
+                    "postal": "bogon", "timezone": "bogon"
+                })
+            ip_info.update(top_ips_data[ip])
+            top_ips_data[ip] = ip_info
+        
+        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows), {"top_ips": top_ips_data}
+    
+    except KeyError:
+        return 0, 0, 0, 0, {}
 
 # Example usage
-packet_data = raw_pcap_json("C:\\Users\\ericd\\Downloads\\newformat-large.pcapng")
-print(mac_address_counts(packet_data))
+packet_data = []  # Replace with actual packet data
+packet_data = raw_pcap_json("C:\\Users\\ericd\\Downloads\\test.pcap")
+results = analyze_packet_data(packet_data)
+print(json.dumps(results, indent=4))
