@@ -28,7 +28,7 @@ def raw_pcap_json(filepath):
     except json.JSONDecodeError:
         raise Exception("Error decoding JSON from TShark output")
 
-def analyze_packet_data(packet_data):
+def unique_ips_and_flows(packet_data):
     unique_ipv4_set = set()
     unique_ipv6_set = set()
     unique_flows = set()
@@ -93,16 +93,27 @@ def analyze_packet_data(packet_data):
                     "country": "bogon", "loc": "bogon", "org": "bogon",
                     "postal": "bogon", "timezone": "bogon"
                 })
+            
+            # Combine city, region, country with a fallback if missing
+            city = ip_info.get("city", "")
+            region = ip_info.get("region", "")
+            country = ip_info.get("country", "")
+            ip_info["location"] = ", ".join(filter(None, [city, region, country]))  # Filters out empty values
+
             ip_info.update(top_ips_data[ip])
             top_ips_data[ip] = ip_info
-        
+
         return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows), {"top_ips": top_ips_data}
     
     except KeyError:
         return 0, 0, 0, 0, {}
 
+
 # Example usage
 packet_data = []  # Replace with actual packet data
 packet_data = raw_pcap_json("C:\\Users\\ericd\\Downloads\\test.pcap")
-results = analyze_packet_data(packet_data)
-print(json.dumps(results, indent=4))
+# results = analyze_packet_data(packet_data)
+# print(json.dumps(results, indent=4))
+
+print()
+print(unique_ips_and_flows(packet_data))  # Call the function with packet data

@@ -2,6 +2,7 @@
 import csv
 import json
 import hashlib
+import requests
 import humanize
 import subprocess
 from datetime import datetime
@@ -167,69 +168,82 @@ def total_packets(packet_data):
 
 # Count of unique IPv4 and IPv6 addresses and flows, with combined IP count
 def unique_ips_and_flows(packet_data):
-    unique_ipv4_set = set()  # Stores all unique IPv4 IPs
-    unique_ipv6_set = set()  # Stores all unique IPv6 IPs
-    unique_flows = set()     # Stores all unique (src, dst) pairs
-    ipv4_counts = Counter()  # Count occurrences of each IPv4 address
-    ipv6_counts = Counter()  # Count occurrences of each IPv6 address
+    unique_ipv4_set = set()
+    unique_ipv6_set = set()
+    unique_flows = set()
+    ipv4_counts = Counter()
+    ipv6_counts = Counter()
 
     try:
         for packet in packet_data:
-            layers = packet["_source"]["layers"]
-
-            # Extract IPv4 source and destination
+            layers = packet.get("_source", {}).get("layers", {})
+            
             src_ip = layers.get("ip", {}).get("ip.src")
             dst_ip = layers.get("ip", {}).get("ip.dst")
-
-            # Extract IPv6 source and destination
             src_ipv6 = layers.get("ipv6", {}).get("ipv6.src")
             dst_ipv6 = layers.get("ipv6", {}).get("ipv6.dst")
-
-            # Add unique IPv4 IPs to the set and count occurrences
+            
             if src_ip:
                 unique_ipv4_set.add(src_ip)
                 ipv4_counts[src_ip] += 1
             if dst_ip:
                 unique_ipv4_set.add(dst_ip)
                 ipv4_counts[dst_ip] += 1
-
-            # Add unique IPv6 IPs to the set and count occurrences
+            
             if src_ipv6:
                 unique_ipv6_set.add(src_ipv6)
                 ipv6_counts[src_ipv6] += 1
             if dst_ipv6:
                 unique_ipv6_set.add(dst_ipv6)
                 ipv6_counts[dst_ipv6] += 1
-
-            # Add unique IP-to-IP flows to the set (separating IPv4 and IPv6 flows)
+            
             if src_ip and dst_ip:
                 unique_flows.add((src_ip, dst_ip))
             if src_ipv6 and dst_ipv6:
                 unique_flows.add((src_ipv6, dst_ipv6))
-
-        # Calculate the combined IP count
+        
         combined_ip_count = len(unique_ipv4_set) + len(unique_ipv6_set)
-
-        # Combine the top 10 most frequent IPv4 and IPv6 addresses
-        combined_top_ips = {}
-        combined_top_ips.update(ipv4_counts.most_common(10))
-        combined_top_ips.update(ipv6_counts.most_common(10))
-
-        # Calculate total IP count
+        combined_top_ips = dict(ipv4_counts.most_common(10))
+        combined_top_ips.update(dict(ipv6_counts.most_common(10)))
         total_count = sum(combined_top_ips.values())
 
-        # Calculate percentage for each IP address
-        ip_details = {
+        top_ips_data = {
             ip: {
                 "count": count,
                 "percentage": (count / total_count) * 100 if total_count > 0 else 0
             }
             for ip, count in combined_top_ips.items()
         }
+        
+        def probe_ip(ip):
+            try:
+                response = requests.get(f"https://ipinfo.io/{ip}/json")
+                if response.status_code == 200:
+                    return response.json()
+            except requests.RequestException:
+                return {}
+            return {}
+        
+        for ip in top_ips_data:
+            ip_info = probe_ip(ip)
+            if ip_info.get("bogon", False):
+                ip_info.update({
+                    "hostname": "bogon", "city": "", "region": "",
+                    "country": "bogon", "loc": "bogon", "org": "bogon",
+                    "postal": "bogon", "timezone": "bogon"
+                })
+            
+            # Combine city, region, country with a fallback if missing
+            city = ip_info.get("city", "")
+            region = ip_info.get("region", "")
+            country = ip_info.get("country", "")
+            ip_info["location"] = ", ".join(filter(None, [city, region, country]))  # Filters out empty values
 
-        # Return the values as variables
-        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows), {"top_ips": ip_details}
+            ip_info.update(top_ips_data[ip])
+            top_ips_data[ip] = ip_info
 
+        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows), {"top_ips": top_ips_data}
+    
     except KeyError:
         return 0, 0, 0, 0, {}
 

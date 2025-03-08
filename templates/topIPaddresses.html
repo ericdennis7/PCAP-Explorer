@@ -6,6 +6,12 @@
                     IP Address
                 </th>
                 <th scope="col" class="px-6 py-3">
+                    Hostname
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Location
+                </th>
+                <th scope="col" class="px-6 py-3">
                     Count
                 </th>
                 <th scope="col" class="px-6 py-3">
@@ -16,8 +22,14 @@
         <tbody>
             {% for ip, data in file_info['unique_ips']['top_ips'].items() %}
                 <tr class="bg-[--clr-surface-a10] border-b border-[--clr-surface-a5] hover:bg-[--clr-surface-a20]">
-                    <td scope="row" class="px-6 py-4 text-white whitespace-nowrap">
+                    <td scope="row" class="px-6 py-4 text-white">
                         {{ ip }}
+                    </td>
+                    <td class="px-6 py-4"> <!-- max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap -->
+                        {{ data['hostname'] }}
+                    </td>                    
+                    <td class="px-6 py-4">
+                        {{ data['location'] }}
                     </td>
                     <td class="px-6 py-4">
                         {{ data['count']}}
@@ -38,8 +50,8 @@
         const rows = Array.from(tbody.querySelectorAll("tr"));
 
         rows.sort((rowA, rowB) => {
-            const cellA = Number(rowA.children[1].textContent.trim());
-            const cellB = Number(rowB.children[1].textContent.trim());
+            const cellA = Number(rowA.children[4].textContent.trim());
+            const cellB = Number(rowB.children[4].textContent.trim());
             return cellB - cellA; 
         });
 
