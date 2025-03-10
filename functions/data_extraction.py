@@ -167,6 +167,9 @@ def total_packets(packet_data):
         return "-"
 
 # Count of unique IPv4 and IPv6 addresses and flows, with combined IP count
+import requests
+from collections import Counter
+
 def unique_ips_and_flows(packet_data):
     unique_ipv4_set = set()
     unique_ipv6_set = set()
@@ -203,8 +206,12 @@ def unique_ips_and_flows(packet_data):
                 unique_flows.add((src_ipv6, dst_ipv6))
         
         combined_ip_count = len(unique_ipv4_set) + len(unique_ipv6_set)
+        
+        # Get only the top 10 most frequent IP addresses
         combined_top_ips = dict(ipv4_counts.most_common(10))
         combined_top_ips.update(dict(ipv6_counts.most_common(10)))
+        combined_top_ips = dict(sorted(combined_top_ips.items(), key=lambda x: x[1], reverse=True)[:10])  # Ensure only 10 IPs total
+
         total_count = sum(combined_top_ips.values())
 
         top_ips_data = {
@@ -217,7 +224,7 @@ def unique_ips_and_flows(packet_data):
         
         def probe_ip(ip):
             try:
-                response = requests.get(f"https://ipinfo.io/{ip}/json")
+                response = requests.get(f"https://ipinfo.io/{ip}/json", timeout=2)
                 if response.status_code == 200:
                     return response.json()
             except requests.RequestException:

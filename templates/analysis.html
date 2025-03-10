@@ -37,13 +37,29 @@
     <div class="max-w-[1600px] w-full mx-auto p-6 animate__animated animate__fadeInUpBig">
         <div class="flex flex-col w-full">
             <div class="pb-8 w-full">
-                <h1 class="text-3xl font-semibold mt-4 flex items-center justify-between w-full text-[--clr-primary-a30]">
-                    <span>Dashboard</span>
-                </h1>
+                <!-- <h1 class="text-4xl font-semibold mt-4 flex items-center justify-between w-full text-white">
+                    <span>Dashboard <i class="fa-solid fa-magnifying-glass"></i></span>
+                </h1> -->
 
                 <!-- Contains the file statistics section -->
-                <hr class="h-px my-8 bg-[#222222] border-0">
-                <h2 class="font-bold text-2xl mb-6">File Stats</h2>
+                <!-- <hr class="h-px my-8 bg-[#222222] border-0"> -->
+                <div class="flex items-center justify-between mb-6 mt-6">
+                    <h2 class="font-bold text-4xl">Dashboard <span>- Summary</span></h2>
+                    <div class="flex space-x-4">
+                        <!-- First Button: 54478C and 2C699A -->
+                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-[#54478C] to-[#2C699A] group-hover:from-[#54478C] group-hover:to-[#2C699A] hover:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
+                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
+                                Summary
+                            </span>
+                        </button>
+                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-[#048BA8] to-[#0DB39E] group-hover:from-[#048BA8] group-hover:to-[#0DB39E] hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
+                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
+                                Security
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                
                 {% include 'file_statistics.html' %}
 
                 <hr class="h-px my-8 bg-[#222222] border-0">
