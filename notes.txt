@@ -1,0 +1,6 @@
+Snort on Ubuntu:
+
+1) sudo apt-get install snort -y
+2) wget https://www.snort.org/downloads/community/community-rules.tar.gz
+3) tar -xvzf community-rules.tar.gz -C /etc/snort/rules
+4) sudo snort -q -r filename.pcap -c /etc/snort/snort.conf -A console

@@ -7,272 +7,7 @@
         {{ imports|safe }}
         <!-- Importing content from 'imports.txt' -->
         <title>PCAPNG Visualizer</title>
-        <style>
-            .blinking {
-                animation: blink 1s steps(1, start) infinite;
-            }
-            @keyframes blink {
-                50% { visibility: hidden; }
-            }
-
-            .custom-underline {
-                text-decoration: underline wavy var(--clr-primary-a50);
-            }
-
-            .loading-body {
-                display: -webkit-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: center;
-                    -ms-flex-pack: center;
-                        justify-content: center;
-                -webkit-box-align: center;
-                    -ms-flex-align: center;
-                        align-items: center;
-                background-color: var(--clr-surface-a0);
-            }
-
-            i {
-                font-size: 30px;
-                margin: 8px; 
-                color: #0DB39E;
-            }
-
-            .loading-container {
-                position: relative;
-                height: 40px;
-                display: -webkit-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: justify;
-                    -ms-flex-pack: justify;
-                        justify-content: space-between;
-                -webkit-box-align: center;
-                    -ms-flex-align: center;
-                        align-items: center;
-            }
-
-            .center {
-                display: -webkit-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: center;
-                    -ms-flex-pack: center;
-                        justify-content: center;
-                -webkit-box-align: center;
-                    -ms-flex-align: center;
-                        align-items: center;
-                width: 100px; 
-                height: 100px; 
-                border-radius: 100%;
-                background-color: var(--clr-surface-a0);
-                border: 6px solid white; 
-                overflow: hidden;
-            }
-
-            .loading-container::before {
-                content: "";
-                position: absolute;
-                top: 140px;
-                left: 18px;
-                width: 60px; 
-                height: 20px; 
-                border-radius: 100%;
-                background-color: #0DB39E;
-            }
-
-            .wrap {
-                display: -webkit-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: justify;
-                    -ms-flex-pack: justify;
-                        justify-content: space-between;
-                -webkit-box-orient: horizontal;
-                -webkit-box-direction: normal;
-                    -ms-flex-direction: row;
-                        flex-direction: row;
-            }
-
-            .load-span::before {
-                content: "";
-                position: absolute;
-                width: 36px; 
-                height: 4px;
-                background-color: white;
-                -webkit-transform: rotate(45deg);
-                        transform: rotate(45deg);
-            }
-
-            .load-span::after {
-                content: "";
-                position: absolute;
-                left: 22px; 
-                top: 15px; 
-                width: 24px; 
-                height: 8px; 
-                background-color: white;
-                -webkit-transform: rotate(45deg);
-                        transform: rotate(45deg);
-                border-radius: 0 3px 3px 0;
-            }
-
-            .box-1 {
-                display: -webkit-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: justify;
-                    -ms-flex-pack: justify;
-                        justify-content: space-between;
-            }
-
-            .box-2 {
-                display: -webkit-box;
-                display: -ms-flexbox;
-                display: flex;
-                -webkit-box-pack: justify;
-                    -ms-flex-pack: justify;
-                        justify-content: space-between;
-            }
-
-            /* animation */
-            @-webkit-keyframes rowup-1 {
-                0% {
-                    -webkit-transform: translate3d(0, 0, 0);
-                            transform: translate3d(0, 0, 0);
-                }
-                100% {
-                    -webkit-transform: translate3d(50%, 0, 0);
-                            transform: translate3d(50%, 0, 0);
-                }
-            }
-
-            @keyframes rowup-1 {
-                0% {
-                    -webkit-transform: translate3d(0, 0, 0);
-                            transform: translate3d(0, 0, 0);
-                }
-                100% {
-                    -webkit-transform: translate3d(50%, 0, 0);
-                            transform: translate3d(50%, 0, 0);
-                }
-            }
-
-            @-webkit-keyframes rowup-2 {
-                0% {
-                    -webkit-transform: translate3d(0, 0, 0);
-                            transform: translate3d(0, 0, 0);
-                }
-                100% {
-                    -webkit-transform: translate3d(50%, 0, 0);
-                            transform: translate3d(50%, 0, 0);
-                }
-            }
-
-            @keyframes rowup-2 {
-                0% {
-                    -webkit-transform: translate3d(0, 0, 0);
-                            transform: translate3d(0, 0, 0);
-                }
-                100% {
-                    -webkit-transform: translate3d(50%, 0, 0);
-                            transform: translate3d(50%, 0, 0);
-                }
-            }
-
-            @-webkit-keyframes cloud-loop {
-                0% {
-                    -webkit-transform: translate(0, 10px); 
-                    transform: translate(0, 10px);
-                }
-                100% {
-                    -webkit-transform: translate(0, 0);
-                    transform: translate(0, 0);
-                }
-            }
-
-            @-webkit-keyframes shadow-loop {
-                0% {
-                    -webkit-transform: translate(0, -25px) scale(1.05, 0.25);
-                    transform: translate(0, -25px) scale(1.05, 0.25);
-                }
-                100% {
-                    -webkit-transform: translate(0, -25px) scale(1, 0.25);
-                    transform: translate(0, -25px) scale(1, 0.25);
-                }
-            }
-
-            @keyframes shadow-loop {
-                0% {
-                    -webkit-transform: translate(0, -25px) scale(1.05, 0.25);
-                    transform: translate(0, -25px) scale(1.05, 0.25);
-                }
-                100% {
-                    -webkit-transform: translate(0, -25px) scale(1, 0.25);
-                    transform: translate(0, -25px) scale(1, 0.25);
-                }
-            }
-
-            .box-1 {
-                -webkit-animation: 1s rowup-1 linear infinite normal;
-                        animation: 1s rowup-1 linear infinite normal;
-            }
-
-            .box-2 {
-                -webkit-animation: 1s rowup-2 linear infinite normal;
-                        animation: 1s rowup-2 linear infinite normal;
-            }
-
-            .center {
-                -webkit-animation-name: cloud-loop;
-                animation-name: cloud-loop;
-                -webkit-animation-duration: 0.5s; /
-                animation-duration: 0.5s; 
-                -webkit-animation-iteration-count: infinite;
-                animation-iteration-count: infinite;
-                -webkit-animation-timing-function: ease;
-                animation-timing-function: ease;
-                -webkit-animation-direction: alternate;
-                animation-direction: alternate;
-            }
-
-            .load-span {
-                position: relative;
-                left: 80px;
-                top: 40px; 
-                -webkit-animation-name: cloud-loop;
-                animation-name: cloud-loop;
-                -webkit-animation-duration: 0.5s; 
-                animation-duration: 0.5s;
-                -webkit-animation-iteration-count: infinite;
-                animation-iteration-count: infinite;
-                -webkit-animation-timing-function: ease;
-                animation-timing-function: ease;
-                -webkit-animation-direction: alternate;
-                animation-direction: alternate;
-            }
-
-            .loading-container::before {
-                -webkit-animation-name: shadow-loop;
-                animation-name: shadow-loop;
-                -webkit-animation-duration: 0.5s;
-                animation-duration: 0.5s; 
-                -webkit-animation-iteration-count: infinite;
-                animation-iteration-count: infinite;
-                -webkit-animation-timing-function: ease;
-                animation-timing-function: ease;
-                -webkit-animation-direction: alternate;
-                animation-direction: alternate;
-            }
-
-            .dr {
-                position: absolute;
-                bottom: 8px;
-                right: 8px; 
-                width: 60px; 
-            }
-
-        </style>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     </head>
     <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]">
         <!-- Include the navbar.html file -->
@@ -292,20 +27,23 @@
         <!-- Upload container -->
         <div class="max-w-7xl m-auto mt-16 animate__animated animate__fadeInUpBig">
             <!-- Dropzone container -->
-            <label for="dropzone-file" id="upload-box" class="m-auto flex flex-col items-center justify-center py-12 max-w-2xl border border-[#0DB39E] border-dashed rounded-2xl cursor-pointer bg-[--clr-surface-a10]">
-                <div class="mb-3 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-                        <g id="Upload 02">
-                            <path id="icon" d="M16.296 25.3935L19.9997 21.6667L23.7034 25.3935M19.9997 35V21.759M10.7404 27.3611H9.855C6.253 27.3611 3.33301 24.4411 3.33301 20.8391C3.33301 17.2371 6.253 14.3171 9.855 14.3171V14.3171C10.344 14.3171 10.736 13.9195 10.7816 13.4326C11.2243 8.70174 15.1824 5 19.9997 5C25.1134 5 29.2589 9.1714 29.2589 14.3171H30.1444C33.7463 14.3171 36.6663 17.2371 36.6663 20.8391C36.6663 24.4411 33.7463 27.3611 30.1444 27.3611H29.2589" stroke="#0DB39E" stroke-width="1.6" stroke-linecap="round" />
-                        </g>
-                    </svg>
-                </div>
-                <h2 class="text-center text-gray-300 text-xs font-normal leading-4 mb-1">.pcapng or .pcap (max size 500 MB)</h2>
-                <h4 class="text-center text-[--clr-light-a0] text-sm font-medium leading-snug">Upload Your File Here</h4>
-                
-                <!-- Hidden file input that will be triggered by the label -->
-                <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pcap,.pcapng" required />
-            </label>
+            <div class="m-auto flex flex-col items-center justify-center max-w-2xl p-[4px] rounded-xl gradient-background">
+                <label for="dropzone-file" id="upload-box" class="flex flex-col items-center justify-center py-12 w-full h-full cursor-pointer rounded-xl bg-[--clr-surface-a10]">
+                    <div class="mb-3 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+                            <g id="Upload 02">
+                                <path id="icon" d="M16.296 25.3935L19.9997 21.6667L23.7034 25.3935M19.9997 35V21.759M10.7404 27.3611H9.855C6.253 27.3611 3.33301 24.4411 3.33301 20.8391C3.33301 17.2371 6.253 14.3171 9.855 14.3171V14.3171C10.344 14.3171 10.736 13.9195 10.7816 13.4326C11.2243 8.70174 15.1824 5 19.9997 5C25.1134 5 29.2589 9.1714 29.2589 14.3171H30.1444C33.7463 14.3171 36.6663 17.2371 36.6663 20.8391C36.6663 24.4411 33.7463 27.3611 30.1444 27.3611H29.2589" stroke="#0DB39E" stroke-width="1.6" stroke-linecap="round" />
+                            </g>
+                        </svg>
+                    </div>
+                    <h2 class="text-center text-gray-300 text-xs font-normal leading-4 mb-1">.pcapng or .pcap (max size 500 MB)</h2>
+                    <h4 class="text-center text-white text-sm font-medium leading-snug">Upload Your File Here</h4>
+                    
+                    <!-- Hidden file input that will be triggered by the label -->
+                    <input id="dropzone-file" name="file" type="file" class="hidden" accept=".pcap,.pcapng" required />
+                </label>
+            </div>
+            
             <!-- <p class="mt-16 text-center">All files will be <span class="font-bold">securely uploaded</span> to our servers and <span class="font-bold">promptly deleted</span> once the analysis is complete.</p> -->
 
             <!-- <p class="mt-16 text-center text-2xl" style="text-decoration: underline #0DB39E; -webkit-text-decoration-color: #0DB39E;">Get Clear Insights in Seconds</p> -->

@@ -1,0 +1,20 @@
+table.dataTable tbody tr {
+    background-color: var(--clr-surface-a10);
+}
+
+#pcapTable_length, #pcapTable_filter, #pcapTable_info, #pcapTable_paginate, #pcapTable_previous, #pcapTable_next, .paginate_button {
+    color: white;
+    margin-bottom: 2rem;
+}
+
+#pcapTable_length:focus-visible, #pcapTable_filter:focus-visible {
+    
+}
+
+#pcapTable tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+}
+
+#pcapTable tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+}

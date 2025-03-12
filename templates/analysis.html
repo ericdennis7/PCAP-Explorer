@@ -5,28 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {{ imports|safe }} <!-- Contains the necessary imports -->
     <title>PCAP Analysis</title>
-    <style>
-        table.dataTable tbody tr {
-            background-color: var(--clr-surface-a10);
-        }
-
-        #pcapTable_length, #pcapTable_filter, #pcapTable_info, #pcapTable_paginate, #pcapTable_previous, #pcapTable_next, .paginate_button {
-            color: white;
-            margin-bottom: 2rem;
-        }
-
-        #pcapTable_length:focus-visible, #pcapTable_filter:focus-visible {
-            
-        }
-
-        #pcapTable tr:last-child td:first-child {
-            border-bottom-left-radius: 10px;
-        }
-
-        #pcapTable tr:last-child td:last-child {
-            border-bottom-right-radius: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/analysis.css">
 </head>
 
 <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]">
@@ -87,7 +66,7 @@
                 <div class="max-w-[1600px] mx-auto">
                     <div id="ipTableContainer">
                         {% include 'topIPaddresses.html' %}
-                        <p class="text-[--clr-surface-a30] mt-2 text-center">* A bogon IP address is an IP address from reserved or unallocated space that should not appear on the public Internet (unallocated and private IP addresses) *</p>
+                        <p class="text-[--clr-surface-a30] mt-2 text-center">* A bogon IP address is an IP address from reserved or unallocated space that should not appear on the public Internet *</p>
                     </div>
                     <div id="macTableContainer" class="hidden">
                         {% include 'topMACaddresses.html' %}
