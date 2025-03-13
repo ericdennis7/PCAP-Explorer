@@ -73,6 +73,8 @@ def upload_file():
         ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, ip_flow_count, unique_ip_addresses = unique_ips_and_flows(packet_data)
         tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
         l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data, packet_total).values()
+        l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
+        l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
 
         print(l7_protocol_percentages)
         print(l7_top_protocols)
@@ -96,8 +98,10 @@ def upload_file():
             "tcp_min_flow": tcp_min_flow,
             "tcp_max_flow": tcp_max_flow,
             "tcp_avg_flow": tcp_avg_flow,
-            "protocols": protocol_distribution(packet_data),
-            "top_ports": transport_layer_ports(packet_data),
+            "l4_top_protocols": l4_top_protocols,
+            "l4_protocol_percentages": l4_protocol_percentages,
+            "l4_top_ports": l4_top_ports,
+            "l4_ports_percentages": l4_ports_percentages,
             "l7_top_protocols": l7_top_protocols,
             "l7_protocol_percentages": l7_protocol_percentages,
             "mac_addresses": mac_address_counts(packet_data)

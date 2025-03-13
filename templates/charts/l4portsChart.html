@@ -1,7 +1,7 @@
 <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]">
     <div class="relative p-4">
-        <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">L4 Port Distribution</h4>
-        <div class="absolute top-2 right-2 flex ">
+        <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">Top Transport Layer Ports (L4)</h4>
+        <div class="absolute top-2 right-2 flex">
             <button id="chartButton3" class="p-2 text-white rounded-l-lg active-button">
                 <i class="fa-solid fa-chart-pie"></i>
             </button>
@@ -10,8 +10,20 @@
             </button>
         </div>
     </div>
-    <div class="flex justify-center items-center h-full p-2" id="chartContainer3">
+    <div class="flex justify-center items-center h-full p-2" id="chartContainer4">
         <canvas id="portChart"></canvas>
+        <div class="flex flex-col items-start ml-2">
+            {% set colors = ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'] %}
+            
+            {% for port, count in file_info.l4_top_ports.items() %}
+                {% set percentage = file_info.l4_ports_percentages[port] %}
+                <div class="flex items-center mb-2">
+                    <span class="inline-block w-4 h-4 rounded-full mr-2" style="background-color: {{ colors[loop.index0] if loop.index0 < colors|length else '#000' }};"></span>
+                    <span class="text-white mr-2">{{ port }}</span>
+                    <span class="font-bold text-white">{{ percentage }}%</span>
+                </div>
+            {% endfor %}
+        </div>
     </div>
     <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer3">
     </div>
@@ -19,7 +31,7 @@
 
 <script>
     // Get the data from the Flask template
-    const topPortsDataFromFlask = {{ file_info.top_ports | tojson }};  // Data passed from Flask
+    const topPortsDataFromFlask = {{ file_info.l4_top_ports | default({}, true) | tojson }}; 
 
     // Ensure the data is valid
     if (!topPortsDataFromFlask || typeof topPortsDataFromFlask !== "object") {
@@ -27,17 +39,17 @@
     }
 
     // Extract the actual "top_ports" object
-    const topPortsObj = topPortsDataFromFlask.top_ports || {}; // Ensure valid object
+    const topPortsObj = topPortsDataFromFlask || {};
 
     // Sort and get the top 5 ports
     const topPortsArray = Object.entries(topPortsObj)
-        .map(([port, count]) => [parseInt(port, 10), count]) // Ensure ports are numbers
-        .sort((a, b) => b[1] - a[1])  // Sort by count, descending
-        .slice(0, 5);  // Take only the top 5 or fewer
+        .map(([port, count]) => [parseInt(port, 10), count])
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
 
     // Extract labels and data from top ports
-    const topPortsLabels = topPortsArray.map(item => item[0].toString());  // Convert to string for chart labels
-    const topPortsDataArray = topPortsArray.map(item => item[1]);  // Renamed variable to avoid conflict
+    const topPortsLabels = topPortsArray.map(item => item[0].toString());
+    const topPortsDataArray = topPortsArray.map(item => item[1]);
 
     // If there's no valid data, provide fallback
     if (topPortsLabels.length === 0) {
@@ -51,52 +63,53 @@
         var topPortsChart = new Chart(ctxTopPorts, {
             type: 'doughnut',
             data: {
-                labels: topPortsLabels,  // Port numbers
+                labels: topPortsLabels,
                 datasets: [{
-                    data: topPortsDataArray,  // Port counts
-                    backgroundColor: ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'],  // Custom colors for top 5
+                    data: topPortsDataArray,
+                    backgroundColor: ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'],
                     hoverOffset: 4
                 }]
             },
             options: {
-            responsive: true,
-            cutout: '70%',
-            borderRadius: 17,
-            layout: {
-                padding: 50
-            },
-            plugins: {
-                legend: {
-                    display: false // Disable the legend
+                responsive: true,
+                cutout: '70%',
+                borderRadius: 17,
+                layout: {
+                    padding: 50
                 },
-                tooltip: {
-                    borderWidth: 0,
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
-                            let value = tooltipItem.raw;
-                            return `${label}: ${value}`;
-                        },
-                        labelColor: function (context) {
-                            return {
-                                borderColor: "rgba(0,0,0,0)",
-                                backgroundColor: context.dataset.backgroundColor[context.dataIndex],
-                                borderWidth: 0
-                            };
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        borderWidth: 0,
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
+                                let value = tooltipItem.raw;
+                                return `${label}: ${value}`;
+                            },
+                            labelColor: function(context) {
+                                return {
+                                    borderColor: "rgba(0,0,0,0)",
+                                    backgroundColor: context.dataset.backgroundColor[context.dataIndex],
+                                    borderWidth: 0
+                                };
+                            }
                         }
                     }
-                }
-            },
-            elements: {
-                arc: {
-                    borderWidth: 7,
-                    borderColor: '#282828'
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 7,
+                        borderColor: '#282828'
+                    }
                 }
             }
-        }
         });
     }
 
     // Call the function to draw the pie chart for top ports
     drawTopPortsPieChart();
 </script>
+

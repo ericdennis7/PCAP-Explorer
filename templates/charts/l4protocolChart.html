@@ -1,6 +1,6 @@
 <div class="relative rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]">
     <div class="relative p-4">
-        <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">L4 Protocol Distribution</h4>
+        <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">Top Transport Layer Protocols (L4)</h4>
         <div class="absolute top-2 right-2 flex ">
             <button id="chartButton2" class="p-2 text-white rounded-l-lg active-button">
                 <i class="fa-solid fa-chart-pie"></i>
@@ -12,45 +12,103 @@
     </div>
     <div class="flex justify-center items-center h-full p-2" id="chartContainer2">
         <canvas id="protocolChart"></canvas>
+        <div class="flex flex-col items-start ml-2">
+            {% set colors = ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'] %}
+            
+            {% for protocol, count in file_info.l4_top_protocols.items() %}
+                {% set percentage = file_info.l4_protocol_percentages[protocol] %}
+                <div class="flex items-center mb-2">
+                    <span class="inline-block w-4 h-4 rounded-full mr-2" style="background-color: {{ colors[loop.index0] if loop.index0 < colors|length else '#000' }};"></span>
+                    <span class="text-white">{{ protocol }}</span>
+                    <span class="font-bold text-white ml-2">{{ percentage }}%</span>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-    <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer2">
+    <div class="flex justify-center items-start h-full p-2 hidden" id="tableContainer2">
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full mt-4">
+            <table class="sortable w-full text-left rtl:text-right text-white" id="l4ProtocolTable">
+                <thead class="text-lg text-white bg-[--clr-surface-a5]">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Protocol
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Count
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Percent %
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for protocol, count in file_info['l4_top_protocols'].items() %}
+                        <tr class="bg-[--clr-surface-a10] border-b border-[--clr-surface-a5] hover:bg-[--clr-surface-a20]">
+                            <td class="px-6 py-4 text-white">
+                                {{ protocol }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ count }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ file_info['l4_protocol_percentages'][protocol] }}%
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-    // Get the data from the Flask template
+    document.addEventListener("DOMContentLoaded", function () {
+        const table = document.getElementById("l4ProtocolTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
 
-    const protocolData = {{ file_info.protocols | tojson }};  // Data passed from Flask with protocol counts
+        rows.sort((rowA, rowB) => {
+            const cellA = Number(rowA.children[1].textContent.trim());
+            const cellB = Number(rowB.children[1].textContent.trim());
+            return cellB - cellA;  // Sort by count in descending order
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    });
+</script>
+
+<script>
+    // Get the data from the Flask template
+    const protocolDataFromFlask = {{ file_info.l4_top_protocols | tojson }};
 
     // Sort and get the top 5 protocols
-    const topProtocols = Object.entries(protocolData)
-        .sort((a, b) => b[1] - a[1])  // Sort by count, descending
-        .slice(0, 5);  // Take only the top 5 or fewer
+    const topProtocols = Object.entries(protocolDataFromFlask)
+        .sort((a, b) => b[1] - a[1]) 
+        .slice(0, 5);
 
     // Extract labels and data from top protocols
     const labels = topProtocols.map(item => item[0]);
     const data = topProtocols.map(item => item[1]);
 
-    // If there's only one protocol, make sure the chart can still display it
+    // Fallback for empty data
     if (labels.length === 0) {
         labels.push("No Data");
         data.push(0);
     }
 
-    // Draw Pie Chart for the Protocol Distribution (Using Fallback for Single Data Point)
-    function drawPieChart(value, maxValue) {
-        var ctx = document.getElementById("protocolChart").getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,  // Protocol names
-                datasets: [{
-                    data: data,  // Protocol counts
-                    backgroundColor: ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'],  // Custom colors for top 5
-                    hoverOffset: 4
-                }]
-            },
-            options: {
+    // Draw Pie Chart for Protocol Distribution
+    const ctx = document.getElementById('protocolChart').getContext('2d');
+    const protocolChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'],
+                hoverOffset: 4
+            }]
+        },
+        options: {
             responsive: true,
             cutout: '70%',
             borderRadius: 17,
@@ -59,7 +117,7 @@
             },
             plugins: {
                 legend: {
-                    display: false // Disable the legend
+                    display: false
                 },
                 tooltip: {
                     borderWidth: 0,
@@ -67,9 +125,9 @@
                         label: function(tooltipItem) {
                             let label = tooltipItem.chart.data.labels[tooltipItem.dataIndex] || '';
                             let value = tooltipItem.raw;
-                            return `${label}: ${value}`;
+                            return `${label}: ${value}`;  // Removed the percentage
                         },
-                        labelColor: function (context) {
+                        labelColor: function(context) {
                             return {
                                 borderColor: "rgba(0,0,0,0)",
                                 backgroundColor: context.dataset.backgroundColor[context.dataIndex],
@@ -86,9 +144,5 @@
                 }
             }
         }
-        });
-    }
-
-    // Call the function to draw the pie chart
-    drawPieChart(data[0] || 0, 5);
+    });
 </script>

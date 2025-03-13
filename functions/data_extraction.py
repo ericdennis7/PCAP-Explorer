@@ -267,7 +267,7 @@ def load_protocol_mapping(csv_file):
     return protocol_mapping
 
 # Function to analyze protocol distribution
-def protocol_distribution(packet_data, csv_file="information-sheets/protocol-numbers.csv"):
+def protocol_distribution(packet_data, total_packets, csv_file="information-sheets/protocol-numbers.csv"):
     protocol_counts = {}
     protocol_mapping = load_protocol_mapping(csv_file)
 
@@ -279,7 +279,6 @@ def protocol_distribution(packet_data, csv_file="information-sheets/protocol-num
             ip_layer = layers.get("ip", {})
             if ip_layer:
                 ip_proto = ip_layer.get("ip.proto")
-
                 if ip_proto:
                     # Get protocol name from CSV mapping, default to "Unknown"
                     protocol = protocol_mapping.get(ip_proto, "Unknown")
@@ -287,16 +286,22 @@ def protocol_distribution(packet_data, csv_file="information-sheets/protocol-num
                     # Increment the count for this protocol
                     protocol_counts[protocol] = protocol_counts.get(protocol, 0) + 1
 
-            # Additional checks for TCP and UDP layers
-            if "udp" in layers:
+            # Avoid double counting for TCP and UDP
+            if "udp" in layers and "ip" not in layers:  # Only count UDP if no IP layer is counted
                 protocol_counts["UDP"] = protocol_counts.get("UDP", 0) + 1
-            if "tcp" in layers:
+            if "tcp" in layers and "ip" not in layers:  # Only count TCP if no IP layer is counted
                 protocol_counts["TCP"] = protocol_counts.get("TCP", 0) + 1
 
     except Exception as e:
         print(f"Error processing packet: {e}")
 
-    return protocol_counts
+    # Keep only the top 7 most frequent protocols
+    top_protocols = dict(Counter(protocol_counts).most_common(7))
+
+    # Calculate the percentage for each protocol (rounded to 2 decimals)
+    protocol_percentages = {protocol: round((count / total_packets) * 100, 2) for protocol, count in top_protocols.items()}
+
+    return {"top_protocols": top_protocols, "protocol_percentages": protocol_percentages}
 
 # Getting the MD5 hash of the .pcap file
 def md5_hash(file_storage):
@@ -310,8 +315,7 @@ def md5_hash(file_storage):
         return f"Error processing file: {str(e)}"
 
 # Function to fetch L4 port numbers
-def transport_layer_ports(packet_data):
-
+def transport_layer_ports(packet_data, total_packets):
     port_counts = Counter()
 
     try:
@@ -339,9 +343,12 @@ def transport_layer_ports(packet_data):
         print(f"Error processing packet: {e}")
 
     # Keep only the top 10 most frequent ports overall
-    top_ports = dict(port_counts.most_common(10))
+    top_ports = dict(port_counts.most_common(7))
     
-    return {"top_ports": top_ports}
+    # Calculate and round the percentage for each port
+    port_percentages = {port: round((count / total_packets) * 100, 2) for port, count in top_ports.items()}
+    
+    return {"top_ports": top_ports, "port_percentages": port_percentages}
 
 # Function to count L7 protocols
 def application_layer_protocols(packet_data, total_packets):
@@ -363,7 +370,7 @@ def application_layer_protocols(packet_data, total_packets):
         print(f"Error processing packet: {e}")
 
     # Convert defaultdict to Counter to use most_common()
-    top_protocols = dict(Counter(protocol_counts).most_common(10))
+    top_protocols = dict(Counter(protocol_counts).most_common(7))
 
     # Calculate and round the percentage for each protocol
     protocol_percentages = {protocol: round((count / total_packets) * 100, 2) for protocol, count in top_protocols.items()}

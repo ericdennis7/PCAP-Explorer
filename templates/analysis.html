@@ -23,7 +23,7 @@
                 <!-- Contains the file statistics section -->
                 <!-- <hr class="h-px my-8 bg-[#222222] border-0"> -->
                 <div class="flex items-center justify-between mb-6 mt-6">
-                    <h2 class="font-bold text-4xl">Dashboard <span>- Summary</span></h2>
+                    <h2 class="font-bold text-4xl">Summary for {{ file_info.name }}</span></h2>
                     <div class="flex md:space-x-8">
                         <!-- First Button: 54478C and 2C699A -->
                         <button role="link" class="relative text-white border-b-2 border-[var(--clr-primary-a50)]">Summary</button>
@@ -40,8 +40,8 @@
                 <h2 class="font-bold text-2xl mb-6">Packet Structure Stats</h2>
                 <div class="grid grid-cols-2 gap-4 max-w-[1600px] mx-auto">
                     {% include 'charts/ipChart.html' %} <!-- Contains the IP doughnut chart -->
-                    {% include 'charts/l7protocolsChart.html' %} <!-- Contains the L7 protocol doughnut chart -->
                     {% include 'charts/l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
+                    {% include 'charts/l7protocolsChart.html' %} <!-- Contains the L7 protocol doughnut chart -->
                     {% include 'charts/l4portsChart.html' %} <!-- Contains the L4 port doughnut chart -->
                 </div>
                 
