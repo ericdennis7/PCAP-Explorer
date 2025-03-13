@@ -11,7 +11,7 @@
     </head>
     <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]">
         <!-- Include the navbar.html file -->
-        {% include 'navbar.html' %}
+        {% include 'components/navbar.html' %}
 
         <div class="pl-10 pr-10">
 
@@ -21,13 +21,13 @@
             <h1 class="text-4xl font-semibold mt-4 text-[--clr-light-a0]">Upload & Analyze Your 
                 <span style="text-decoration: underline #0DB39E; -webkit-text-decoration-color: #0DB39E;" class="rotate-1 p-1">.pcapng</span> or 
                 <span style="text-decoration: underline #0DB39E; -webkit-text-decoration-color: #0DB39E;" class="rotate-1 p-1">.pcap</span> File <i class="fa-solid fa-hexagon-nodes text-[#0DB39E]"></i></h1>
-            <p class="text-lg text-gray-100 mt-4 text-[--clr-light-a0]">Gain <span class="font-bold">detailed insights</span> into your <span class="font-bold">network traffic</span> with a simple file upload.</p>
+            <p class="text-lg text-gray-100 mt-4 text-[--clr-light-a0]">Gain <span class="font-bold">detailed insights</span> into your <span class="font-bold">network traffic</span> with a simple file upload!</p>
         </div>
 
         <!-- Upload container -->
         <div class="max-w-7xl m-auto mt-16 animate__animated animate__fadeInUpBig">
             <!-- Dropzone container -->
-            <div id="upload-box" class="m-auto flex flex-col items-center justify-center max-w-2xl p-[3px] rounded-xl gradient-background">
+            <div id="upload-box" class="m-auto flex flex-col items-center justify-center max-w-2xl p-[2px] rounded-xl gradient-background">
                 <label for="dropzone-file" class="flex flex-col items-center justify-center py-12 w-full h-full cursor-pointer rounded-xl bg-[--clr-surface-a10]">
                     <div class="mb-3 flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
@@ -145,7 +145,7 @@
         </div>
 
         <!-- Include the footer.html file -->
-         {% include 'footer.html' %}
+         {% include 'components/footer.html' %}
 
         </div>
 

@@ -51,53 +51,17 @@
                 }]
             },
             options: {
-                responsive: true,
-                cutout: '70%',
-                borderRadius: 17,
-                tooltips: {
-                    enabled: false
+            responsive: true,
+            cutout: '70%',
+            borderRadius: 17,
+            layout: {
+                padding: 50
+            },
+            plugins: {
+                legend: {
+                    display: false // Disable the legend
                 },
-                plugins: {
-                    datalabels: {
-                        backgroundColor: function(context) {
-                            return context.dataset.backgroundColor;
-                        },
-                        display: function(context) {
-                            var dataset = context.dataset;            
-                            var value = dataset.data[context.dataIndex];
-                            return value > 0;
-                        },
-                        color: 'white'
-                    },
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            usePointStyle: true,
-                            boxWidth: 10,
-                            boxHeight: 10,
-                            font: {
-                                size: 16,
-                                // weight: 'bold',
-                                family: 'monospace'
-                            },
-                            generateLabels: function(chart) {
-                                const data = chart.data;
-                                return data.labels.map((label, index) => {
-                                    const value = data.datasets[0].data[index];
-                                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(2);
-                                    return {
-                                        text: `‎ ${label} - ${percentage}%`,
-                                        fillStyle: data.datasets[0].backgroundColor[index],
-                                        strokeStyle: data.datasets[0].backgroundColor[index],
-                                        lineWidth: 1,
-                                        fontColor: '#ffffff'
-                                    };
-                                });
-                            }
-                        }
-                    },
-                    tooltip: {
+                tooltip: {
                     borderWidth: 0,
                     callbacks: {
                         label: function(tooltipItem) {
@@ -114,14 +78,14 @@
                         }
                     }
                 }
-                },
-                elements: {
-                    arc: {
-                        borderWidth: 7,
-                        borderColor: '#282828'
-                    }
+            },
+            elements: {
+                arc: {
+                    borderWidth: 7,
+                    borderColor: '#282828'
                 }
             }
+        }
         });
     }
 

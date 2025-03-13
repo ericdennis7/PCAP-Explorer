@@ -29,7 +29,7 @@
                         {{ data['org'] }}
                     </td>                    
                     <td class="px-6 py-4 flex items-center gap-2">
-                        <img src="static\images\flags\{{ 'xx' if data['country']|lower == 'bogon' else data['country']|lower }}.svg" 
+                        <img src="\static\images\flags\{{ 'xx' if data['country']|lower == 'bogon' else data['country']|lower }}.svg" 
                              width="16" 
                              alt="{{ data['country']|lower }}">
                         {{ data['location'] }}

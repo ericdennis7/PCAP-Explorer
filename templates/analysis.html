@@ -10,7 +10,7 @@
 
 <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]">
     <!-- Navbar -->
-    {% include 'navbar.html' %}
+    {% include 'components/navbar.html' %}
     
     <!-- Main body -->
     <div class="max-w-[1600px] w-full mx-auto p-6 animate__animated animate__fadeInUpBig">
@@ -24,37 +24,25 @@
                 <!-- <hr class="h-px my-8 bg-[#222222] border-0"> -->
                 <div class="flex items-center justify-between mb-6 mt-6">
                     <h2 class="font-bold text-4xl">Dashboard <span>- Summary</span></h2>
-                    <div class="flex space-x-4">
+                    <div class="flex md:space-x-8">
                         <!-- First Button: 54478C and 2C699A -->
-                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-[#54478C] to-[#2C699A] group-hover:from-[#54478C] group-hover:to-[#2C699A] hover:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
-                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
-                                Summary
-                            </span>
-                        </button>
-                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-[#048BA8] to-[#0DB39E] group-hover:from-[#048BA8] group-hover:to-[#0DB39E] hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
-                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
-                                Security
-                            </span>
-                        </button>
-                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-[#16DB93] to-[#83E377] group-hover:from-[#16DB93] group-hover:to-[#83E377] hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
-                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
-                                Credentials
-                            </span>
-                        </button>
+                        <button role="link" class="relative text-white border-b-2 border-[var(--clr-primary-a50)]">Summary</button>
+                        <button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Security</button>
+                        <button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Credentials</button>                    
                     </div>
                 </div>
                 
-                {% include 'file_statistics.html' %}
+                {% include 'file_stats/file_statistics.html' %}
 
                 <hr class="h-px my-8 bg-[#222222] border-0">
 
                 <!-- Doughnut Charts -->
                 <h2 class="font-bold text-2xl mb-6">Packet Structure Stats</h2>
                 <div class="grid grid-cols-2 gap-4 max-w-[1600px] mx-auto">
-                    {% include 'ipChart.html' %} <!-- Contains the IP doughnut chart -->
-                    {% include 'l7protocols.html' %} <!-- Contains the L7 protocol doughnut chart -->
-                    {% include 'l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
-                    {% include 'l4ports.html' %} <!-- Contains the L4 port doughnut chart -->
+                    {% include 'charts/ipChart.html' %} <!-- Contains the IP doughnut chart -->
+                    {% include 'charts/l7protocolsChart.html' %} <!-- Contains the L7 protocol doughnut chart -->
+                    {% include 'charts/l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
+                    {% include 'charts/l4portsChart.html' %} <!-- Contains the L4 port doughnut chart -->
                 </div>
                 
                 <hr class="h-px my-8 bg-[#222222] border-0">
@@ -70,11 +58,11 @@
             
                 <div class="max-w-[1600px] mx-auto">
                     <div id="ipTableContainer">
-                        {% include 'topIPaddresses.html' %}
+                        {% include 'tables/topIPaddresses.html' %}
                         <p class="text-[--clr-surface-a30] mt-2 text-center">* A bogon IP address is an IP address from reserved or unallocated space that should not appear on the public Internet *</p>
                     </div>
                     <div id="macTableContainer" class="hidden">
-                        {% include 'topMACaddresses.html' %}
+                        {% include 'tables/topMACaddresses.html' %}
                     </div>
                 </div>
             
@@ -82,22 +70,22 @@
 
                 <!-- Contains the timing metric cards such as flows -->
                 <h2 class="font-bold text-2xl mb-6">Timing Stats</h2>
-                {% include 'tcpFlowDurations.html' %}
+                {% include 'timings/tcpFlowDurations.html' %}
 
                 <hr class="h-px my-8 bg-[#222222] border-0">
 
                 <!-- Table of packet summaries -->
                 <h2 class="font-bold text-2xl mb-6">Other</h2>
-                <!-- {% include 'packetSummaries.html' %} -->
+                <!-- {% include 'tables/packetSummaries.html' %} -->
                 
             </div>
         </div>
     </div>
     
     <!-- Footer -->
-    {% include 'footer.html' %}
+    {% include 'components/footer.html' %}
     
     <!-- JavaScript -->
-    {% include 'button-view.html' %} <!-- Contains the button view script -->
+    {% include 'components/button-view.html' %} <!-- Contains the button view script -->
 </body>
 </html>

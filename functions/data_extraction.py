@@ -167,9 +167,6 @@ def total_packets(packet_data):
         return "-"
 
 # Count of unique IPv4 and IPv6 addresses and flows, with combined IP count
-import requests
-from collections import Counter
-
 def unique_ips_and_flows(packet_data):
     unique_ipv4_set = set()
     unique_ipv6_set = set()
@@ -205,12 +202,15 @@ def unique_ips_and_flows(packet_data):
             if src_ipv6 and dst_ipv6:
                 unique_flows.add((src_ipv6, dst_ipv6))
         
+        # Getting the count and percentages of each IP protocol
         combined_ip_count = len(unique_ipv4_set) + len(unique_ipv6_set)
-        
+        ipv4percent = round((len(unique_ipv4_set) / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
+        ipv6percent = round((len(unique_ipv6_set) / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
+
         # Get only the top 10 most frequent IP addresses
         combined_top_ips = dict(ipv4_counts.most_common(10))
         combined_top_ips.update(dict(ipv6_counts.most_common(10)))
-        combined_top_ips = dict(sorted(combined_top_ips.items(), key=lambda x: x[1], reverse=True)[:10])  # Ensure only 10 IPs total
+        combined_top_ips = dict(sorted(combined_top_ips.items(), key=lambda x: x[1], reverse=True)[:10])
 
         total_count = sum(combined_top_ips.values())
 
@@ -249,7 +249,7 @@ def unique_ips_and_flows(packet_data):
             ip_info.update(top_ips_data[ip])
             top_ips_data[ip] = ip_info
 
-        return len(unique_ipv4_set), len(unique_ipv6_set), combined_ip_count, len(unique_flows), {"top_ips": top_ips_data}
+        return len(unique_ipv4_set), len(unique_ipv6_set), ipv4percent, ipv6percent, combined_ip_count, len(unique_flows), {"top_ips": top_ips_data}
     
     except KeyError:
         return 0, 0, 0, 0, {}
@@ -344,8 +344,7 @@ def transport_layer_ports(packet_data):
     return {"top_ports": top_ports}
 
 # Function to count L7 protocols
-def application_layer_protocols(packet_data):
-
+def application_layer_protocols(packet_data, total_packets):
     protocol_counts = defaultdict(int)
 
     try:
@@ -366,7 +365,11 @@ def application_layer_protocols(packet_data):
     # Convert defaultdict to Counter to use most_common()
     top_protocols = dict(Counter(protocol_counts).most_common(10))
 
-    return {"top_protocols": top_protocols}
+    # Calculate and round the percentage for each protocol
+    protocol_percentages = {protocol: round((count / total_packets) * 100, 2) for protocol, count in top_protocols.items()}
+
+    # Return both the top protocols and their percentages
+    return {"top_protocols": top_protocols, "protocol_percentages": protocol_percentages}
 
 # Function to get the top 10 MAC addresses and their percentages, including OUI resolutions
 def mac_address_counts(packet_data):

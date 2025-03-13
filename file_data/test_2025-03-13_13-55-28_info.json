@@ -1,0 +1,234 @@
+{
+    "name": "test.pcap",
+    "size_mb": "412.7 kB",
+    "md5_hash": "0b9e8740f7c6d8d7c97ae71c35c667ee",
+    "submission_date": "3/13/2025 at 01:55:29 PM",
+    "start_date": "2/13/2025 at 10:06:57 AM",
+    "end_date": "2/13/2025 at 10:07:10 AM",
+    "time_difference": "12 seconds",
+    "total_packets": 629,
+    "ipv4": 25,
+    "ipv4percent": 92.59,
+    "ipv6": 2,
+    "ipv6percent": 7.41,
+    "unique_ips": {
+        "top_ips": {
+            "192.168.1.17": {
+                "ip": "192.168.1.17",
+                "bogon": true,
+                "hostname": "bogon",
+                "city": "",
+                "region": "",
+                "country": "bogon",
+                "loc": "bogon",
+                "org": "bogon",
+                "postal": "bogon",
+                "timezone": "bogon",
+                "location": "bogon",
+                "count": 615,
+                "percentage": 55.65610859728507
+            },
+            "23.48.203.115": {
+                "ip": "23.48.203.115",
+                "hostname": "a23-48-203-115.deploy.static.akamaitechnologies.com",
+                "city": "Ashburn",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "39.0437,-77.4875",
+                "org": "AS20940 Akamai International B.V.",
+                "postal": "20147",
+                "timezone": "America/New_York",
+                "readme": "https://ipinfo.io/missingauth",
+                "location": "Ashburn, Virginia, US",
+                "count": 120,
+                "percentage": 10.85972850678733
+            },
+            "192.168.1.1": {
+                "ip": "192.168.1.1",
+                "bogon": true,
+                "hostname": "bogon",
+                "city": "",
+                "region": "",
+                "country": "bogon",
+                "loc": "bogon",
+                "org": "bogon",
+                "postal": "bogon",
+                "timezone": "bogon",
+                "location": "bogon",
+                "count": 108,
+                "percentage": 9.773755656108598
+            },
+            "23.48.203.113": {
+                "ip": "23.48.203.113",
+                "hostname": "a23-48-203-113.deploy.static.akamaitechnologies.com",
+                "city": "Ashburn",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "39.0437,-77.4875",
+                "org": "AS20940 Akamai International B.V.",
+                "postal": "20147",
+                "timezone": "America/New_York",
+                "readme": "https://ipinfo.io/missingauth",
+                "location": "Ashburn, Virginia, US",
+                "count": 56,
+                "percentage": 5.067873303167421
+            },
+            "192.172.226.122": {
+                "ip": "192.172.226.122",
+                "hostname": "proxy.caida.org",
+                "city": "San Diego",
+                "region": "California",
+                "country": "US",
+                "loc": "32.7157,-117.1647",
+                "org": "AS1909 San Diego Supercomputer Center",
+                "postal": "92101",
+                "timezone": "America/Los_Angeles",
+                "readme": "https://ipinfo.io/missingauth",
+                "location": "San Diego, California, US",
+                "count": 50,
+                "percentage": 4.524886877828054
+            },
+            "173.194.219.94": {
+                "ip": "173.194.219.94",
+                "hostname": "ya-in-f94.1e100.net",
+                "city": "Atlanta",
+                "region": "Georgia",
+                "country": "US",
+                "loc": "33.7490,-84.3880",
+                "org": "AS15169 Google LLC",
+                "postal": "30302",
+                "timezone": "America/New_York",
+                "readme": "https://ipinfo.io/missingauth",
+                "location": "Atlanta, Georgia, US",
+                "count": 43,
+                "percentage": 3.8914027149321266
+            },
+            "64.233.177.101": {
+                "ip": "64.233.177.101",
+                "hostname": "yx-in-f101.1e100.net",
+                "city": "Atlanta",
+                "region": "Georgia",
+                "country": "US",
+                "loc": "33.7490,-84.3880",
+                "org": "AS15169 Google LLC",
+                "postal": "30302",
+                "timezone": "America/New_York",
+                "readme": "https://ipinfo.io/missingauth",
+                "location": "Atlanta, Georgia, US",
+                "count": 38,
+                "percentage": 3.4389140271493215
+            },
+            "172.217.215.95": {
+                "ip": "172.217.215.95",
+                "hostname": "yo-in-f95.1e100.net",
+                "city": "Atlanta",
+                "region": "Georgia",
+                "country": "US",
+                "loc": "33.7490,-84.3880",
+                "org": "AS15169 Google LLC",
+                "postal": "30302",
+                "timezone": "America/New_York",
+                "readme": "https://ipinfo.io/missingauth",
+                "location": "Atlanta, Georgia, US",
+                "count": 28,
+                "percentage": 2.5339366515837103
+            },
+            "44.205.61.84": {
+                "ip": "44.205.61.84",
+                "hostname": "ec2-44-205-61-84.compute-1.amazonaws.com",
+                "city": "Ashburn",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "39.0437,-77.4875",
+                "org": "AS14618 Amazon.com, Inc.",
+                "postal": "20147",
+                "timezone": "America/New_York",
+                "readme": "https://ipinfo.io/missingauth",
+                "location": "Ashburn, Virginia, US",
+                "count": 24,
+                "percentage": 2.171945701357466
+            },
+            "52.123.128.254": {
+                "ip": "52.123.128.254",
+                "city": "Redmond",
+                "region": "Washington",
+                "country": "US",
+                "loc": "47.6740,-122.1215",
+                "org": "AS8075 Microsoft Corporation",
+                "postal": "98052",
+                "timezone": "America/Los_Angeles",
+                "readme": "https://ipinfo.io/missingauth",
+                "anycast": true,
+                "location": "Redmond, Washington, US",
+                "count": 23,
+                "percentage": 2.0814479638009047
+            }
+        }
+    },
+    "unique_ip_addresses": 27,
+    "unique_ip_flows": 48,
+    "tcp_min_flow": 0.0,
+    "tcp_max_flow": 10.1067,
+    "tcp_avg_flow": 1.3612,
+    "protocols": {
+        "TCP": 896,
+        "UDP": 356
+    },
+    "top_ports": {
+        "top_ports": {
+            "443": 484,
+            "19860": 114,
+            "53": 108,
+            "19853": 55,
+            "5353": 40,
+            "55696": 38,
+            "52050": 28,
+            "19871": 25,
+            "19879": 24,
+            "19872": 23
+        }
+    },
+    "l7_top_protocols": {
+        "tls": 155,
+        "data": 102,
+        "quic": 58,
+        "dns": 22,
+        "mdns": 20
+    },
+    "l7_protocol_percentages": {
+        "tls": 24.64,
+        "data": 16.22,
+        "quic": 9.22,
+        "dns": 3.5,
+        "mdns": 3.18
+    },
+    "mac_addresses": {
+        "top_macs": {
+            "c4:cb:76:9b:f3:c1": {
+                "count": 621,
+                "percentage": 49.36406995230524,
+                "oui_resolved": "Microsoft Corporation"
+            },
+            "28:80:88:40:2a:9c": {
+                "count": 594,
+                "percentage": 47.21780604133545,
+                "oui_resolved": "Netgear"
+            },
+            "f0:5c:77:0d:90:1f": {
+                "count": 23,
+                "percentage": 1.8282988871224166,
+                "oui_resolved": "Google, Inc."
+            },
+            "01:00:5e:00:00:fb": {
+                "count": 14,
+                "percentage": 1.1128775834658187,
+                "oui_resolved": "ICANN, IANA Department"
+            },
+            "33:33:00:00:00:fb": {
+                "count": 6,
+                "percentage": 0.47694753577106513,
+                "oui_resolved": "Unknown"
+            }
+        }
+    }
+}

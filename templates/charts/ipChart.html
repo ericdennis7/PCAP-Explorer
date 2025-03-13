@@ -12,6 +12,18 @@
     </div>
     <div class="flex justify-center items-center h-full p-2" id="chartContainer1">
         <canvas id="ipChart"></canvas>
+        <div class="flex flex-col items-start ml-2">
+            <div class="flex items-center mb-2">
+                <span class="inline-block w-4 h-4 bg-[#54478C] rounded-full mr-2"></span>
+                <span class="text-white">IPv4</span>
+                <span class="font-bold text-white ml-2">{{ file_info.ipv4percent }}%</span>
+            </div>
+            <div class="flex items-center mb-2">
+                <span class="inline-block w-4 h-4 bg-[#2C699A] rounded-full mr-2"></span>
+                <span class="text-white">IPv6</span>
+                <span class="font-bold text-white ml-2">{{ file_info.ipv6percent }}%</span>
+            </div>
+        </div>
     </div>
     <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer1">
     </div>
@@ -28,49 +40,28 @@
     const ipv6Percent = ((ipv6Count / total) * 100).toFixed(2);
     
     // Create a doughnut chart
-    const ipCtx = document.getElementById('ipChart').getContext('2d');  // Renamed 'ctx' to 'ipCtx'
+    const ipCtx = document.getElementById('ipChart').getContext('2d'); 
     const ipChart = new Chart(ipCtx, {
         type: 'doughnut',
         data: {
-            labels: ['IPv4', 'IPv6'],  // Only the names, not the percentage
+            labels: ['IPv4', 'IPv6'],
             datasets: [{
-                data: [ipv6Count, ipv4Count],
+                data: [ipv4Count, ipv6Count],
                 backgroundColor: ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'],
                 hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: true,
             cutout: '70%',
             borderRadius: 17,
+            layout: {
+                padding: 50
+            },
             plugins: {
                 legend: {
-                    position: 'right',
-                    labels: {
-                        usePointStyle: true,
-                        boxWidth: 10,
-                        boxHeight: 10,
-                        font: {
-                            size: 16,
-                            // weight: 'bold',
-                            family: 'monospace'
-                        },
-                        generateLabels: function(chart) {
-                            const data = chart.data;
-                            return data.labels.map((label, index) => {
-                                const value = data.datasets[0].data[index];
-                                const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                const percentage = ((value / total) * 100).toFixed(2);
-                                return {
-                                    text: `‎ ${label} - ${percentage}%`,
-                                    fillStyle: data.datasets[0].backgroundColor[index],
-                                    strokeStyle: data.datasets[0].backgroundColor[index],
-                                    lineWidth: 1,
-                                    fontColor: '#ffffff'
-                                };
-                            });
-                        }
-                    }
+                    display: false // Disable the legend
                 },
                 tooltip: {
                     borderWidth: 0,
@@ -100,5 +91,3 @@
     });
 </script>
 
-
-<!-- -->
