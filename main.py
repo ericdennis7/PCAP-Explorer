@@ -7,10 +7,8 @@
 
 # Imports
 import os
-import humanize
-
-import tempfile
 import json
+import humanize
 
 from datetime import datetime
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session
@@ -66,7 +64,7 @@ def upload_file():
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
         file.save(filepath)
 
-        # Extract packet data (used only for stats, not storage)
+        # Extract packet data
         packet_data = raw_pcap_json(filepath)
 
         # Collect file characteristics
@@ -97,12 +95,6 @@ def upload_file():
             "mac_addresses": mac_address_counts(packet_data)
         }
 
-        # Store packet data in a temporary file
-        temp_file = tempfile.NamedTemporaryFile(delete=False, mode='w', encoding='utf-8')
-        temp_file_name = temp_file.name
-        with open(temp_file_name, 'w', encoding='utf-8') as f:
-            json.dump(packet_data, f)
-
         # Create `file_data` folder if it doesn't exist
         file_data_folder = os.path.join(app.root_path, 'file_data')
         os.makedirs(file_data_folder, exist_ok=True)
@@ -116,33 +108,35 @@ def upload_file():
         # Remove original file after processing
         os.remove(filepath)
 
-        # Save file info reference in session (optional)
+        # Save file references in session
         session['file_info'] = info_filepath
-        session['packet_data_file'] = temp_file_name
 
-        # Return a response with a redirect URL
-        return jsonify({"success": True, "redirect": url_for('analysis')})
+        # Return a response with a redirect URL (includes filename)
+        return jsonify({
+            "success": True, 
+            "redirect": url_for('analysis', filename=f"{file_name}_{current_datetime}_info.json")
+        })
 
     except Exception as e:
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
 
 # Analysis Page
-@app.route("/analysis")
-def analysis():
-    file_info_path = session.get('file_info')
+@app.route("/analysis/<filename>")
+def analysis(filename):
+    file_info_path = os.path.join(app.root_path, 'file_data', filename)
 
-    # Make sure the data exists in session before rendering the page
-    if not file_info_path or not os.path.exists(file_info_path):
+    # Check if file exists before rendering the page
+    if not os.path.exists(file_info_path):
         return redirect(url_for('index'))
 
-    # ✅ Read file info from JSON
+    # Read file info from JSON
     with open(file_info_path, 'r', encoding='utf-8') as f:
         file_info = json.load(f)
 
     imports = read_imports()
 
-    # ✅ Pass only file_info (no packet_data)
+    # Pass only file_info to the template
     return render_template("analysis.html", file_info=file_info, imports=imports)
 
 
