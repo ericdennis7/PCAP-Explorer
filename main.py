@@ -40,6 +40,7 @@ def index():
     imports = read_imports()
     return render_template("index.html", imports=imports)
 
+# Upload route
 @app.route("/upload", methods=["POST"])
 def upload_file():
     """Handles AJAX file uploads asynchronously."""
@@ -65,9 +66,8 @@ def upload_file():
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
         file.save(filepath)
 
-        # Extract packet data
+        # Extract packet data (used only for stats, not storage)
         packet_data = raw_pcap_json(filepath)
-        packet_summaries = pcap_packet_summaries(filepath)
 
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
@@ -103,11 +103,21 @@ def upload_file():
         with open(temp_file_name, 'w', encoding='utf-8') as f:
             json.dump(packet_data, f)
 
-        # Remove file after processing
+        # Create `file_data` folder if it doesn't exist
+        file_data_folder = os.path.join(app.root_path, 'file_data')
+        os.makedirs(file_data_folder, exist_ok=True)
+
+        # Store file info as JSON in `file_data`
+        info_filename = f"{file_name}_{current_datetime}_info.json"
+        info_filepath = os.path.join(file_data_folder, info_filename)
+        with open(info_filepath, 'w', encoding='utf-8') as f:
+            json.dump(file_info, f, indent=4)
+
+        # Remove original file after processing
         os.remove(filepath)
 
-        # Store the file reference in session (store the temp file name)
-        session['file_info'] = file_info
+        # Save file info reference in session (optional)
+        session['file_info'] = info_filepath
         session['packet_data_file'] = temp_file_name
 
         # Return a response with a redirect URL
@@ -120,24 +130,20 @@ def upload_file():
 # Analysis Page
 @app.route("/analysis")
 def analysis():
-    file_info = session.get('file_info')
-    packet_data_file = session.get('packet_data_file')
+    file_info_path = session.get('file_info')
 
     # Make sure the data exists in session before rendering the page
-    if not file_info or not packet_data_file:
+    if not file_info_path or not os.path.exists(file_info_path):
         return redirect(url_for('index'))
 
-    # Read packet data from the temporary file
-    with open(packet_data_file, 'r', encoding='utf-8') as f:
-        packet_data = json.load(f)
+    # ✅ Read file info from JSON
+    with open(file_info_path, 'r', encoding='utf-8') as f:
+        file_info = json.load(f)
 
-    # Remove the temporary file after reading
-    # os.remove(packet_data_file)  
- 
     imports = read_imports()
-    return render_template("analysis.html", file_info=file_info, packet_data=packet_data, imports=imports)
 
-
+    # ✅ Pass only file_info (no packet_data)
+    return render_template("analysis.html", file_info=file_info, imports=imports)
 
 
 @app.route('/api/pcap_data', methods=['GET'])
