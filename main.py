@@ -17,6 +17,7 @@ from flask import Flask, request, render_template, jsonify, redirect, url_for, s
 from functions.data_extraction import *
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 app.secret_key = os.urandom(24)
 
 # Set upload directory
@@ -72,7 +73,7 @@ def upload_file():
         packet_total = total_packets(packet_data)
         ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, ip_flow_count, unique_ip_addresses = unique_ips_and_flows(packet_data)
         tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
-        l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data, packet_total).values()
+        l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
         l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
         l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
 
@@ -130,6 +131,10 @@ def upload_file():
         })
 
     except Exception as e:
+
+        # Remove original file after processing
+        os.remove(filepath)
+
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
 

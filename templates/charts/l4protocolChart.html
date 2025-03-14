@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="flex justify-center items-start h-full p-2 hidden" id="tableContainer2">
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full mt-4">
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full max-h-[285px] mt-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
             <table class="sortable w-full text-left rtl:text-right text-white" id="l4ProtocolTable">
                 <thead class="text-lg text-white bg-[--clr-surface-a5]">
                     <tr>
@@ -84,7 +84,7 @@
     // Sort and get the top 5 protocols
     const topProtocols = Object.entries(protocolDataFromFlask)
         .sort((a, b) => b[1] - a[1]) 
-        .slice(0, 5);
+        .slice(0, 7);
 
     // Extract labels and data from top protocols
     const labels = topProtocols.map(item => item[0]);

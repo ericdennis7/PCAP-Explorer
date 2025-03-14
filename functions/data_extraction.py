@@ -331,7 +331,7 @@ def transport_layer_ports(packet_data, total_packets):
                 src_port = layers["udp"].get("udp.srcport")
                 dst_port = layers["udp"].get("udp.dstport")
             else:
-                continue  # Skip packets that don't have TCP or UDP
+                continue  # Skip non-TCP/UDP packets
 
             # Increment the count for each port
             if src_port:
@@ -342,17 +342,21 @@ def transport_layer_ports(packet_data, total_packets):
     except Exception as e:
         print(f"Error processing packet: {e}")
 
-    # Keep only the top 10 most frequent ports overall
+    # Calculate percentage based on ALL packets, not just TCP/UDP ones
+    port_percentages = {
+        port: round((count / (total_packets * 2)) * 100, 2) 
+        for port, count in port_counts.items()
+    }
+
+    # Keep only the top 7 most frequent ports for display
     top_ports = dict(port_counts.most_common(7))
-    
-    # Calculate and round the percentage for each port
-    port_percentages = {port: round((count / total_packets) * 100, 2) for port, count in top_ports.items()}
     
     return {"top_ports": top_ports, "port_percentages": port_percentages}
 
 # Function to count L7 protocols
-def application_layer_protocols(packet_data, total_packets):
+def application_layer_protocols(packet_data):
     protocol_counts = defaultdict(int)
+    total_l7_packets = 0
 
     try:
         for packet in packet_data:
@@ -366,16 +370,19 @@ def application_layer_protocols(packet_data, total_packets):
             if len(protocol_list) >= 5:
                 l7_protocol = protocol_list[4]
                 protocol_counts[l7_protocol] += 1
+                total_l7_packets += 1
     except Exception as e:
         print(f"Error processing packet: {e}")
 
-    # Convert defaultdict to Counter to use most_common()
+    # Calculate the percentage based on L7 packets only
+    protocol_percentages = {
+        protocol: round((count / total_l7_packets) * 100, 2) 
+        for protocol, count in protocol_counts.items()
+    }
+
+    # Keep only the top 7 most frequent protocols for display
     top_protocols = dict(Counter(protocol_counts).most_common(7))
 
-    # Calculate and round the percentage for each protocol
-    protocol_percentages = {protocol: round((count / total_packets) * 100, 2) for protocol, count in top_protocols.items()}
-
-    # Return both the top protocols and their percentages
     return {"top_protocols": top_protocols, "protocol_percentages": protocol_percentages}
 
 # Function to get the top 10 MAC addresses and their percentages, including OUI resolutions

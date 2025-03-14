@@ -2,15 +2,15 @@
     <div class="relative p-4">
         <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">Top Application Layer Protocols (L7)</h4>
         <div class="absolute top-2 right-2 flex">
-            <button id="chartButton4" class="p-2 text-white rounded-l-lg active-button">
+            <button id="chartButton3" class="p-2 text-white rounded-l-lg active-button">
                 <i class="fa-solid fa-chart-pie"></i>
             </button>
-            <button id="tableButton4" class="p-2 text-[--clr-surface-a30] rounded-r-lg">
+            <button id="tableButton3" class="p-2 text-[--clr-surface-a30] rounded-r-lg">
                 <i class="fa-solid fa-table"></i>
             </button>
         </div>
     </div>
-    <div class="flex justify-center items-center h-full p-2" id="chartContainer4">
+    <div class="flex justify-center items-center h-full p-2" id="chartContainer3">
         <canvas id="l7protocolChart"></canvas>
         <div class="flex flex-col items-start ml-2">
             {% set colors = ['#54478C', '#2C699A', '#048BA8', '#0DB39E', '#16DB93', '#83E377', '#B9E769', '#EFEA5A', '#F1C453', '#F29E4C'] %}
@@ -25,7 +25,39 @@
             {% endfor %}
         </div>
     </div>
-    <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer4">
+    <div class="flex justify-center items-start p-2 hidden" id="tableContainer3">
+        <div class="relative overflow-auto shadow-md sm:rounded-lg w-full max-h-[285px] mt-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
+            <table class="sortable w-full text-left rtl:text-right text-white" id="l7ProtocolTable">
+                <thead class="text-lg text-white bg-[--clr-surface-a5]">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Port
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Count
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Percent %
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for protocol, count in file_info['l7_top_protocols'].items() %}
+                        <tr class="bg-[--clr-surface-a10] border-b border-[--clr-surface-a5] hover:bg-[--clr-surface-a20]">
+                            <td class="px-6 py-4 text-white">
+                                {{ protocol }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ count }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ file_info['l7_protocol_percentages'][protocol] }}%
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -41,7 +73,7 @@
     // Sort and get the top 5 protocols directly from the object
     const topL7ProtocolsArray = Object.entries(topL7ProtocolsDataFromFlask)
         .sort((a, b) => b[1] - a[1])  // Sort by count, descending
-        .slice(0, 5);  // Take only the top 5 or fewer
+        .slice(0, 7);  // Take only the top 5 or fewer
 
     // Extract labels and data from top protocols
     const topL7ProtocolsLabels = topL7ProtocolsArray.map(item => item[0]);  // Protocol names

@@ -2,10 +2,10 @@
     <div class="relative p-4">
         <h4 class="absolute top-0 left-0 p-4 font-semibold text-lg">Top Transport Layer Ports (L4)</h4>
         <div class="absolute top-2 right-2 flex">
-            <button id="chartButton3" class="p-2 text-white rounded-l-lg active-button">
+            <button id="chartButton4" class="p-2 text-white rounded-l-lg active-button">
                 <i class="fa-solid fa-chart-pie"></i>
             </button>
-            <button id="tableButton3" class="p-2 text-[--clr-surface-a30] rounded-r-lg">
+            <button id="tableButton4" class="p-2 text-[--clr-surface-a30] rounded-r-lg">
                 <i class="fa-solid fa-table"></i>
             </button>
         </div>
@@ -25,8 +25,41 @@
             {% endfor %}
         </div>
     </div>
-    <div class="flex justify-center items-center h-full p-2 hidden" id="tableContainer3">
-    </div>
+
+    <div class="flex justify-center items-start p-2 hidden" id="tableContainer4">
+        <div class="relative overflow-auto shadow-md sm:rounded-lg w-full max-h-[285px] mt-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
+            <table class="sortable w-full text-left rtl:text-right text-white" id="l4PortTable">
+                <thead class="text-lg text-white bg-[--clr-surface-a5]">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">
+                            Port
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Count
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Percent %
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for port, count in file_info['l4_top_ports'].items() %}
+                        <tr class="bg-[--clr-surface-a10] border-b border-[--clr-surface-a5] hover:bg-[--clr-surface-a20]">
+                            <td class="px-6 py-4 text-white">
+                                {{ port }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ count }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ file_info['l4_ports_percentages'][port] }}%
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>    
 </div>
 
 <script>
@@ -45,7 +78,7 @@
     const topPortsArray = Object.entries(topPortsObj)
         .map(([port, count]) => [parseInt(port, 10), count])
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 5);
+        .slice(0, 7);
 
     // Extract labels and data from top ports
     const topPortsLabels = topPortsArray.map(item => item[0].toString());
