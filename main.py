@@ -11,6 +11,7 @@ import json
 import humanize
 
 from datetime import datetime
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session
 
 # Function imports

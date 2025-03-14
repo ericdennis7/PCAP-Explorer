@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Flask Uygulaması</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    {% block styles %}
+    {% endblock %}
+</head>
+
+<body>
+    <div id="content">
+        <nav>
+            <a href="{{ url_for('index') }}">New Styled Table</a> |
+            <a href="{{ url_for('default') }}">Default Table</a> |
+            <a href="{{ url_for('server') }}">Server Side Table</a>
+            <button id="toggle-mode">Toggle Theme</button>
+        </nav>
+
+        {% block content %}
+        {% endblock %}
+
+        <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+
+        {% block scripts %}
+        {% endblock %}
+        <script>
+            const darkMode = localStorage.getItem('darkMode');
+
+            if (darkMode === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+
+            const toggleDarkModeButton = document.getElementById('toggle-mode');
+            toggleDarkModeButton.addEventListener('click', () => {
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                if (isDarkMode) {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('darkMode', 'false');
+                } else {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'true');
+                }
+            });
+        </script>
+    </div>
+</body>
+
+</html>

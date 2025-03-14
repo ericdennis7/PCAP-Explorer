@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/static/css/analysis.css">
 </head>
 
-<body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0] animate__animated animate__fadeInDownBig [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
+<body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0] [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
     <!-- Navbar -->
     {% include 'components/navbar.html' %}
     
@@ -37,7 +37,7 @@
                 <hr class="h-px my-8 bg-[#222222] border-0">
 
                 <!-- Doughnut Charts -->
-                <h2 class="font-bold text-2xl mb-6">Packet Structure Stats</h2>
+                <h2 class="font-bold text-2xl mb-6">Packet Structure Stats (Top 7)</h2>
                 <div class="grid grid-cols-2 gap-4 max-w-[1600px] mx-auto">
                     {% include 'charts/ipChart.html' %} <!-- Contains the IP doughnut chart -->
                     {% include 'charts/l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
