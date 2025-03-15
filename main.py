@@ -17,6 +17,7 @@ from flask import Flask, request, render_template, jsonify, redirect, url_for, s
 # Function imports
 from functions.data_extraction import *
 
+# Creating Flask app & app settings
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 app.secret_key = os.urandom(24)
