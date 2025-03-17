@@ -1,19 +1,43 @@
-# This file extracts data from a .pcap file for statistical analysis.
 import csv
-import json
 import hashlib
 import requests
 import humanize
 import subprocess
+import pandas as pd
+from io import StringIO
 from datetime import datetime
 from collections import Counter, defaultdict
 
-# Convert the .pcap file to JSON using TShark
-def raw_pcap_json(filepath):
-    tshark_path = r"C:\Program Files\Wireshark\tshark.exe"
+# Convert the .pcap file to DataFrame using TShark
+def raw_pcap_pd(filepath):
+    fields = [
+        "frame.number",
+        "frame.time",
+        "eth.src",
+        "eth.dst",
+        "eth.src.oui_resolved",
+        "eth.dst.oui_resolved",
+        "ip.src",
+        "ipv6.src",
+        "ip.dst",
+        "ipv6.dst",
+        "ip.proto",
+        "tcp.srcport",
+        "tcp.dstport",
+        "udp.srcport",
+        "udp.dstport",
+        "frame.len",
+        "frame.protocols"
+    ]
+
+    cmd = [
+        "tshark", "-r", filepath, "-T", "fields",
+        *sum([["-e", field] for field in fields], []),
+        "-E", "separator=,", "-E", "quote=d", "-E", "header=y"
+    ]
 
     result = subprocess.run(
-        [tshark_path, "-r", filepath, "-T", "json"],
+        cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
@@ -22,14 +46,15 @@ def raw_pcap_json(filepath):
         raise Exception(f"TShark error: {result.stderr.decode('utf-8')}")
 
     output = result.stdout.decode("utf-8").strip()
-    
-    if not output:  
+
+    if not output:
         raise Exception("TShark returned empty output.")
 
-    try:
-        return json.loads(output)
-    except json.JSONDecodeError:
-        raise Exception("Error decoding JSON from TShark output")
+    # Convert CSV string to DataFrame
+    data = StringIO(output)
+    df = pd.read_csv(data)
+
+    return df
 
 # Extract the TCP flows min, max, and avg duration
 def tcp_min_max_avg(pcap_file):
@@ -80,94 +105,56 @@ def format_timestamp(timestamp):
     except ValueError:
         return timestamp  # Return as-is if parsing fails
 
-# Get packet summaries from a .pcap file
-def pcap_packet_summaries(pcap_file):
-    command = [
-        'tshark', '-r', pcap_file, '-T', 'fields',
-        '-e', 'frame.time',
-        '-e', 'frame.protocols',
-        '-e', 'ip.src',
-        '-e', 'udp.srcport',
-        '-e', 'ip.dst',
-        '-e', 'udp.dstport',
-        '-e', 'eth.src',
-        '-e', 'eth.dst',
-        '-e', 'frame.len'
-    ]
-    
-    result = subprocess.run(command, capture_output=True, text=True)
-    
-    if result.returncode != 0:
-        print("Error running tshark:", result.stderr)
-        return []
-
-    data = []
-    headers = [
-        "Timestamp", "Protocols", "Source", "Source Port",
-        "Destination", "Destination Port", "Source MAC", "Destination MAC", "Size"
-    ]
-
-    for line in result.stdout.splitlines():
-        fields = line.split('\t')
-        if len(fields) == 9:
-            packet_data = dict(zip(headers, fields))
-
-            # Append ports to IPs
-            src_ip = packet_data["Source"]
-            src_port = packet_data["Source Port"]
-            dst_ip = packet_data["Destination"]
-            dst_port = packet_data["Destination Port"]
-
-            packet_data["Source"] = f"{src_ip}:{src_port}" if src_port else src_ip
-            packet_data["Destination"] = f"{dst_ip}:{dst_port}" if dst_port else dst_ip
-            
-            # Format timestamp
-            packet_data["Timestamp"] = format_timestamp(packet_data["Timestamp"])  
-
-            data.append(packet_data)
-
-    return data
-
 # Extract the start date and end date, and calculate the time difference
 def packet_times_and_difference(packet_data):
     try:
-        # Extract the start date from the first packet
-        start_date_str = packet_data[0]["_source"]["layers"]["frame"]["frame.time"]
-        start_date_part = " ".join(start_date_str.split()[:-3])  # Remove the timezone
-        start_date_part = start_date_part[:start_date_part.find(".") + 7]  # Fix microseconds length
-        start_dt = datetime.strptime(start_date_part, "%b %d, %Y %H:%M:%S.%f")
+        # Extract start date (first row)
+        start_date_str = packet_data.iloc[0]["frame.time"]
+        try:
+            # Remove the timezone and extra spaces
+            start_date_part = " ".join(start_date_str.rsplit(" ", 3)[:-1])  
+            start_date_part = " ".join(start_date_part.split()) 
+            start_date_part = start_date_part[:start_date_part.find(".") + 7] 
+            start_dt = datetime.strptime(start_date_part, "%b %d, %Y %H:%M:%S.%f")
+            start_date_formatted = start_dt.strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/")
+        except Exception:
+            start_date_formatted = start_date_str
         
-        # Extract the end date from the last packet
-        end_date_str = packet_data[-1]["_source"]["layers"]["frame"]["frame.time"]
-        end_date_part = " ".join(end_date_str.split()[:-3])  # Remove the timezone
-        end_date_part = end_date_part[:end_date_part.find(".") + 7]  # Fix microseconds length
-        end_dt = datetime.strptime(end_date_part, "%b %d, %Y %H:%M:%S.%f")
+        # Extract end date (last row)
+        end_date_str = packet_data.iloc[-1]["frame.time"]
+        try:
+            end_date_part = " ".join(end_date_str.rsplit(" ", 3)[:-1])
+            end_date_part = " ".join(end_date_part.split())  
+            end_date_part = end_date_part[:end_date_part.find(".") + 7] 
+            end_dt = datetime.strptime(end_date_part, "%b %d, %Y %H:%M:%S.%f")
+            end_date_formatted = end_dt.strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/")
+        except Exception:
+            end_date_formatted = end_date_str
+        
+        # Calculate time difference
+        try:
+            time_diff = end_dt - start_dt
+            time_diff_humanized = humanize.naturaldelta(time_diff)
+        except Exception:
+            time_diff_humanized = "Error calculating time difference"
 
-        # Calculate the time difference
-        time_diff = end_dt - start_dt
-        
-        # Humanize the time difference
-        time_diff_humanized = humanize.naturaldelta(time_diff)
-        
-        # Format dates for display
-        start_date_formatted = start_dt.strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/")
-        end_date_formatted = end_dt.strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/")
-        
         return start_date_formatted, end_date_formatted, time_diff_humanized
     
-    except KeyError:
-        return "-", "-", "Error processing dates"
+    except (KeyError, IndexError) as e:
+        return "-", "-", f"Error processing dates: {str(e)}"
 
 # Count occurrences of "_index" in each dictionary inside the packet_data list
-def total_packets(packet_data):
+def total_packets(df):
     try:
-        total = sum(1 for packet in packet_data if "_index" in packet)
+        # Count the number of rows in the DataFrame
+        total = len(df)
         return total
     except Exception as e:
+        print(f"Error: {e}")
         return "-"
 
 # Count of unique IPv4 and IPv6 addresses and flows, with combined IP count
-def unique_ips_and_flows(packet_data):
+def unique_ips_and_flows(df):
     unique_ipv4_set = set()
     unique_ipv6_set = set()
     unique_flows = set()
@@ -175,13 +162,11 @@ def unique_ips_and_flows(packet_data):
     ipv6_counts = Counter()
 
     try:
-        for packet in packet_data:
-            layers = packet.get("_source", {}).get("layers", {})
-            
-            src_ip = layers.get("ip", {}).get("ip.src")
-            dst_ip = layers.get("ip", {}).get("ip.dst")
-            src_ipv6 = layers.get("ipv6", {}).get("ipv6.src")
-            dst_ipv6 = layers.get("ipv6", {}).get("ipv6.dst")
+        for _, row in df.iterrows():
+            src_ip = row.get("ip.src")
+            dst_ip = row.get("ip.dst")
+            src_ipv6 = row.get("ipv6.src")
+            dst_ipv6 = row.get("ipv6.dst")
             
             if src_ip:
                 unique_ipv4_set.add(src_ip)
@@ -252,7 +237,7 @@ def unique_ips_and_flows(packet_data):
         return len(unique_ipv4_set), len(unique_ipv6_set), ipv4percent, ipv6percent, combined_ip_count, len(unique_flows), {"top_ips": top_ips_data}
     
     except KeyError:
-        return 0, 0, 0, 0, {}
+        return 0, 0, 0, 0, 0, 0, {}
 
 # Load protocol numbers into a dictionary
 def load_protocol_mapping(csv_file):
@@ -267,29 +252,24 @@ def load_protocol_mapping(csv_file):
     return protocol_mapping
 
 # Function to analyze protocol distribution
-def protocol_distribution(packet_data, total_packets, csv_file="information-sheets/protocol-numbers.csv"):
+def protocol_distribution(df, total_packets, csv_file="information-sheets/protocol-numbers.csv"):
     protocol_counts = {}
     protocol_mapping = load_protocol_mapping(csv_file)
 
     try:
-        for packet in packet_data:
-            layers = packet["_source"]["layers"]
+        for _, row in df.iterrows():
+            ip_layer = row.get("ip.src")
+            ip_proto = row.get("ip.proto")
 
-            # Check if IP layer exists and get protocol number
-            ip_layer = layers.get("ip", {})
-            if ip_layer:
-                ip_proto = ip_layer.get("ip.proto")
-                if ip_proto:
-                    # Get protocol name from CSV mapping, default to "Unknown"
-                    protocol = protocol_mapping.get(ip_proto, "Unknown")
-
-                    # Increment the count for this protocol
-                    protocol_counts[protocol] = protocol_counts.get(protocol, 0) + 1
+            # Get protocol name from CSV mapping, default to "Unknown"
+            if ip_proto:
+                protocol = protocol_mapping.get(ip_proto, "Unknown")
+                protocol_counts[protocol] = protocol_counts.get(protocol, 0) + 1
 
             # Avoid double counting for TCP and UDP
-            if "udp" in layers and "ip" not in layers:  # Only count UDP if no IP layer is counted
+            if "udp" in row and "ip.src" not in row:
                 protocol_counts["UDP"] = protocol_counts.get("UDP", 0) + 1
-            if "tcp" in layers and "ip" not in layers:  # Only count TCP if no IP layer is counted
+            if "tcp" in row and "ip.src" not in row:
                 protocol_counts["TCP"] = protocol_counts.get("TCP", 0) + 1
 
     except Exception as e:
@@ -315,21 +295,19 @@ def md5_hash(file_storage):
         return f"Error processing file: {str(e)}"
 
 # Function to fetch L4 port numbers
-def transport_layer_ports(packet_data, total_packets):
+def transport_layer_ports(df, total_packets):
     port_counts = Counter()
 
     try:
-        for packet in packet_data:
-            layers = packet["_source"]["layers"]
-
+        for _, row in df.iterrows():
             # Check for TCP layer
-            if "tcp" in layers:
-                src_port = layers["tcp"].get("tcp.srcport")
-                dst_port = layers["tcp"].get("tcp.dstport")
+            if "tcp.srcport" in row and "tcp.dstport" in row:
+                src_port = row["tcp.srcport"]
+                dst_port = row["tcp.dstport"]
             # Check for UDP layer
-            elif "udp" in layers:
-                src_port = layers["udp"].get("udp.srcport")
-                dst_port = layers["udp"].get("udp.dstport")
+            elif "udp.srcport" in row and "udp.dstport" in row:
+                src_port = row["udp.srcport"]
+                dst_port = row["udp.dstport"]
             else:
                 continue  # Skip non-TCP/UDP packets
 
@@ -350,21 +328,16 @@ def transport_layer_ports(packet_data, total_packets):
 
     # Keep only the top 7 most frequent ports for display
     top_ports = dict(port_counts.most_common(7))
-    
+
     return {"top_ports": top_ports, "port_percentages": port_percentages}
 
-# Function to count L7 protocols
-def application_layer_protocols(packet_data):
+def application_layer_protocols(df):
     protocol_counts = defaultdict(int)
     total_l7_packets = 0
 
     try:
-        for packet in packet_data:
-            layers = packet["_source"]["layers"]
-
-            # Extract IPv4 source and destination
-            protocols = layers.get("frame", {}).get("frame.protocols", "")
-
+        for _, row in df.iterrows():
+            protocols = row.get("frame.protocols", "")
             protocol_list = protocols.split(":")
 
             if len(protocol_list) >= 5:
@@ -386,29 +359,25 @@ def application_layer_protocols(packet_data):
     return {"top_protocols": top_protocols, "protocol_percentages": protocol_percentages}
 
 # Function to get the top 10 MAC addresses and their percentages, including OUI resolutions
-def mac_address_counts(packet_data):
+def mac_address_counts(df):
     mac_counts = Counter()
     mac_details = {}
 
     try:
-        for packet in packet_data:
-            layers = packet["_source"]["layers"]
-            eth_layer = layers.get("eth", {})
+        for _, row in df.iterrows():
+            src_mac = row.get("eth.src")
+            dst_mac = row.get("eth.dst")
 
-            src_mac = eth_layer.get("eth.src")
-            dst_mac = eth_layer.get("eth.dst")
-
-            # Fetch OUI-resolved names from eth.src_tree and eth.dst_tree
-            src_oui = eth_layer.get("eth.src_tree", {}).get("eth.src.oui_resolved", "Unknown")
-            dst_oui = eth_layer.get("eth.dst_tree", {}).get("eth.dst.oui_resolved", "Unknown")
+            src_oui = row.get("eth.src.oui_resolved", "Unknown")
+            dst_oui = row.get("eth.dst.oui_resolved", "Unknown")
 
             if src_mac:
                 mac_counts[src_mac] += 1
-                mac_details[src_mac] = src_oui  
+                mac_details[src_mac] = src_oui
 
             if dst_mac:
                 mac_counts[dst_mac] += 1
-                mac_details[dst_mac] = dst_oui  
+                mac_details[dst_mac] = dst_oui
 
     except Exception as e:
         print(f"Error processing packet: {e}")
@@ -421,7 +390,7 @@ def mac_address_counts(packet_data):
         mac: {
             "count": count,
             "percentage": (count / total_count) * 100 if total_count > 0 else 0,
-            "oui_resolved": mac_details.get(mac, "Unknown")  
+            "oui_resolved": mac_details.get(mac, "Unknown")
         }
         for mac, count in mac_counts.most_common(10)
     }

@@ -166,7 +166,7 @@
                 return;
             }
 
-            if (file.size > 50 * 1024 * 1024) {  // Max 50MB
+            if (file.size > 50 * 1024 * 1024 * 1024) {  // Max 50MB
                 errorMessage.textContent = "File too large. Max size is 500MB.";
                 errorMessage.classList.remove("hidden");
                 return;

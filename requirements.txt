@@ -1,3 +1,4 @@
 humanize
 flask
 requests
+pandas

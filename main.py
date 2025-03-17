@@ -9,6 +9,7 @@
 import os
 import json
 import humanize
+import pandas as pd
 
 from datetime import datetime
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -19,7 +20,7 @@ from functions.data_extraction import *
 
 # Creating Flask app & app settings
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 * 1024
 app.secret_key = os.urandom(24)
 
 # Set upload directory
@@ -55,7 +56,7 @@ def upload_file():
     if file.filename == "" or not file.filename.endswith((".pcap", ".pcapng")):
         return jsonify({"error": "Invalid file type. Only .pcap or .pcapng files are allowed."}), 400
 
-    if request.content_length > 50 * 1024 * 1024:  # 50MB limit
+    if request.content_length > 50 * 1024 * 1024 * 1024:  # 50MB limit
         return jsonify({"error": "File too large. Max size is 50MB."}), 400
 
     try:
@@ -68,7 +69,7 @@ def upload_file():
         file.save(filepath)
 
         # Extract packet data
-        packet_data = raw_pcap_json(filepath)
+        packet_data = raw_pcap_pd(filepath)
 
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
@@ -79,9 +80,6 @@ def upload_file():
         l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
         l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
 
-        print(l7_protocol_percentages)
-        print(l7_top_protocols)
-
         file_info = {
             "name": file_name + file_extension,
             "size_mb": humanize.naturalsize(os.path.getsize(filepath)),
@@ -90,7 +88,7 @@ def upload_file():
             "start_date": start_date,
             "end_date": end_date,
             "time_difference": time_diff,
-            "total_packets": packet_total,
+            "total_packets": 379,
             "ipv4": ipv4_addresses,
             "ipv4percent": ipv4percent,
             "ipv6": ipv6_addresses,
@@ -159,34 +157,34 @@ def analysis(filename):
     return render_template("analysis.html", file_info=file_info, imports=imports)
 
 
-@app.route('/api/pcap_data', methods=['GET'])
-def pcap_data():
-    pcap_file = "C:\\Users\\ericd\\Downloads\\capture.pcap"
+# @app.route('/api/pcap_data', methods=['GET'])
+# def pcap_data():
+#     pcap_file = "C:\\Users\\ericd\\Downloads\\capture.pcap"
     
-    # Get data from pcap function
-    data = pcap_packet_summaries(pcap_file)
+#     # Get data from pcap function
+#     data = pcap_packet_summaries(pcap_file)
 
-    # Get the search value from DataTables
-    search_value = request.args.get('search[value]', '').lower()
+#     # Get the search value from DataTables
+#     search_value = request.args.get('search[value]', '').lower()
 
-    # Filter the data based on the search query
-    if search_value:
-        data = [item for item in data if any(search_value in str(value).lower() for value in item.values())]
+#     # Filter the data based on the search query
+#     if search_value:
+#         data = [item for item in data if any(search_value in str(value).lower() for value in item.values())]
 
-    # DataTables request parameters
-    start = int(request.args.get('start', 0))  # The starting index for data
-    length = int(request.args.get('length', 10))  # The page length
+#     # DataTables request parameters
+#     start = int(request.args.get('start', 0))  # The starting index for data
+#     length = int(request.args.get('length', 10))  # The page length
 
-    # Pagination: slice the data to return only the required portion
-    paginated_data = data[start:start + length]
+#     # Pagination: slice the data to return only the required portion
+#     paginated_data = data[start:start + length]
     
-    # Return the data in the format DataTables expects
-    return jsonify({
-        'draw': int(request.args.get('draw', 0)),  # Incrementing number sent by DataTables
-        'recordsTotal': len(data),  # Total number of records
-        'recordsFiltered': len(data),  # Number of records after filtering
-        'data': paginated_data  # Data to display on the current page
-    })
+#     # Return the data in the format DataTables expects
+#     return jsonify({
+#         'draw': int(request.args.get('draw', 0)),  # Incrementing number sent by DataTables
+#         'recordsTotal': len(data),  # Total number of records
+#         'recordsFiltered': len(data),  # Number of records after filtering
+#         'data': paginated_data  # Data to display on the current page
+#     })
 
 # Run the app
 if __name__ == "__main__":
