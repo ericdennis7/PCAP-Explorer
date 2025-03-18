@@ -73,56 +73,45 @@
 # if __name__ == '__main__':
 #     app.run(debug=True)
 
-import humanize
-import subprocess
 import pandas as pd
-from io import StringIO
+import re
+import subprocess
 
-def raw_pcap_pd(filepath):
-    fields = [
-        "frame.number",
-        "frame.time",
-        "eth.src",
-        "eth.dst",
-        "eth.src.oui_resolved",
-        "eth.dst.oui_resolved",
-        "ip.src",
-        "ipv6.src",
-        "ip.dst",
-        "ipv6.dst",
-        "tcp.srcport",
-        "tcp.dstport",
-        "udp.srcport",
-        "udp.dstport",
-        "frame.len",
-        "frame.protocols"
+def parse_snort_output(pcap_filename):
+    # Run the Snort command and capture its output
+    command = [
+        "sudo", "snort", "-q", "-r", pcap_filename, "-c", "/etc/snort/snort.conf", "-A", "console"
     ]
 
-    cmd = [
-        "tshark", "-r", filepath, "-T", "fields",
-        *sum([["-e", field] for field in fields], []),
-        "-E", "separator=,", "-E", "quote=d", "-E", "header=y"
-    ]
+    # Run Snort command and capture stdout
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-    result = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
+    # Get the Snort output from stdout
+    snort_output = result.stdout
 
-    if result.returncode != 0:
-        raise Exception(f"TShark error: {result.stderr.decode('utf-8')}")
+    # Regular expression pattern to capture each part
+    pattern = re.compile(r'(?P<Date>\d{2}/\d{2})-(?P<Time>\d{2}:\d{2}:\d{2}\.\d+)  \[\*\*] \[(?P<RuleID>\d+:\d+:\d+)\] (?P<Message>.*?) \[\*\*] \[Classification: (?P<Classification>.*?)\] \[Priority: (?P<Priority>\d+)\] \{(?P<Protocol>\w+)\} (?P<Source>[\d\.\:]+) -> (?P<Dest>[\d\.\:]+)')
 
-    output = result.stdout.decode("utf-8").strip()
+    # List to store parsed data
+    data = []
 
-    if not output:
-        raise Exception("TShark returned empty output.")
+    # Parse each log entry in the Snort output
+    for log in snort_output.splitlines():
+        match = pattern.match(log)
+        if match:
+            # Directly extract Source and Dest as they are
+            log_data = match.groupdict()
+            data.append(log_data)
 
-    # Convert CSV string to DataFrame
-    data = StringIO(output)
-    df = pd.read_csv(data)
+    # Convert list to pandas DataFrame
+    df = pd.DataFrame(data)
 
-    return humanize.naturalsize(df.memory_usage(deep=True).sum())
+    # Return the DataFrame
+    return df
 
-# Example usage:
-print(raw_pcap_pd("uploads/botnet-capture-20110810-neris.pcap"))
+# Example usage: specify the filename of the pcap
+pcap_filename = "/workspaces/pcap-visualizer-ed/PCAP-Visualizer/uploads/tear.pcap"
+df = parse_snort_output(pcap_filename)
+
+# Show the DataFrame
+print(df)
