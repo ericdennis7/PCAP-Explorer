@@ -74,8 +74,9 @@ def upload_file():
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
         packet_total = total_packets(packet_data)
-        ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, ip_flow_count, unique_ip_addresses = unique_ips_and_flows(packet_data)
+        ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, unique_ip_addresses = unique_ips_and_flows(filepath)
         tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
+        udp_min_flow, udp_max_flow, udp_avg_flow = udp_min_max_avg(filepath)
         l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
         l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
         l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
@@ -95,10 +96,12 @@ def upload_file():
             "ipv6percent": ipv6percent,
             "unique_ips": unique_ip_addresses,
             "unique_ip_addresses": ip_count,
-            "unique_ip_flows": ip_flow_count,
             "tcp_min_flow": tcp_min_flow,
             "tcp_max_flow": tcp_max_flow,
             "tcp_avg_flow": tcp_avg_flow,
+            "udp_min_flow": udp_min_flow,
+            "udp_max_flow": udp_max_flow,
+            "udp_avg_flow": udp_avg_flow,
             "l4_top_protocols": l4_top_protocols,
             "l4_protocol_percentages": l4_protocol_percentages,
             "l4_top_ports": l4_top_ports,

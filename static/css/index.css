@@ -46,7 +46,7 @@
 i {
     font-size: 30px;
     margin: 8px; 
-    color: #0DB39E;
+    color: #b1cffb;
 }
 
 .loading-container {
@@ -89,7 +89,7 @@ i {
     width: 60px; 
     height: 20px; 
     border-radius: 100%;
-    background-color: #0DB39E;
+    background-color: #b1cffb;
 }
 
 .wrap {

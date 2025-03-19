@@ -1,5 +1,6 @@
 import csv
 import json
+import shlex
 import hashlib
 import requests
 import humanize
@@ -106,6 +107,44 @@ def tcp_min_max_avg(pcap_file):
         return round(min_value, 4), round(max_value, 4), round(avg_value, 4)
     except:
         return "N/A", "N/A", "N/A"
+    
+# Extract the UDP flows min, max, and avg duration
+def udp_min_max_avg(pcap_file):
+    try:
+        # Construct the tshark command to get flow statistics for UDP
+        command = [
+            'tshark', '-r', pcap_file, '-q', '-z', 'conv,udp'
+        ]
+        
+        # Run tshark command
+        result = subprocess.run(command, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            print("Error running tshark:", result.stderr)
+            return
+        
+        # Process tshark output to remove headers, footer, and sort by bytes
+        output = result.stdout
+        lines = output.splitlines()
+
+        # Skip the header lines (first 5) and the last footer line
+        lines = lines[5:-1]
+
+        # Extract the last value from each line (which is the time value)
+        last_values = []
+        for line in lines:
+            last_value = line.split()[-1]  # Extract the last element from the split line
+            last_values.append(float(last_value))  # Convert to float for calculations
+
+        # Calculate min, max, and average
+        if last_values:
+            min_value = min(last_values)
+            max_value = max(last_values)
+            avg_value = sum(last_values) / len(last_values)
+            
+        return round(min_value, 4), round(max_value, 4), round(avg_value, 4)
+    except:
+        return "N/A", "N/A", "N/A"
 
 # Get packet summaries from a .pcap file
 def format_timestamp(timestamp):
@@ -166,49 +205,52 @@ def total_packets(df):
         print(f"Error: {e}")
         return "-"
 
-# Count of unique IPv4 and IPv6 addresses and flows, with combined IP count
-def unique_ips_and_flows(df):
-    unique_ipv4_set = set()
-    unique_ipv6_set = set()
-    unique_flows = set()
-    ipv4_counts = Counter()
-    ipv6_counts = Counter()
-
+# Function to get the unique IP addresses and their counts
+def unique_ips_and_flows(pcap_file):
+    # Full command to run tshark, tr, sort, and uniq
+    command = f"tshark -r {pcap_file} -T fields -e ip.src -e ip.dst | tr '\\t' '\\n' | sort | uniq -c | sort -n"
+    
     try:
-        for _, row in df.iterrows():
-            src_ip = row.get("ip.src")
-            dst_ip = row.get("ip.dst")
-            src_ipv6 = row.get("ipv6.src")
-            dst_ipv6 = row.get("ipv6.dst")
-            
-            if src_ip:
-                unique_ipv4_set.add(src_ip)
-                ipv4_counts[src_ip] += 1
-            if dst_ip:
-                unique_ipv4_set.add(dst_ip)
-                ipv4_counts[dst_ip] += 1
-            
-            if src_ipv6:
-                unique_ipv6_set.add(src_ipv6)
-                ipv6_counts[src_ipv6] += 1
-            if dst_ipv6:
-                unique_ipv6_set.add(dst_ipv6)
-                ipv6_counts[dst_ipv6] += 1
-            
-            if src_ip and dst_ip:
-                unique_flows.add((src_ip, dst_ip))
-            if src_ipv6 and dst_ipv6:
-                unique_flows.add((src_ipv6, dst_ipv6))
+        # Run the command with shell=True to allow pipes
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, check=True)
+        ip_addresses = result.stdout.splitlines()  # Split the output by lines and return as a list of IP addresses
         
-        # Getting the count and percentages of each IP protocol
-        combined_ip_count = len(unique_ipv4_set) + len(unique_ipv6_set)
-        ipv4percent = round((len(unique_ipv4_set) / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
-        ipv6percent = round((len(unique_ipv6_set) / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
+        # Process the IPs
+        ipv4_counts = Counter()
+        ipv6_counts = Counter()
 
-        # Get only the top 10 most frequent IP addresses
-        combined_top_ips = dict(ipv4_counts.most_common(10))
-        combined_top_ips.update(dict(ipv6_counts.most_common(10)))
-        combined_top_ips = dict(sorted(combined_top_ips.items(), key=lambda x: x[1], reverse=True)[:10])
+        for line in ip_addresses:
+            # Skip empty lines
+            if not line.strip():
+                continue
+            
+            parts = line.split(maxsplit=1)
+            if len(parts) < 2:
+                # Skip malformed lines
+                continue
+            
+            count, ip = parts
+
+            # Handle IPs
+            if ':' in ip:  # Check if it's an IPv6 address
+                ipv6_counts[ip] += int(count)
+            else:  # Otherwise, treat it as an IPv4 address
+                ipv4_counts[ip] += int(count)
+
+        # Calculate the total counts and percentages
+        total_ipv4_count = sum(ipv4_counts.values())
+        total_ipv6_count = sum(ipv6_counts.values())
+        combined_ip_count = total_ipv4_count + total_ipv6_count
+        
+        ipv4_percent = round((total_ipv4_count / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
+        ipv6_percent = round((total_ipv6_count / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
+
+        # Get the top 10 most frequent IPs
+        top_ipv4_ips = dict(ipv4_counts.most_common(10))
+        top_ipv6_ips = dict(ipv6_counts.most_common(10))
+
+        # Combine both IPv4 and IPv6 top 10 IPs
+        combined_top_ips = dict(sorted({**top_ipv4_ips, **top_ipv6_ips}.items(), key=lambda x: x[1], reverse=True)[:10])
 
         total_count = sum(combined_top_ips.values())
 
@@ -219,7 +261,8 @@ def unique_ips_and_flows(df):
             }
             for ip, count in combined_top_ips.items()
         }
-        
+
+        # Fetch additional information about each IP (e.g., location)
         def probe_ip(ip):
             try:
                 response = requests.get(f"https://ipinfo.io/{ip}/json", timeout=2)
@@ -228,7 +271,8 @@ def unique_ips_and_flows(df):
             except requests.RequestException:
                 return {}
             return {}
-        
+
+        # Add location data to top IPs
         for ip in top_ips_data:
             ip_info = probe_ip(ip)
             if ip_info.get("bogon", False):
@@ -238,7 +282,6 @@ def unique_ips_and_flows(df):
                     "postal": "bogon", "timezone": "bogon"
                 })
             
-            # Combine city, region, country with a fallback if missing
             city = ip_info.get("city", "")
             region = ip_info.get("region", "")
             country = ip_info.get("country", "")
@@ -246,12 +289,13 @@ def unique_ips_and_flows(df):
 
             ip_info.update(top_ips_data[ip])
             top_ips_data[ip] = ip_info
+            
+        return sum(ipv4_counts.values()), sum(ipv6_counts.values()), ipv4_percent, ipv6_percent, combined_ip_count, {"top_ips": top_ips_data}
 
-        return len(unique_ipv4_set), len(unique_ipv6_set), ipv4percent, ipv6percent, combined_ip_count, len(unique_flows), {"top_ips": top_ips_data}
+    except subprocess.CalledProcessError as e:
+        print(f"Error running tshark: {e}")
+        return 0, 0, 0, 0, 0, {}
     
-    except KeyError:
-        return 0, 0, 0, 0, 0, 0, {}
-
 # Load protocol numbers into a dictionary
 def load_protocol_mapping(csv_file):
     protocol_mapping = {}
@@ -294,7 +338,7 @@ def protocol_distribution(df, total_packets, csv_file="/workspaces/pcap-visualiz
     # Keep only the top 7 most frequent protocols
     top_protocols = dict(Counter(protocol_counts).most_common(7))
 
-    # Calculate percentage for each protocol
+    # Calculate percentage for each protocol, but cap it at the top 7 protocols
     protocol_percentages = {protocol: round((count / total_packets) * 100, 2) for protocol, count in top_protocols.items()}
 
     return {"top_protocols": top_protocols, "protocol_percentages": protocol_percentages}
@@ -337,13 +381,14 @@ def transport_layer_ports(df, total_packets):
         print(f"Error processing packet: {e}")
         
     # Calculate percentage based on total packets
+    top_7_ports = dict(port_counts.most_common(7))
     port_percentages = {
         port: round((count / (total_packets * 2)) * 100, 2)  
-        for port, count in port_counts.items()
+        for port, count in top_7_ports.items() 
     }
-    
-    # Keep only the top 7 most frequent ports for display
-    top_ports = dict(port_counts.most_common(7))
+
+    # Keep only the top 10 most frequent ports for display
+    top_ports = dict(port_counts.most_common(7)) 
 
     return {"top_ports": top_ports, "port_percentages": port_percentages}
 
@@ -414,9 +459,7 @@ def mac_address_counts(df):
 
     return {"top_macs": mac_percentage}
 
-# Function to pull time data for the time distribution graph
-from datetime import datetime
-
+# Group packets by time section
 def group_packets_by_time_section(df, num_sections=10):
     # Convert frame.time_epoch to numeric if not already
     df['frame.time_epoch'] = pd.to_numeric(df['frame.time_epoch'], errors='coerce')
@@ -428,16 +471,12 @@ def group_packets_by_time_section(df, num_sections=10):
     # Calculate the interval size based on the number of sections
     interval_size = (max_time - min_time) / num_sections
 
-    # Create the time sections (intervals)
+    # Create the time sections (intervals) in epoch format
     time_sections = [(min_time + i * interval_size, min_time + (i + 1) * interval_size) for i in range(num_sections)]
-
-    # Function to convert seconds since epoch to HH:MM:SS format
-    def seconds_to_hms(seconds):
-        return str(datetime.utcfromtimestamp(seconds).strftime('%H:%M:%S'))
 
     # Group packets by time section and calculate the packet count and total bytes for each section
     section_counts = {
-        f"Section {i+1} ({seconds_to_hms(start)})": {
+        f"Section {i+1} ({start})": {  # Keep the epoch time in the key
             "packet_count": len(df[(df['frame.time_epoch'] >= start) & (df['frame.time_epoch'] < end)]),
             "total_bytes": int(df[(df['frame.time_epoch'] >= start) & (df['frame.time_epoch'] < end)]['frame.len'].sum())  # Convert np.int64 to int
         }

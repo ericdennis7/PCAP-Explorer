@@ -8,16 +8,51 @@
     var timeLabels = [];
     var totalBytesData = [];
     var packetCountData = [];
+    var epochs = [];
 
+    // Extract the time labels, totalBytesData, and packetCountData along with epoch values
     for (var section in timeSeriesData) {
         var timePeriod = section.match(/\(([^)]+)\)/); 
         if (timePeriod) {
             var timeLabel = timePeriod[1];
+            var epochTime = parseFloat(timeLabel); // Assuming the label is in epoch format
             timeLabels.push(timeLabel);
             totalBytesData.push(timeSeriesData[section].total_bytes);
             packetCountData.push(timeSeriesData[section].packet_count);
+            epochs.push(epochTime);
         }
     }
+
+    // Function to convert epoch to HH:MM:SS format
+    function epochToHHMMSS(epoch) {
+        var date = new Date(epoch * 1000); // Convert to milliseconds
+        var hours = String(date.getUTCHours()).padStart(2, '0');
+        var minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        var seconds = String(date.getUTCSeconds()).padStart(2, '0');
+        return hours + ':' + minutes + ':' + seconds;
+    }
+
+    // Sort the data by the epoch values
+    var dataArray = epochs.map(function(epoch, index) {
+        return {
+            epoch: epoch,
+            timeLabel: timeLabels[index],
+            totalBytes: totalBytesData[index],
+            packetCount: packetCountData[index]
+        };
+    });
+
+    // Sort the array based on epoch values
+    dataArray.sort(function(a, b) {
+        return a.epoch - b.epoch;
+    });
+
+    // Rebuild the sorted arrays after sorting by epoch
+    timeLabels = dataArray.map(function(item) { 
+        return epochToHHMMSS(item.epoch); // Convert epoch to HH:MM:SS format
+    });
+    totalBytesData = dataArray.map(function(item) { return item.totalBytes; });
+    packetCountData = dataArray.map(function(item) { return item.packetCount; });
 
     var timeSeriesChartCtx = document.getElementById('timeSeriesChart').getContext('2d');
     var timeSeriesChart = new Chart(timeSeriesChartCtx, {

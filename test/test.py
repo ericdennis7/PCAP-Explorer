@@ -74,93 +74,97 @@
 #     app.run(debug=True)
 
 import subprocess
-import pandas as pd
-import matplotlib.pyplot as plt
-from io import StringIO
+from collections import Counter
+import requests
 
-def raw_pcap_pd(filepath):
-    fields = [
-        "frame.number",
-        "frame.time",
-        "frame.time_epoch",
-        "eth.src",
-        "eth.dst",
-        "eth.src.oui_resolved",
-        "eth.dst.oui_resolved",
-        "ip.src",
-        "ipv6.src",
-        "ip.dst",
-        "ipv6.dst",
-        "ip.proto",
-        "tcp.srcport",
-        "tcp.dstport",
-        "udp.srcport",
-        "udp.dstport",
-        "frame.len",
-        "frame.protocols"
-    ]
-
-    cmd = [
-        "tshark", "-r", filepath, "-T", "fields",
-        *sum([["-e", field] for field in fields], []),
-        "-E", "separator=,", "-E", "quote=d", "-E", "header=y"
-    ]
-
-    result = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-
-    if result.returncode != 0:
-        raise Exception(f"TShark error: {result.stderr.decode('utf-8')}")
-
-    output = result.stdout.decode("utf-8").strip()
-
-    if not output:
-        raise Exception("TShark returned empty output.")
-
-    # Convert CSV string to DataFrame
-    data = StringIO(output)
-    df = pd.read_csv(data)
+def unique_ips_and_flows(pcap_file):
+    # Full command to run tshark, tr, sort, and uniq
+    command = f"tshark -r {pcap_file} -T fields -e ip.src -e ip.dst | tr '\\t' '\\n' | sort | uniq -c | sort -n"
     
-    # Convert relevant fields to integers where possible
-    fields_to_convert = [
-        "ip.proto",
-        "tcp.srcport", "tcp.dstport",
-        "udp.srcport", "udp.dstport"
-    ]
+    try:
+        # Run the command with shell=True to allow pipes
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, check=True)
+        ip_addresses = result.stdout.splitlines()  # Split the output by lines and return as a list of IP addresses
+        
+        # Process the IPs
+        ipv4_counts = Counter()
+        ipv6_counts = Counter()
 
-    for field in fields_to_convert:
-        if field in df.columns:
-            df[field] = pd.to_numeric(df[field], errors="coerce").astype("Int64")
+        for line in ip_addresses:
+            # Skip empty lines
+            if not line.strip():
+                continue
+            
+            parts = line.split(maxsplit=1)
+            if len(parts) < 2:
+                # Skip malformed lines
+                continue
+            
+            count, ip = parts
 
-    return df
+            # Handle IPs
+            if ':' in ip:  # Check if it's an IPv6 address
+                ipv6_counts[ip] += int(count)
+            else:  # Otherwise, treat it as an IPv4 address
+                ipv4_counts[ip] += int(count)
 
-# Load the pcap data
-df = raw_pcap_pd("/workspaces/pcap-visualizer-ed/PCAP-Visualizer/uploads/botnet-capture-20110810-neris.pcap")
+        # Calculate the total counts and percentages
+        total_ipv4_count = sum(ipv4_counts.values())
+        total_ipv6_count = sum(ipv6_counts.values())
+        combined_ip_count = total_ipv4_count + total_ipv6_count
+        
+        ipv4_percent = round((total_ipv4_count / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
+        ipv6_percent = round((total_ipv6_count / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
 
-def group_packets_by_time_section(df, num_sections=10):
-    # Convert frame.time_epoch to numeric if not already
-    df['frame.time_epoch'] = pd.to_numeric(df['frame.time_epoch'], errors='coerce')
+        # Get the top 10 most frequent IPs
+        top_ipv4_ips = dict(ipv4_counts.most_common(10))
+        top_ipv6_ips = dict(ipv6_counts.most_common(10))
 
-    # Find the min and max of frame.time_epoch
-    min_time = df['frame.time_epoch'].min()
-    max_time = df['frame.time_epoch'].max()
+        # Combine both IPv4 and IPv6 top 10 IPs
+        combined_top_ips = dict(sorted({**top_ipv4_ips, **top_ipv6_ips}.items(), key=lambda x: x[1], reverse=True)[:10])
 
-    # Calculate the interval size based on the number of sections
-    interval_size = (max_time - min_time) / num_sections
+        total_count = sum(combined_top_ips.values())
 
-    # Create the time sections (intervals)
-    time_sections = [(min_time + i * interval_size, min_time + (i + 1) * interval_size) for i in range(num_sections)]
-
-    # Group packets by time section and calculate the packet count and total bytes for each section
-    section_counts = {
-        f"Section {i+1} ({start}-{end} sec)": {
-            "packet_count": len(df[(df['frame.time_epoch'] >= start) & (df['frame.time_epoch'] < end)]),
-            "total_bytes": df[(df['frame.time_epoch'] >= start) & (df['frame.time_epoch'] < end)]['frame.len'].sum()
+        top_ips_data = {
+            ip: {
+                "count": count,
+                "percentage": (count / total_count) * 100 if total_count > 0 else 0
+            }
+            for ip, count in combined_top_ips.items()
         }
-        for i, (start, end) in enumerate(time_sections)
-    }
 
-    return section_counts
+        # Fetch additional information about each IP (e.g., location)
+        def probe_ip(ip):
+            try:
+                response = requests.get(f"https://ipinfo.io/{ip}/json", timeout=2)
+                if response.status_code == 200:
+                    return response.json()
+            except requests.RequestException:
+                return {}
+            return {}
+
+        # Add location data to top IPs
+        for ip in top_ips_data:
+            ip_info = probe_ip(ip)
+            if ip_info.get("bogon", False):
+                ip_info.update({
+                    "hostname": "bogon", "city": "", "region": "",
+                    "country": "bogon", "loc": "bogon", "org": "bogon",
+                    "postal": "bogon", "timezone": "bogon"
+                })
+            
+            city = ip_info.get("city", "")
+            region = ip_info.get("region", "")
+            country = ip_info.get("country", "")
+            ip_info["location"] = ", ".join(filter(None, [city, region, country]))  # Filters out empty values
+
+            ip_info.update(top_ips_data[ip])
+            top_ips_data[ip] = ip_info
+
+        return len(ipv4_counts), len(ipv6_counts), ipv4_percent, ipv6_percent, combined_ip_count, {"top_ips": top_ips_data}
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error running tshark: {e}")
+        return 0, 0, 0, 0, 0, {}
+
+print(unique_ips_and_flows("/workspaces/pcap-visualizer-ed/PCAP-Visualizer/uploads/church-traffic-sample.pcapng"))
