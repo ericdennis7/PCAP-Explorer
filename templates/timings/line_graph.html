@@ -1,0 +1,99 @@
+<div class="relative mb-4 p-2 rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]" style="width: 100%; height: 400px;"> 
+    <canvas id="timeSeriesChart" class="" style="width: 100%; height: 100%;"></canvas> 
+</div>
+
+<script>
+    var timeSeriesData = {{ file_info['time_series'] | default({}, true) | tojson }};
+    
+    var timeLabels = [];
+    var totalBytesData = [];
+    var packetCountData = [];
+
+    for (var section in timeSeriesData) {
+        var timePeriod = section.match(/\(([^)]+)\)/); 
+        if (timePeriod) {
+            var timeLabel = timePeriod[1];
+            timeLabels.push(timeLabel);
+            totalBytesData.push(timeSeriesData[section].total_bytes);
+            packetCountData.push(timeSeriesData[section].packet_count);
+        }
+    }
+
+    var timeSeriesChartCtx = document.getElementById('timeSeriesChart').getContext('2d');
+    var timeSeriesChart = new Chart(timeSeriesChartCtx, {
+        type: 'line',
+        data: {
+            labels: timeLabels,  
+            datasets: [{
+                label: 'Total Bytes',
+                data: totalBytesData,  
+                borderColor: 'rgba(75, 192, 192, 1)', 
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', 
+                fill: true, 
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Time (HH:MM:SS)',
+                        color: 'white',
+                        font: {
+                            family: 'monospace', 
+                            size: 16
+                        }
+                    },
+                    ticks: {
+                        color: 'white',
+                        font: {
+                            family: 'monospace', 
+                            size: 12
+                        },
+                        autoSkip: true,
+                        maxTicksLimit: 10
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Total Bytes',
+                        color: 'white',
+                        font: {
+                            family: 'monospace', 
+                            size: 16
+                        }
+                    },
+                    ticks: {
+                        color: 'white',
+                        font: {
+                            family: 'monospace', 
+                            size: 12
+                        },
+                        beginAtZero: true
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            var totalBytes = tooltipItem.raw;
+                            var packetCount = packetCountData[tooltipItem.dataIndex];
+                            return 'Total Bytes: ' + totalBytes + ', Packet Count: ' + packetCount;
+                        }
+                    },
+                    titleColor: 'white', 
+                    bodyColor: 'white',   
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                }
+            }
+        }
+    });
+</script>

@@ -1,4 +1,5 @@
 import csv
+import json
 import hashlib
 import requests
 import humanize
@@ -13,6 +14,9 @@ def raw_pcap_pd(filepath):
     fields = [
         "frame.number",
         "frame.time",
+        "frame.time_epoch",
+        "frame.len",
+        "frame.protocols",
         "eth.src",
         "eth.dst",
         "eth.src.oui_resolved",
@@ -25,9 +29,7 @@ def raw_pcap_pd(filepath):
         "tcp.srcport",
         "tcp.dstport",
         "udp.srcport",
-        "udp.dstport",
-        "frame.len",
-        "frame.protocols"
+        "udp.dstport"
     ]
 
     cmd = [
@@ -53,6 +55,17 @@ def raw_pcap_pd(filepath):
     # Convert CSV string to DataFrame
     data = StringIO(output)
     df = pd.read_csv(data)
+    
+    # Convert relevant fields to integers where possible
+    fields_to_convert = [
+        "ip.proto",
+        "tcp.srcport", "tcp.dstport",
+        "udp.srcport", "udp.dstport"
+    ]
+
+    for field in fields_to_convert:
+        if field in df.columns:
+            df[field] = pd.to_numeric(df[field], errors="coerce").astype("Int64")
 
     return df
 
@@ -243,27 +256,30 @@ def unique_ips_and_flows(df):
 def load_protocol_mapping(csv_file):
     protocol_mapping = {}
     try:
-        with open(csv_file, mode="r", encoding="utf-8") as file:
+        with open(csv_file, mode="r", encoding="utf-8-sig") as file:
             reader = csv.DictReader(file)
+
             for row in reader:
-                protocol_mapping[row["number"]] = row["protocol"]
+                if row.get("number") and row.get("protocol"):
+                    # Strip whitespace and ensure consistent keys
+                    protocol_mapping[row["number"].strip()] = row["protocol"].strip()
+
     except Exception as e:
         print(f"Error loading protocol mapping: {e}")
     return protocol_mapping
 
 # Function to analyze protocol distribution
-def protocol_distribution(df, total_packets, csv_file="information-sheets/protocol-numbers.csv"):
+def protocol_distribution(df, total_packets, csv_file="/workspaces/pcap-visualizer-ed/PCAP-Visualizer/information-sheets/protocol-numbers.csv"):
     protocol_counts = {}
     protocol_mapping = load_protocol_mapping(csv_file)
 
     try:
         for _, row in df.iterrows():
-            ip_layer = row.get("ip.src")
             ip_proto = row.get("ip.proto")
 
-            # Get protocol name from CSV mapping, default to "Unknown"
-            if ip_proto:
-                protocol = protocol_mapping.get(ip_proto, "Unknown")
+            # Convert to string for consistent lookup
+            if ip_proto is not None:
+                protocol = protocol_mapping.get(str(ip_proto), "Unknown")
                 protocol_counts[protocol] = protocol_counts.get(protocol, 0) + 1
 
             # Avoid double counting for TCP and UDP
@@ -278,7 +294,7 @@ def protocol_distribution(df, total_packets, csv_file="information-sheets/protoc
     # Keep only the top 7 most frequent protocols
     top_protocols = dict(Counter(protocol_counts).most_common(7))
 
-    # Calculate the percentage for each protocol (rounded to 2 decimals)
+    # Calculate percentage for each protocol
     protocol_percentages = {protocol: round((count / total_packets) * 100, 2) for protocol, count in top_protocols.items()}
 
     return {"top_protocols": top_protocols, "protocol_percentages": protocol_percentages}
@@ -300,37 +316,38 @@ def transport_layer_ports(df, total_packets):
 
     try:
         for _, row in df.iterrows():
-            # Check for TCP layer
-            if "tcp.srcport" in row and "tcp.dstport" in row:
-                src_port = row["tcp.srcport"]
-                dst_port = row["tcp.dstport"]
-            # Check for UDP layer
-            elif "udp.srcport" in row and "udp.dstport" in row:
-                src_port = row["udp.srcport"]
-                dst_port = row["udp.dstport"]
-            else:
-                continue  # Skip non-TCP/UDP packets
+            # Fetch ports directly using .get() to avoid key errors
+            src_port = pd.to_numeric(row.get("tcp.srcport"), errors="coerce")
+            dst_port = pd.to_numeric(row.get("tcp.dstport"), errors="coerce")
 
-            # Increment the count for each port
-            if src_port:
+            if pd.notna(src_port):
                 port_counts[src_port] += 1
-            if dst_port:
+            if pd.notna(dst_port):
+                port_counts[dst_port] += 1
+
+            src_port = pd.to_numeric(row.get("udp.srcport"), errors="coerce")
+            dst_port = pd.to_numeric(row.get("udp.dstport"), errors="coerce")
+
+            if pd.notna(src_port):
+                port_counts[src_port] += 1
+            if pd.notna(dst_port):
                 port_counts[dst_port] += 1
 
     except Exception as e:
         print(f"Error processing packet: {e}")
-
-    # Calculate percentage based on ALL packets, not just TCP/UDP ones
+        
+    # Calculate percentage based on total packets
     port_percentages = {
-        port: round((count / (total_packets * 2)) * 100, 2) 
+        port: round((count / (total_packets * 2)) * 100, 2)  
         for port, count in port_counts.items()
     }
-
+    
     # Keep only the top 7 most frequent ports for display
     top_ports = dict(port_counts.most_common(7))
 
     return {"top_ports": top_ports, "port_percentages": port_percentages}
 
+# Function to get the top L7 application layer protocols.
 def application_layer_protocols(df):
     protocol_counts = defaultdict(int)
     total_l7_packets = 0
@@ -396,3 +413,35 @@ def mac_address_counts(df):
     }
 
     return {"top_macs": mac_percentage}
+
+# Function to pull time data for the time distribution graph
+from datetime import datetime
+
+def group_packets_by_time_section(df, num_sections=10):
+    # Convert frame.time_epoch to numeric if not already
+    df['frame.time_epoch'] = pd.to_numeric(df['frame.time_epoch'], errors='coerce')
+
+    # Find the min and max of frame.time_epoch
+    min_time = df['frame.time_epoch'].min()
+    max_time = df['frame.time_epoch'].max()
+
+    # Calculate the interval size based on the number of sections
+    interval_size = (max_time - min_time) / num_sections
+
+    # Create the time sections (intervals)
+    time_sections = [(min_time + i * interval_size, min_time + (i + 1) * interval_size) for i in range(num_sections)]
+
+    # Function to convert seconds since epoch to HH:MM:SS format
+    def seconds_to_hms(seconds):
+        return str(datetime.utcfromtimestamp(seconds).strftime('%H:%M:%S'))
+
+    # Group packets by time section and calculate the packet count and total bytes for each section
+    section_counts = {
+        f"Section {i+1} ({seconds_to_hms(start)})": {
+            "packet_count": len(df[(df['frame.time_epoch'] >= start) & (df['frame.time_epoch'] < end)]),
+            "total_bytes": int(df[(df['frame.time_epoch'] >= start) & (df['frame.time_epoch'] < end)]['frame.len'].sum())  # Convert np.int64 to int
+        }
+        for i, (start, end) in enumerate(time_sections)
+    }
+
+    return section_counts

@@ -4,10 +4,14 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        {{ imports|safe }}
-        <!-- Importing content from 'imports.txt' -->
-        <title>PCAPNG Visualizer</title>
+        <script src="https://cdn.tailwindcss.com"></script> <!-- Tailwind CSS -->
+        <script src="https://kit.fontawesome.com/fb4fbf1c3b.js" crossorigin="anonymous"></script> <!-- Font Awesome -->
+        <link rel="stylesheet" href="/static/css/colors.css"> <!-- Custom colors CSS -->
+        <link rel="icon" type="image/x-icon" href="/static/images/logo.png"> <!-- Favicon -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/> <!-- Animate.css -->
+        <title>PCAPNG Visualizer</title>
     </head>
     <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]  [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
         <!-- Include the navbar.html file -->

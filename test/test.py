@@ -73,45 +73,94 @@
 # if __name__ == '__main__':
 #     app.run(debug=True)
 
-import pandas as pd
-import re
 import subprocess
+import pandas as pd
+import matplotlib.pyplot as plt
+from io import StringIO
 
-def parse_snort_output(pcap_filename):
-    # Run the Snort command and capture its output
-    command = [
-        "sudo", "snort", "-q", "-r", pcap_filename, "-c", "/etc/snort/snort.conf", "-A", "console"
+def raw_pcap_pd(filepath):
+    fields = [
+        "frame.number",
+        "frame.time",
+        "frame.time_epoch",
+        "eth.src",
+        "eth.dst",
+        "eth.src.oui_resolved",
+        "eth.dst.oui_resolved",
+        "ip.src",
+        "ipv6.src",
+        "ip.dst",
+        "ipv6.dst",
+        "ip.proto",
+        "tcp.srcport",
+        "tcp.dstport",
+        "udp.srcport",
+        "udp.dstport",
+        "frame.len",
+        "frame.protocols"
     ]
 
-    # Run Snort command and capture stdout
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    cmd = [
+        "tshark", "-r", filepath, "-T", "fields",
+        *sum([["-e", field] for field in fields], []),
+        "-E", "separator=,", "-E", "quote=d", "-E", "header=y"
+    ]
 
-    # Get the Snort output from stdout
-    snort_output = result.stdout
+    result = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
 
-    # Regular expression pattern to capture each part
-    pattern = re.compile(r'(?P<Date>\d{2}/\d{2})-(?P<Time>\d{2}:\d{2}:\d{2}\.\d+)  \[\*\*] \[(?P<RuleID>\d+:\d+:\d+)\] (?P<Message>.*?) \[\*\*] \[Classification: (?P<Classification>.*?)\] \[Priority: (?P<Priority>\d+)\] \{(?P<Protocol>\w+)\} (?P<Source>[\d\.\:]+) -> (?P<Dest>[\d\.\:]+)')
+    if result.returncode != 0:
+        raise Exception(f"TShark error: {result.stderr.decode('utf-8')}")
 
-    # List to store parsed data
-    data = []
+    output = result.stdout.decode("utf-8").strip()
 
-    # Parse each log entry in the Snort output
-    for log in snort_output.splitlines():
-        match = pattern.match(log)
-        if match:
-            # Directly extract Source and Dest as they are
-            log_data = match.groupdict()
-            data.append(log_data)
+    if not output:
+        raise Exception("TShark returned empty output.")
 
-    # Convert list to pandas DataFrame
-    df = pd.DataFrame(data)
+    # Convert CSV string to DataFrame
+    data = StringIO(output)
+    df = pd.read_csv(data)
+    
+    # Convert relevant fields to integers where possible
+    fields_to_convert = [
+        "ip.proto",
+        "tcp.srcport", "tcp.dstport",
+        "udp.srcport", "udp.dstport"
+    ]
 
-    # Return the DataFrame
+    for field in fields_to_convert:
+        if field in df.columns:
+            df[field] = pd.to_numeric(df[field], errors="coerce").astype("Int64")
+
     return df
 
-# Example usage: specify the filename of the pcap
-pcap_filename = "/workspaces/pcap-visualizer-ed/PCAP-Visualizer/uploads/tear.pcap"
-df = parse_snort_output(pcap_filename)
+# Load the pcap data
+df = raw_pcap_pd("/workspaces/pcap-visualizer-ed/PCAP-Visualizer/uploads/botnet-capture-20110810-neris.pcap")
 
-# Show the DataFrame
-print(df)
+def group_packets_by_time_section(df, num_sections=10):
+    # Convert frame.time_epoch to numeric if not already
+    df['frame.time_epoch'] = pd.to_numeric(df['frame.time_epoch'], errors='coerce')
+
+    # Find the min and max of frame.time_epoch
+    min_time = df['frame.time_epoch'].min()
+    max_time = df['frame.time_epoch'].max()
+
+    # Calculate the interval size based on the number of sections
+    interval_size = (max_time - min_time) / num_sections
+
+    # Create the time sections (intervals)
+    time_sections = [(min_time + i * interval_size, min_time + (i + 1) * interval_size) for i in range(num_sections)]
+
+    # Group packets by time section and calculate the packet count and total bytes for each section
+    section_counts = {
+        f"Section {i+1} ({start}-{end} sec)": {
+            "packet_count": len(df[(df['frame.time_epoch'] >= start) & (df['frame.time_epoch'] < end)]),
+            "total_bytes": df[(df['frame.time_epoch'] >= start) & (df['frame.time_epoch'] < end)]['frame.len'].sum()
+        }
+        for i, (start, end) in enumerate(time_sections)
+    }
+
+    return section_counts

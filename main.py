@@ -88,7 +88,7 @@ def upload_file():
             "start_date": start_date,
             "end_date": end_date,
             "time_difference": time_diff,
-            "total_packets": 379,
+            "total_packets": total_packets(packet_data),
             "ipv4": ipv4_addresses,
             "ipv4percent": ipv4percent,
             "ipv6": ipv6_addresses,
@@ -105,7 +105,8 @@ def upload_file():
             "l4_ports_percentages": l4_ports_percentages,
             "l7_top_protocols": l7_top_protocols,
             "l7_protocol_percentages": l7_protocol_percentages,
-            "mac_addresses": mac_address_counts(packet_data)
+            "mac_addresses": mac_address_counts(packet_data),
+            "time_series": group_packets_by_time_section(packet_data)
         }
 
         # Create `file_data` folder if it doesn't exist
