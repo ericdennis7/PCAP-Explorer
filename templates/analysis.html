@@ -29,8 +29,8 @@
                     <h2 class="font-bold text-4xl">Summary for {{ file_info.name }}</span></h2>
                     <div class="flex md:space-x-8">
                         <!-- First Button: 54478C and 2C699A -->
-                        <button role="link" class="relative text-white border-b-2 border-[var(--clr-primary-a50)]">Summary</button>
-                        <button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Security</button>
+                        <a href="{{ url_for('analysis', filename=file_info.data_link) }}"><button role="link" class="relative text-white border-b-2 border-[var(--clr-primary-a50)]">Summary</button></a>
+                        <a href="{{ url_for('security', filename=file_info.data_link) }}"><button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Security</button></a>
                         <button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Credentials</button>                    
                     </div>
                 </div>

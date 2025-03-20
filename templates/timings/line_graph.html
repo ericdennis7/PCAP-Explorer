@@ -1,6 +1,10 @@
-<div class="relative mb-4 p-2 rounded-lg shadow-lg max-h-[350px] bg-[--clr-surface-a10]" style="width: 100%; height: 400px;"> 
+<div class="relative mb-4 p-2 pb-10 rounded-lg shadow-lg max-h-[400px] bg-[--clr-surface-a10]" style="width: 100%; height: 400px;"> 
+    <h2 style="color: white; font-size: 1rem; font-family: monospace; text-align: center; margin-bottom: 10px;">
+        Network Traffic Over Time: Bytes & Packets
+    </h2>
     <canvas id="timeSeriesChart" class="" style="width: 100%; height: 100%;"></canvas> 
 </div>
+
 
 <script>
     var timeSeriesData = {{ file_info['time_series'] | default({}, true) | tojson }};

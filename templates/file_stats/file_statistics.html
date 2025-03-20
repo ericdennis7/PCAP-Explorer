@@ -3,32 +3,14 @@
     <div class="space-y-4">
         <span class="flex items-center mt-0">
             File Name:&nbsp;<p class="font-bold truncate">{{ file_info.name }}</p>
-            <div class="relative w-max group">
-                <button type="button" class="text-[--clr-surface-a50]">&nbsp;(?)</button>
-                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                    File name is the name of the file that was uploaded by the user.
-                </div>
-            </div>
         </span>
 
         <span class="flex items-center mt-4">
             File Size:&nbsp;<span class="font-bold truncate">{{ file_info.size_mb }}</span>
-            <div class="relative w-max group">
-                <button type="button" class="text-[--clr-surface-a50]">&nbsp;(?)</button>
-                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                    The size of the .pcap file that was uploaded by the user.
-                </div>
-            </div>
         </span>
 
         <span class="flex items-center mt-4">
             Total Packets:&nbsp;<span class="font-bold truncate">{{ file_info.total_packets }}</span>
-            <div class="relative w-max group">
-                <button type="button" class="text-[--clr-surface-a50]">&nbsp;(?)</button>
-                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                    The total number of packets in the .pcap file.
-                </div>
-            </div>
         </span>
     </div>
 
@@ -37,32 +19,14 @@
 
         <span class="flex items-center">
             Upload:&nbsp;<span class="font-bold truncate">{{ file_info.submission_date }}</span>
-            <div class="relative w-max group">
-                <button type="button" class="text-[--clr-surface-a50]">&nbsp;(?)</button>
-                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                    The time at which the file was uploaded by the user.
-                </div>
-            </div>
         </span>
 
         <span class="flex items-center mt-4">
             Start:&nbsp;<span class="font-bold truncate">{{ file_info.start_date }}</span>
-            <div class="relative w-max group">
-                <button type="button" class="text-[--clr-surface-a50]">&nbsp;(?)</button>
-                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                    The date and time of the first packet recorded in the .pcap file.
-                </div>
-            </div>
         </span>
 
         <span class="flex items-center mt-4">
             Finish:&nbsp;<span class="font-bold truncate">{{ file_info.end_date }}</span>
-            <div class="relative w-max group">
-                <button type="button" class="text-[--clr-surface-a50]">&nbsp;(?)</button>
-                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                    The date and time of the last packet recorded in the .pcap file.
-                </div>
-            </div>
         </span>
         
     </div>
@@ -72,22 +36,10 @@
 
         <span class="flex items-center mt-0">
             Time Span:&nbsp;<span class="font-bold truncate">{{ file_info.time_difference }}</span>
-            <div class="relative w-max group">
-                <button type="button" class="text-[--clr-surface-a50]">&nbsp;(?)</button>
-                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                    The time difference between the first and last packet.
-                </div>
-            </div>
         </span>
 
         <span class="flex items-center mt-0">
             MD5:&nbsp;<span class="font-bold truncate truncate">{{ file_info.md5_hash }}</span>
-            <div class="relative w-max group">
-                <button type="button" class="text-[--clr-surface-a50]">&nbsp;(?)</button>
-                <div class="absolute shadow-lg hidden group-hover:block bg-[#333] text-white font-semibold px-3 py-[6px] text-[13px] left-1/2 transform -translate-x-1/2 bottom-full rounded z-10" style="min-width: 200px;">
-                    The MD5 hash of the uploaded file.
-                </div>
-            </div>
         </span>
 
     </div>

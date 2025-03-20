@@ -1,8 +1,9 @@
 {
     "name": "botnet-capture-20110810-neris.pcap",
+    "data_link": "botnet-capture-20110810-neris_2025-03-20_22-50-18_info.json",
     "size_mb": "58.3 MB",
     "md5_hash": "172c6b4eb9be9a14fb5703a83f747a6c",
-    "submission_date": "3/20/2025 at 05:20:52 PM",
+    "submission_date": "3/20/2025 at 10:51:05 PM",
     "start_date": "8/10/2011 at 09:01:40 AM",
     "end_date": "8/10/2011 at 01:49:29 PM",
     "time_difference": "4 hours",

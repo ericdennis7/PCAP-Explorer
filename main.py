@@ -74,6 +74,7 @@ def upload_file():
 
         file_info = {
             "name": file_name + file_extension,
+            "data_link": new_filename.replace(".pcap", "").replace(".pcapng", "") + "_info.json",
             "size_mb": humanize.naturalsize(os.path.getsize(filepath)),
             "md5_hash": file_md5,
             "submission_date": datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/"),

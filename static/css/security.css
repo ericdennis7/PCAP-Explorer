@@ -1,0 +1,42 @@
+.gridjs-wrapper {
+    border-color: rgba(0, 0, 0, 0) !important;
+}
+
+button.gridjs-sort-asc, button.gridjs-sort-neutral, button.gridjs-sort-desc {
+    filter: invert(1) !important;
+}
+
+input.gridjs-input {
+    background-color: var(--clr-surface-a10) !important;
+    color: white !important;
+    border: none !important;
+}
+
+th.gridjs-th {
+    background-color: var(--clr-surface-a5) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.gridjs-tbody, td.gridjs-td {
+    background-color: var(--clr-surface-a10) !important;
+    color: white !important;
+    border: none !important;
+    border-bottom: 1px solid var(--clr-surface-a5) !important;
+}
+
+.gridjs-footer {
+    background-color: var(--clr-surface-a5) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.gridjs-pagination .gridjs-pages button {
+    background-color: var(--clr-surface-a10) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.gridjs-pagination .gridjs-summary {
+    color: white !important;
+}
