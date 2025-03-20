@@ -28,19 +28,10 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# Function to read imports.txt
-def read_imports():
-    try:
-        with open("imports.txt", "r") as file:
-            return file.read()
-    except FileNotFoundError:
-        return ""
-
 # Index Page
 @app.route("/")
 def index():
-    imports = read_imports()
-    return render_template("index.html", imports=imports)
+    return render_template("index.html")
 
 # Upload route
 @app.route("/upload", methods=["POST"])
@@ -109,7 +100,8 @@ def upload_file():
             "l7_top_protocols": l7_top_protocols,
             "l7_protocol_percentages": l7_protocol_percentages,
             "mac_addresses": mac_address_counts(packet_data),
-            "time_series": group_packets_by_time_section(packet_data)
+            "time_series": group_packets_by_time_section(packet_data),
+            "snort_rules": json.loads(snort_rules(filepath))
         }
 
         # Create `file_data` folder if it doesn't exist
@@ -142,7 +134,7 @@ def upload_file():
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
 
-# Analysis Page
+# Summary Page
 @app.route("/analysis/<filename>/summary")
 def analysis(filename):
     file_info_path = os.path.join(app.root_path, 'file_data', filename)
@@ -155,10 +147,24 @@ def analysis(filename):
     with open(file_info_path, 'r', encoding='utf-8') as f:
         file_info = json.load(f)
 
-    imports = read_imports()
+    # Pass only file_info to the template
+    return render_template("analysis.html", file_info=file_info)
+
+# Security Page
+@app.route("/analysis/<filename>/security")
+def security(filename):
+    file_info_path = os.path.join(app.root_path, 'file_data', filename)
+
+    # Check if file exists before rendering the page
+    if not os.path.exists(file_info_path):
+        return redirect(url_for('index'))
+
+    # Read file info from JSON
+    with open(file_info_path, 'r', encoding='utf-8') as f:
+        file_info = json.load(f)
 
     # Pass only file_info to the template
-    return render_template("analysis.html", file_info=file_info, imports=imports)
+    return render_template("security.html", file_info=file_info)
 
 
 # @app.route('/api/pcap_data', methods=['GET'])

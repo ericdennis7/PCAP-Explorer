@@ -1,0 +1,41 @@
+<div id="table-container" class="table-container"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Snort data from Flask
+        const snortData = {{ file_info['snort_rules'] | tojson | safe }};
+        
+        new gridjs.Grid({
+            columns: [
+                { name: "Priority" },
+                { name: "Date" },
+                { name: "Time" },
+                { name: "Rule ID" },
+                { name: "Message" },
+                { name: "Classification" },
+                { name: "Protocol" },
+                { name: "Source" },
+                { name: "Destination" }
+            ],
+            data: snortData.map(item => [
+                item.Priority, 
+                item.Date,
+                item.Time,
+                item.RuleID,
+                item.Message,
+                item.Classification,
+                item.Protocol,
+                item.Source,
+                item.Dest
+            ]),
+            search: true,         // Enable searching
+            pagination: {
+                limit: 10         // Number of rows per page
+            },
+            sort: true,           // Enable sorting
+            resizable: true,      // Allow resizing columns
+            width: "100%",        // Table width
+            autoWidth: true,
+        }).render(document.getElementById("table-container"));
+    });
+</script>

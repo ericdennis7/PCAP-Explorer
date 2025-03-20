@@ -1,3 +1,4 @@
+import re
 import csv
 import json
 import shlex
@@ -484,3 +485,36 @@ def group_packets_by_time_section(df, num_sections=20):
     }
 
     return section_counts
+
+# Function to run Snort on a .pcap file and parse the output
+def snort_rules(pcap_file):
+    # Run the Snort command and capture its output
+    command = [
+        "sudo", "snort", "-q", "-r", pcap_file, "-c", "/etc/snort/snort.conf", "-A", "console"
+    ]
+
+    # Run Snort command and capture stdout
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Get the Snort output from stdout
+    snort_output = result.stdout
+
+    # Regular expression pattern to capture each part
+    pattern = re.compile(r'(?P<Date>\d{2}/\d{2})-(?P<Time>\d{2}:\d{2}:\d{2}\.\d+)  \[\*\*] \[(?P<RuleID>\d+:\d+:\d+)\] (?P<Message>.*?) \[\*\*] \[Classification: (?P<Classification>.*?)\] \[Priority: (?P<Priority>\d+)\] \{(?P<Protocol>\w+)\} (?P<Source>[\d\.\:]+) -> (?P<Dest>[\d\.\:]+)')
+
+    # List to store parsed data
+    data = []
+
+    # Parse each log entry in the Snort output
+    for log in snort_output.splitlines():
+        match = pattern.match(log)
+        if match:
+            # Directly extract Source and Dest as they are
+            log_data = match.groupdict()
+            data.append(log_data)
+
+    # Convert list to JSON
+    json_output = json.dumps(data, indent=4)
+
+    # Return JSON output
+    return json_output
