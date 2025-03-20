@@ -460,7 +460,7 @@ def mac_address_counts(df):
     return {"top_macs": mac_percentage}
 
 # Group packets by time section
-def group_packets_by_time_section(df, num_sections=10):
+def group_packets_by_time_section(df, num_sections=20):
     # Convert frame.time_epoch to numeric if not already
     df['frame.time_epoch'] = pd.to_numeric(df['frame.time_epoch'], errors='coerce')
 

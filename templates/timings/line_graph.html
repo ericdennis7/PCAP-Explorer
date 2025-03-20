@@ -24,12 +24,19 @@
     }
 
     // Function to convert epoch to HH:MM:SS format
+    // Function to convert epoch to 12-hour format with AM/PM
     function epochToHHMMSS(epoch) {
         var date = new Date(epoch * 1000); // Convert to milliseconds
-        var hours = String(date.getUTCHours()).padStart(2, '0');
+        var hours = date.getUTCHours();
         var minutes = String(date.getUTCMinutes()).padStart(2, '0');
         var seconds = String(date.getUTCSeconds()).padStart(2, '0');
-        return hours + ':' + minutes + ':' + seconds;
+
+        // Convert to 12-hour format and determine AM/PM
+        var period = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert '0' hour to '12'
+
+        return `${hours}:${minutes}:${seconds} ${period}`;
     }
 
     // Sort the data by the epoch values
@@ -59,14 +66,26 @@
         type: 'line',
         data: {
             labels: timeLabels,  
-            datasets: [{
-                label: 'Total Bytes',
-                data: totalBytesData,  
-                borderColor: 'rgba(75, 192, 192, 1)', 
-                backgroundColor: 'rgba(75, 192, 192, 0.2)', 
-                fill: true, 
-                tension: 0.3
-            }]
+            datasets: [
+                {
+                    label: 'Total Bytes',
+                    data: totalBytesData,  
+                    borderColor: 'rgba(44, 105, 154, 1)', 
+                    backgroundColor: 'rgba(44, 105, 154,0.45)', 
+                    fill: true, 
+                    tension: 0.3,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: 'Packet Count',
+                    data: packetCountData,
+                    borderColor: 'rgba(84, 71, 140, 1)', 
+                    backgroundColor: 'rgba(84, 71, 140, 0.45)', 
+                    fill: true,
+                    tension: 0.3,
+                    yAxisID: 'y2'
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -92,41 +111,85 @@
                         maxTicksLimit: 10
                     }
                 },
-                y: {
+                y1: {
+                    beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Total Bytes',
-                        color: 'white',
+                        color: '#ffffff',
                         font: {
                             family: 'monospace', 
                             size: 16
                         }
                     },
                     ticks: {
-                        color: 'white',
+                        color: '#ffffff',
                         font: {
                             family: 'monospace', 
                             size: 12
                         },
                         beginAtZero: true
+                    },
+                    position: 'left'
+                },
+                y2: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Packet Count',
+                        color: '#ffffff',
+                        font: {
+                            family: 'monospace', 
+                            size: 16
+                        }
+                    },
+                    ticks: {
+                        color: '#ffffff',
+                        font: {
+                            family: 'monospace', 
+                            size: 12
+                        },
+                        beginAtZero: true
+                    },
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false // Prevent grid lines from overlapping
                     }
                 }
             },
             plugins: {
                 legend: {
-                    display: false
+                    display: true,
+                    labels: {
+                        color: 'white',
+                        font: {
+                            family: 'monospace',
+                            size: 12
+                        }
+                    }
                 },
                 tooltip: {
                     callbacks: {
                         label: function(tooltipItem) {
-                            var totalBytes = tooltipItem.raw;
-                            var packetCount = packetCountData[tooltipItem.dataIndex];
-                            return 'Total Bytes: ' + totalBytes + ', Packet Count: ' + packetCount;
+                            if (tooltipItem.datasetIndex === 0) {
+                                return 'Total Bytes: ' + tooltipItem.raw;
+                            } else {
+                                return 'Packet Count: ' + tooltipItem.raw;
+                            }
                         }
                     },
-                    titleColor: 'white', 
-                    bodyColor: 'white',   
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleFont: {
+                        family: 'monospace',
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        family: 'monospace',
+                        size: 12
+                    }
                 }
             }
         }
