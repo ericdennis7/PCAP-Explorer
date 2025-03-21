@@ -16,7 +16,7 @@
                 },
                 { 
                     name: "Count", 
-                    id: "count", 
+                    id: "mac-count", 
                     formatter: (cell) => cell.toString()  // Ensure the count is displayed as a string
                 },
                 { 
@@ -40,5 +40,25 @@
             width: "100%",
             autoWidth: true
         }).render(document.getElementById("macTable"));
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+            const column = document.querySelector('[data-column-id="mac-count"]');
+            
+            if (column) {
+                let clickCount = 0;
+                const interval = setInterval(() => {
+                    column.click(); 
+                    clickCount++;
+                    
+                    if (clickCount >= 2) {
+                        clearInterval(interval);
+                    }
+                }, 100);
+            }
+        }, 200);
     });
 </script>

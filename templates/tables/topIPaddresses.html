@@ -22,7 +22,6 @@
                         const ip = row.cells[0].data;
                         
                         const country = snortData[ip] && snortData[ip].country ? snortData[ip].country.trim().toLowerCase() : 'unknown';
-                        console.log("Country:", country);
     
                         const flagCode = (country === 'bogon' || country === 'unknown') ? 'xx' : country;
     
@@ -70,9 +69,17 @@
     document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
             const column = document.querySelector('[data-column-id="count"]');
+            
             if (column) {
-                column.click();
-                column.click();
+                let clickCount = 0;
+                const interval = setInterval(() => {
+                    column.click();
+                    clickCount++;
+                    
+                    if (clickCount >= 2) {
+                        clearInterval(interval);
+                    }
+                }, 100);
             }
         }, 200);
     });
