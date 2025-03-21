@@ -71,6 +71,7 @@ def upload_file():
         l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
         l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
         l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
+        snort_rules_json, snort_top_src_ip, snort_top_dst_ip, snort_top_rule_id, snort_priority_1_count, snort_priority_2_count, snort_priority_3_count = snort_rules(filepath)
 
         file_info = {
             "name": file_name + file_extension,
@@ -102,7 +103,13 @@ def upload_file():
             "l7_protocol_percentages": l7_protocol_percentages,
             "mac_addresses": mac_address_counts(packet_data),
             "time_series": group_packets_by_time_section(packet_data),
-            "snort_rules": json.loads(snort_rules(filepath))
+            "snort_rules_json": json.loads(snort_rules_json),
+            "snort_top_src_ip": snort_top_src_ip,
+            "snort_top_dst_ip": snort_top_dst_ip,
+            "snort_top_rule_id": snort_top_rule_id,
+            "snort_priority_1_count": snort_priority_1_count,
+            "snort_priority_2_count": snort_priority_2_count,
+            "snort_priority_3_count": snort_priority_3_count
         }
 
         # Create `file_data` folder if it doesn't exist

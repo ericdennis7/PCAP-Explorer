@@ -1,16 +1,42 @@
-<div id="table-container" class="table-container"></div>
+<div id="snortRulesTable" class="snortRulesTable"></div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Snort data from Flask
-        const snortData = {{ file_info['snort_rules'] | tojson | safe }};
+        const snortData = {{ file_info['snort_rules_json']['data'] | tojson | safe }};
         
         new gridjs.Grid({
             columns: [
-                { name: "Priority" },
+                { name: "Priority", id: "priority", formatter: (cell) => {
+                    let backgroundColor;
+                    // Set background color based on Priority
+                    switch (cell) {
+                        case "1":
+                            backgroundColor = "rgba(242, 158, 76, 0.8)";
+                            break;
+                        case "2":
+                            backgroundColor = "rgba(241, 196, 83, 0.7)";
+                            break;
+                        case "3":
+                            backgroundColor = "rgba(239, 234, 90, 0.6)";
+                            break;
+                    }
+
+                    // Return the HTML content using gridjs.html() to render the background color
+                    return gridjs.html(`<span style="background-color: ${backgroundColor}; padding: 5px;">${cell}</span>`);
+                }},
                 { name: "Date" },
                 { name: "Time" },
-                { name: "Rule ID" },
+                {
+                    name: "Rule ID",
+                    formatter: (cell) => {
+                        // Extract the first two parts of the Rule ID (e.g., "1:1917" from "1:1917:6")
+                        const formattedRuleId = cell.split(":").slice(0, 2).join(":");
+                        
+                        // Return the <a> tag with the formatted Rule ID for the link (1:1917)
+                        return gridjs.html(`<a class="underline" href="https://www.snort.org/rule-docs/${formattedRuleId}" target="_blank">${cell}</a>`);
+                    }
+                },
                 { name: "Message" },
                 { name: "Classification" },
                 { name: "Protocol" },
@@ -36,6 +62,6 @@
             resizable: true,
             width: "100%",
             autoWidth: true,
-        }).render(document.getElementById("table-container"));
+        }).render(document.getElementById("snortRulesTable"));
     });
 </script>

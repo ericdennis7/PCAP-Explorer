@@ -147,16 +147,8 @@ def udp_min_max_avg(pcap_file):
     except:
         return "N/A", "N/A", "N/A"
 
-# Get packet summaries from a .pcap file
-def format_timestamp(timestamp):
-    try:
-        # Example: "Dec 24, 2024 06:28:25.354984000 Eastern Standard Time"
-        dt = datetime.strptime(timestamp[:-25], "%b %d, %Y %H:%M:%S.%f")  # Remove the timezone
-        formatted_time = dt.strftime("%H:%M:%S.%f")[:-3]  # Keep milliseconds (trim to 3 decimals)
-        formatted_date = dt.strftime("%b %d, %Y")
-        return f"{formatted_time}\n{formatted_date}"  # New format with newline
-    except ValueError:
-        return timestamp  # Return as-is if parsing fails
+# Extract the start date and end date, and calculate the time difference
+from datetime import datetime
 
 # Extract the start date and end date, and calculate the time difference
 def packet_times_and_difference(packet_data):
@@ -183,11 +175,22 @@ def packet_times_and_difference(packet_data):
             end_date_formatted = end_dt.strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/")
         except Exception:
             end_date_formatted = end_date_str
-        
-        # Calculate time difference
+
+        # Calculate the time difference
         try:
             time_diff = end_dt - start_dt
-            time_diff_humanized = humanize.naturaldelta(time_diff)
+            total_seconds = int(time_diff.total_seconds())  # Convert to integer seconds
+
+            hours, remainder = divmod(total_seconds, 3600)  # Get hours and remaining seconds
+            minutes, seconds = divmod(remainder, 60)  # Get minutes and remaining seconds
+
+            if hours > 0:
+                time_diff_humanized = f"{hours}h {minutes}m {seconds}s"
+            elif minutes > 0:
+                time_diff_humanized = f"{minutes}m {seconds}s"
+            else:
+                time_diff_humanized = f"{seconds}s"
+
         except Exception:
             time_diff_humanized = "Error calculating time difference"
 
@@ -502,19 +505,44 @@ def snort_rules(pcap_file):
     # Regular expression pattern to capture each part
     pattern = re.compile(r'(?P<Date>\d{2}/\d{2})-(?P<Time>\d{2}:\d{2}:\d{2}\.\d+)  \[\*\*] \[(?P<RuleID>\d+:\d+:\d+)\] (?P<Message>.*?) \[\*\*] \[Classification: (?P<Classification>.*?)\] \[Priority: (?P<Priority>\d+)\] \{(?P<Protocol>\w+)\} (?P<Source>[\d\.\:]+) -> (?P<Dest>[\d\.\:]+)')
 
-    # List to store parsed data
+    # Lists to store extracted data
     data = []
+    source_ips = []
+    dest_ips = []
+    rule_ids = []
+    priorities = []
 
     # Parse each log entry in the Snort output
     for log in snort_output.splitlines():
         match = pattern.match(log)
         if match:
-            # Directly extract Source and Dest as they are
             log_data = match.groupdict()
             data.append(log_data)
 
-    # Convert list to JSON
-    json_output = json.dumps(data, indent=4)
+            # Collect data for top source IP, destination IP, rule ID, and priorities
+            source_ips.append(log_data['Source'])
+            dest_ips.append(log_data['Dest'])
+            rule_ids.append(log_data['RuleID'])
+            priorities.append(int(log_data['Priority']))
 
-    # Return JSON output
-    return json_output
+    # Get the top source IP, destination IP, rule ID, and count of each priority level
+    top_source_ip = Counter(source_ips).most_common(1)
+    top_dest_ip = Counter(dest_ips).most_common(1)
+    top_rule_id = Counter(rule_ids).most_common(1)
+    priority_counts = Counter(priorities)
+
+    # Prepare the results
+    result_data = {
+        "top_source_ip": top_source_ip[0][0] if top_source_ip else "N/A",
+        "top_dest_ip": top_dest_ip[0][0] if top_dest_ip else "N/A",
+        "top_rule_id": top_rule_id[0][0] if top_rule_id else "N/A",
+        "priority_1_count": priority_counts.get(1, 0),
+        "priority_2_count": priority_counts.get(2, 0),
+        "priority_3_count": priority_counts.get(3, 0),
+    }
+
+    # Convert the list of data to JSON
+    json_output = json.dumps({"data": data, "summary": result_data}, indent=4)
+
+    # Return both json_output and summary values
+    return json_output, result_data["top_source_ip"], result_data["top_dest_ip"], result_data["top_rule_id"], result_data["priority_1_count"], result_data["priority_2_count"], result_data["priority_3_count"]
