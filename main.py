@@ -75,7 +75,7 @@ def upload_file():
 
         file_info = {
             "name": file_name + file_extension,
-            "data_link": new_filename.replace(".pcap", "").replace(".pcapng", "") + "_info.json",
+            "data_link": new_filename.replace(".pcapng", "").replace(".pcap", "") + "_info.json",
             "size_mb": humanize.naturalsize(os.path.getsize(filepath)),
             "md5_hash": file_md5,
             "submission_date": datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/"),
@@ -173,6 +173,22 @@ def security(filename):
 
     # Pass only file_info to the template
     return render_template("security.html", file_info=file_info)
+
+# Addresses Page
+@app.route("/analysis/<filename>/addresses")
+def addresses(filename):
+    file_info_path = os.path.join(app.root_path, 'file_data', filename)
+
+    # Check if file exists before rendering the page
+    if not os.path.exists(file_info_path):
+        return redirect(url_for('index'))
+
+    # Read file info from JSON
+    with open(file_info_path, 'r', encoding='utf-8') as f:
+        file_info = json.load(f)
+
+    # Pass only file_info to the template
+    return render_template("addresses.html", file_info=file_info)
 
 
 # @app.route('/api/pcap_data', methods=['GET'])

@@ -1,63 +1,79 @@
-<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table class="sortable w-full text-left rtl:text-right text-white" id="ipTable">
-        <thead class="text-lg text-white bg-[--clr-surface-a5]">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    IP Address
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Organization
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Location
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Count
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Percent %
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ip, data in file_info['unique_ips']['top_ips'].items() %}
-                <tr class="bg-[--clr-surface-a10] border-b border-[--clr-surface-a5] hover:bg-[--clr-surface-a20]">
-                    <td class="px-6 py-4 text-white">
-                        {{ ip }}
-                    </td>
-                    <td class="px-6 py-4"> <!-- max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap -->
-                        {{ data['org'] }}
-                    </td>                    
-                    <td class="px-6 py-4 flex items-center gap-2">
-                        <img src="\static\images\flags\{{ 'xx' if data['country']|lower == 'bogon' else data['country']|lower }}.svg" 
-                             width="16" 
-                             alt="{{ data['country']|lower }}">
-                        {{ data['location'] }}
-                    </td>                                      
-                    <td class="px-6 py-4">
-                        {{ data['count']}}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ "%.2f"|format(data['percentage']) }}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<div id="ipTable" class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg"></div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const table = document.getElementById("ipTable");
-        const tbody = table.querySelector("tbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const snortData = {{ file_info['unique_ips']['top_ips'] | tojson | safe }};
+        
+        new gridjs.Grid({
+            columns: [
+                { 
+                    name: "IP Address", 
+                    id: "ip" 
+                },
+                {
+                    name: "Organization", 
+                    id: "org",
+                    formatter: (cell) => cell ? cell : 'N/A'
+                },
+                { 
+                    name: "Location", 
+                    id: "location", 
+                    formatter: (cell, row) => {
+                        const ip = row.cells[0].data;
+                        
+                        const country = snortData[ip] && snortData[ip].country ? snortData[ip].country.trim().toLowerCase() : 'unknown';
+                        console.log("Country:", country);
+    
+                        const flagCode = (country === 'bogon' || country === 'unknown') ? 'xx' : country;
+    
+                        return gridjs.html(`
+                            <div class="flex items-center gap-2">
+                                <img src="/static/images/flags/${flagCode}.svg" 
+                                     width="16" 
+                                     alt="${country}">
+                                ${cell}
+                            </div>
+                        `);
+                    }
+                },
+                { 
+                    name: "Count", 
+                    id: "count", 
+                    formatter: (cell) => cell.toString()
+                },
+                { 
+                    name: "Percent %", 
+                    id: "percentage", 
+                    formatter: (cell) => `${cell.toFixed(2)}%`
+                }
+            ],
+            data: Object.keys(snortData).map(ip => [
+                ip,
+                snortData[ip]['org'],
+                snortData[ip]['location'],  // Location remains the same
+                snortData[ip]['count'],
+                snortData[ip]['percentage']
+            ]),
+            search: true,
+            pagination: {
+                limit: 10
+            },
+            sort: true,
+            resizable: true,
+            width: "100%",
+            autoWidth: true
+        }).render(document.getElementById("ipTable"));
+    });
+</script>
 
-        rows.sort((rowA, rowB) => {
-            const cellA = Number(rowA.children[3].textContent.trim());
-            const cellB = Number(rowB.children[3].textContent.trim());
-            return cellB - cellA; 
-        });
-
-        rows.forEach(row => tbody.appendChild(row));
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+            const column = document.querySelector('[data-column-id="count"]');
+            if (column) {
+                column.click();
+                column.click();
+            }
+        }, 200);
     });
 </script>

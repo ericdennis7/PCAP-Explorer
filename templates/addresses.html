@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script> <!-- Chart.js -->
+    <script src="https://kit.fontawesome.com/fb4fbf1c3b.js" crossorigin="anonymous"></script> <!-- Font Awesome -->
+    <link rel="stylesheet" href="/static/css/colors.css"> <!-- Custom colors CSS -->
+    <link rel="stylesheet" href="/static/css/security.css"> <!-- Security CSS -->
+    <link rel="icon" type="image/x-icon" href="/static/images/logo.png"> <!-- Favicon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/> <!-- Animate.css -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script> <!-- Chart.js Date Adapter -->
+    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script> <!-- Grid.js -->
+    <link rel="stylesheet" href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css">
+    <link rel="stylesheet" href="/static/css/analysis.css">
+    <title>PCAP Analysis</title>
+</head>
+
+<body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0] [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
+    <!-- Navbar -->
+    {% include 'components/navbar.html' %}
+    
+    <!-- Main body -->
+    <div class="max-w-[1600px] w-full mx-auto p-6 animate__animated animate__fadeInUpBig">
+
+        <!-- Contains the file statistics section -->
+        <div class="flex items-center justify-between mb-6 mt-6">
+            <h2 class="font-bold text-4xl">Addresses for {{ file_info.name }}</span></h2>
+            <div class="flex md:space-x-8">
+                <!-- First Button: 54478C and 2C699A -->
+                <a href="{{ url_for('analysis', filename=file_info.data_link) }}"><button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Summary</button></a>
+                <a href="{{ url_for('security', filename=file_info.data_link) }}"><button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Security</button></a>
+                <a href="{{ url_for('addresses', filename=file_info.data_link) }}"><button role="link" class="relative text-white border-b-2 border-[var(--clr-primary-a50)]">Addresses</button></a>                    
+            </div>
+        </div>
+
+        <!-- Top IP Address and MAC address tables -->
+        <div class="flex items-center justify-between mb-6">
+            <h2 id="tableTitle" class="font-bold text-2xl">Top 50 IP Addresses</h2>
+            <button onclick="toggleTables()" id="toggleButton" 
+                class="px-4 py-2 bg-transparent border-2 border-transparent text-[--clr-primary-a30] rounded-lg shadow-md hover:bg-transparent hover:border-[--clr-primary-a30] focus:outline-none">
+                Show MAC Table
+            </button>
+        </div>
+    
+        <div class="max-w-[1600px] mx-auto">
+            <div id="ipTableContainer">
+                {% include 'tables/topIPaddresses.html' %}
+                <p class="text-[--clr-surface-a30] mt-2 text-center">* A bogon IP address is an IP address from reserved or unallocated space that should not appear on the public Internet *</p>
+            </div>
+            <div id="macTableContainer" class="hidden">
+                {% include 'tables/topMACaddresses.html' %}
+            </div>
+        </div>
+    
+    </div>
+
+    <!-- Footer -->
+    {% include 'components/footer.html' %}
+    
+    <!-- JavaScript -->
+    {% include 'components/button-view.html' %} <!-- Contains the button view script -->
+</body>
+</html>

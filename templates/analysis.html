@@ -31,7 +31,7 @@
                         <!-- First Button: 54478C and 2C699A -->
                         <a href="{{ url_for('analysis', filename=file_info.data_link) }}"><button role="link" class="relative text-white border-b-2 border-[var(--clr-primary-a50)]">Summary</button></a>
                         <a href="{{ url_for('security', filename=file_info.data_link) }}"><button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Security</button></a>
-                        <button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Credentials</button>                    
+                        <a href="{{ url_for('addresses', filename=file_info.data_link) }}"><button role="link" class="relative bg-[linear-gradient(var(--clr-surface-a10),var(--clr-surface-a10)),linear-gradient(var(--clr-primary-a30),var(--clr-primary-a30))] bg-[length:100%_2px,0_2px] bg-[position:100%_100%,0_100%] bg-no-repeat text-white transition-[background-size] duration-300 hover:bg-[0_2px,100%_2px]">Addresses</button></a>                    
                     </div>
                 </div>
                 
@@ -55,27 +55,6 @@
                 {% include 'timings/line_graph.html' %}
                 {% include 'timings/conversationDurations.html' %}
                 
-                <hr class="h-px my-8 bg-[#222222] border-0">
-                
-                <!-- Top IP Address and MAC address tables -->
-                <div class="flex items-center justify-between mb-6">
-                    <h2 id="tableTitle" class="font-bold text-2xl">Top 10 IP Addresses</h2>
-                    <button onclick="toggleTables()" id="toggleButton" 
-                        class="px-4 py-2 bg-transparent border-2 border-transparent text-[--clr-primary-a30] rounded-lg shadow-md hover:bg-transparent hover:border-[--clr-primary-a30] focus:outline-none">
-                        Show MAC Table
-                    </button>
-                </div>
-            
-                <div class="max-w-[1600px] mx-auto">
-                    <div id="ipTableContainer">
-                        {% include 'tables/topIPaddresses.html' %}
-                        <p class="text-[--clr-surface-a30] mt-2 text-center">* A bogon IP address is an IP address from reserved or unallocated space that should not appear on the public Internet *</p>
-                    </div>
-                    <div id="macTableContainer" class="hidden">
-                        {% include 'tables/topMACaddresses.html' %}
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>

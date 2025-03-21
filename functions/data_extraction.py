@@ -250,11 +250,11 @@ def unique_ips_and_flows(pcap_file):
         ipv6_percent = round((total_ipv6_count / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
 
         # Get the top 10 most frequent IPs
-        top_ipv4_ips = dict(ipv4_counts.most_common(10))
-        top_ipv6_ips = dict(ipv6_counts.most_common(10))
+        top_ipv4_ips = dict(ipv4_counts.most_common(50))
+        top_ipv6_ips = dict(ipv6_counts.most_common(50))
 
         # Combine both IPv4 and IPv6 top 10 IPs
-        combined_top_ips = dict(sorted({**top_ipv4_ips, **top_ipv6_ips}.items(), key=lambda x: x[1], reverse=True)[:10])
+        combined_top_ips = dict(sorted({**top_ipv4_ips, **top_ipv6_ips}.items(), key=lambda x: x[1], reverse=True)[:50])
 
         total_count = sum(combined_top_ips.values())
 
@@ -458,7 +458,7 @@ def mac_address_counts(df):
             "percentage": (count / total_count) * 100 if total_count > 0 else 0,
             "oui_resolved": mac_details.get(mac, "Unknown")
         }
-        for mac, count in mac_counts.most_common(10)
+        for mac, count in mac_counts.most_common(50)
     }
 
     return {"top_macs": mac_percentage}
@@ -546,3 +546,47 @@ def snort_rules(pcap_file):
 
     # Return both json_output and summary values
     return json_output, result_data["top_source_ip"], result_data["top_dest_ip"], result_data["top_rule_id"], result_data["priority_1_count"], result_data["priority_2_count"], result_data["priority_3_count"]
+
+# Function to get all TCP conversations from a .pcap file
+def get_top_ipv4_conversations(pcap_file, limit=100):
+    # Run tshark to extract IPv4 conversation data in JSON format
+    command = [
+        "tshark", "-r", pcap_file, "-T", "json",
+        "-e", "ip.src", "-e", "ip.dst", "-e", "frame.number"
+    ]
+
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Check for errors
+    if result.returncode != 0:
+        return f"Error: {result.stderr.strip()}"
+
+    try:
+        json_output = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return "Error: Failed to parse JSON output from tshark"
+
+    # Dictionary to store conversation counts
+    conversations = defaultdict(int)
+
+    # Process packets to count conversations
+    for packet in json_output:
+        layers = packet["_source"]["layers"]
+        src = layers.get("ip.src", ["N/A"])[0]
+        dst = layers.get("ip.dst", ["N/A"])[0]
+
+        # Use a sorted tuple to count bidirectional traffic
+        key = tuple(sorted([src, dst]))
+        conversations[key] += 1
+
+    # Sort by packet count (descending) and take the top `limit`
+    top_conversations = sorted(conversations.items(), key=lambda x: x[1], reverse=True)[:limit]
+
+    # Format the output as a list of dictionaries
+    conversation_list = [
+        {"IP A": key[0], "IP B": key[1], "Packets": count}
+        for key, count in top_conversations
+    ]
+
+    return conversation_list  # Return structured JSON
+

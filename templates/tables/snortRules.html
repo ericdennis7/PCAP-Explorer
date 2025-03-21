@@ -55,6 +55,7 @@
                 item.Dest
             ]),
             search: true,
+            multiColumnSearch: true,
             pagination: {
                 limit: 10
             },
@@ -65,3 +66,18 @@
         }).render(document.getElementById("snortRulesTable"));
     });
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+            const column = document.querySelector('[data-column-id="priority"]');
+            if (column) {
+                column.click();
+                column.click();
+            }
+        }, 200);
+    });
+</script>
+
+
+

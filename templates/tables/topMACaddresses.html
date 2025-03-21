@@ -1,54 +1,44 @@
-<div class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table class="sortable w-full text-left rtl:text-right text-white" id="macTable">
-        <thead class="text-lg text-white bg-[--clr-surface-a5]">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    MAC Address
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    OUI Resolved
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Count
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Percent %
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for mac, data in file_info['mac_addresses']['top_macs'].items() %}
-                <tr class="bg-[--clr-surface-a10] border-b border-[--clr-surface-a5] hover:bg-[--clr-surface-a20]">
-                    <td scope="row" class="px-6 py-4 text-white whitespace-nowrap">
-                        {{ mac }}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ data['oui_resolved']}}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ data['count'] }}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ "%.2f"|format(data['percentage']) }}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<div id="macTable" class="font-mono relative overflow-x-auto shadow-md sm:rounded-lg"></div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const table = document.getElementById("macTable");
-        const tbody = table.querySelector("tbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
-
-        rows.sort((rowA, rowB) => {
-            const cellA = Number(rowA.children[2].textContent.trim());
-            const cellB = Number(rowB.children[2].textContent.trim());
-            return cellB - cellA; 
-        });
-
-        rows.forEach(row => tbody.appendChild(row));
+        const macData = {{ file_info['mac_addresses']['top_macs'] | tojson | safe }};
+        
+        new gridjs.Grid({
+            columns: [
+                { 
+                    name: "MAC Address", 
+                    id: "mac" 
+                },
+                { 
+                    name: "OUI Resolved", 
+                    id: "oui_resolved" 
+                },
+                { 
+                    name: "Count", 
+                    id: "count", 
+                    formatter: (cell) => cell.toString()  // Ensure the count is displayed as a string
+                },
+                { 
+                    name: "Percent %", 
+                    id: "percentage", 
+                    formatter: (cell) => `${cell.toFixed(2)}%`  // Format percentage with two decimal places
+                }
+            ],
+            data: Object.keys(macData).map(mac => [
+                mac,
+                macData[mac]['oui_resolved'] || 'N/A',  // Handle missing OUI resolved values
+                macData[mac]['count'],
+                macData[mac]['percentage']
+            ]),
+            search: true,
+            pagination: {
+                limit: 10
+            },
+            sort: true,  // Enable sorting
+            resizable: true,
+            width: "100%",
+            autoWidth: true
+        }).render(document.getElementById("macTable"));
     });
 </script>
