@@ -12,6 +12,28 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/> <!-- Animate.css -->
         <title>PCAPNG Visualizer</title>
+        <style>
+            progress[value]::-webkit-progress-value {
+                transition: width 0.5s;
+                background: linear-gradient(45deg, #54478C, #2C699A, #048BA8, 
+                                        #0DB39E, #16DB93, #83E377,
+                                        #B9E769);
+                border-radius: 0.5rem;
+            }
+
+            progress::-webkit-progress-bar {
+                max-width: 42rem;
+                border-radius: 10px;
+            }
+            
+            progress::-moz-progress-bar {
+                max-width: 42rem;
+                background: linear-gradient(45deg, #54478C, #2C699A, #048BA8, 
+                                        #0DB39E, #16DB93, #83E377,
+                                        #B9E769, #54478C);
+                border-radius: 10px;
+            }
+        </style>
     </head>
     <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]  [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
         <!-- Include the navbar.html file -->
@@ -51,30 +73,13 @@
             <!-- Error message -->
             <p id="error-message" class="text-red-600 text-center mt-3 hidden">Invalid file. Please upload a .pcapng or .pcap file under 50MB.</p>
 
-            <!-- Magnifying Loader -->
-            <div class="mt-5">
-                <div id="loading" class="text-center" style="display: none;">
-                    <div class="loading-body">
-                        <div class="loading-container">
-                            <span class="load-span"></span>
-                            <div class="center">
-                                <div class="wrap">
-                                    <div class="box-1 box">
-                                        <i class="fa-solid fa-square-binary" style="color: --clr-primary-a30;"></i>
-                                        <i class="fa-solid fa-square-binary" style="color: --clr-primary-a30;"></i>
-                                    </div>
-                                    <div class="box-2 box">
-                                        <i class="fa-solid fa-square-binary" style="color: --clr-primary-a30;"></i>
-                                        <i class="fa-solid fa-square-binary" style="color: --clr-primary-a30;"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-24">
-                        <p class="mt-2">This could take a few moments<span class="blinking">...</span></p>
-                    </div>
-                </div>                
+            <!-- Loader -->
+            <div id="progress-container" class="mx-auto flex flex-col items-center justify-center max-w-2xl w-full p-4 rounded-lg" style="display: none;">
+                <div class="flex w-full justify-between mb-2">
+                    <span class="text-sm font-semibold">In progress<span class="blinking">...</span></span>
+                    <span id="progress-text" class="text-sm font-semibold">0%</span>
+                </div>
+                <progress id="progress-bar" class="w-full" value="0" max="100"></progress>
             </div>
         </div>
 
@@ -155,58 +160,92 @@
 
         <!-- JavaScript for file upload -->
         <script>
+            let progressContainer = document.getElementById("progress-container");
+            let progressBar = document.getElementById("progress-bar");
+            let progressText = document.getElementById("progress-text");
+
+            // Ensure progress container is hidden by default
+            progressContainer.style.display = "none";
+
             document.getElementById("dropzone-file").addEventListener("change", function () {
-            let file = this.files[0];
-            let errorMessage = document.getElementById("error-message");
-            let uploadBox = document.getElementById("upload-box");
-            let loading = document.getElementById("loading");
+                let file = this.files[0];
+                let errorMessage = document.getElementById("error-message");
+                let uploadBox = document.getElementById("upload-box");
 
-            // Validate file type and size
-            if (!file) return;
+                // Reset progress and show progress container only when a file is selected
+                progressBar.value = 0;
+                progressText.innerText = "0%";
+                progressContainer.style.display = "block"; // Show progress container only during upload
 
-            if (!file.name.endsWith(".pcap") && !file.name.endsWith(".pcapng")) {
-                errorMessage.textContent = "Invalid file type. Please upload a .pcapng or .pcap file.";
-                errorMessage.classList.remove("hidden");
-                return;
-            }
-
-            if (file.size > 50 * 1024 * 1024 * 1024) {  // Max 50MB
-                errorMessage.textContent = "File too large. Max size is 500MB.";
-                errorMessage.classList.remove("hidden");
-                return;
-            }
-
-            errorMessage.classList.add("hidden");
-
-            // Hide upload box and show loading animation
-            uploadBox.style.display = "none";
-            loading.style.display = "block";
-
-            let formData = new FormData();
-            formData.append("file", file);
-
-            // Send the form data via AJAX
-            fetch("/upload", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = data.redirect;
-                } else {
-                    alert(data.error);
-                    // Show upload box again in case of error
-                    uploadBox.style.display = "flex";
-                    loading.style.display = "none";
+                if (!file) {
+                    progressContainer.style.display = "none"; // Hide progress container if no file is selected
+                    return;
                 }
-            })
-            .catch(error => console.error("Error:", error))
-            .finally(() => {
-                // Hide loading animation if there's an issue
-                loading.style.display = "none";
+
+                if (!file.name.endsWith(".pcap") && !file.name.endsWith(".pcapng")) {
+                    errorMessage.textContent = "Invalid file type. Please upload a .pcap or .pcapng file.";
+                    errorMessage.classList.remove("hidden");
+                    progressContainer.style.display = "none"; // Hide progress container if file type is invalid
+                    return;
+                }
+
+                errorMessage.classList.add("hidden");
+                uploadBox.style.display = "none";
+
+                let formData = new FormData();
+                formData.append("file", file);
+
+                // Upload the file via AJAX
+                fetch("/upload", { method: "POST", body: formData })
+                    .then(response => {
+                        if (!response.ok) throw new Error("Upload failed");
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = data.redirect;
+                        } else {
+                            alert(data.error);
+                            uploadBox.style.display = "flex";
+                            progressContainer.style.display = "none"; // Hide progress container on error
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+
+                // Listen for progress updates from the server
+                let eventSource = new EventSource("/progress");
+                eventSource.onmessage = function (event) {
+                    let progress = parseInt(event.data);
+                    progressBar.value = progress;
+
+                    // Gradually increment the progress text
+                    let currentProgress = parseInt(progressText.innerText);
+                    let increment = Math.ceil((progress - currentProgress) / 5); // Smooth increment in 5 steps
+                    let counter = currentProgress;
+
+                    // Gradual count up using setInterval
+                    let interval = setInterval(() => {
+                        counter += increment;
+                        if (counter >= progress) {
+                            counter = progress;
+                            clearInterval(interval);
+                        }
+                        progressText.innerText = counter + "%";
+                    }, 50); // Update every 50ms
+
+                    // When progress reaches 100%, stop EventSource and hide the progress bar
+                    if (progress >= 100) {
+                        eventSource.close();
+                        progressContainer.style.display = "none"; // Hide progress container when done
+                    }
+                };
+
+                eventSource.onerror = function () {
+                    // Handle error if EventSource fails
+                    console.error("EventSource error occurred.");
+                    eventSource.close();
+                };
             });
-        });
         </script>
         
     </body>

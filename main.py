@@ -8,12 +8,14 @@
 # Imports
 import os
 import json
+import time
+import random
 import humanize
 import pandas as pd
 
 from datetime import datetime
 from werkzeug.middleware.proxy_fix import ProxyFix
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session
+from flask import Flask, request, render_template, jsonify, redirect, url_for, session, Response
 
 # Function imports
 from functions.data_extraction import *
@@ -28,6 +30,9 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+# Initialize progress variable
+progress = 0
+
 # Index Page
 @app.route("/")
 def index():
@@ -37,7 +42,10 @@ def index():
 @app.route("/upload", methods=["POST"])
 def upload_file():
     """Handles AJAX file uploads asynchronously."""
-    
+    global progress
+    time.sleep(1)
+    progress = 0
+
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
@@ -52,26 +60,40 @@ def upload_file():
 
     try:
         # Save the uploaded file
+        progress = random.randint(5, 10)
         file_md5 = md5_hash(file)
+        progress = random.randint(11, 15)
+
         current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         file_name, file_extension = os.path.splitext(file.filename)
         new_filename = f"{file_name}_{current_datetime}{file_extension}"
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
         file.save(filepath)
+        progress = random.randint(16, 20)
 
         # Extract packet data
         packet_data = raw_pcap_pd(filepath)
+        progress = random.randint(21, 30)
 
         # Collect file characteristics
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
+        progress = random.randint(31, 35)
+
         packet_total = total_packets(packet_data)
         ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, unique_ip_addresses = unique_ips_and_flows(filepath)
+        progress = random.randint(36, 45)
+
         tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
         udp_min_flow, udp_max_flow, udp_avg_flow = udp_min_max_avg(filepath)
+        progress = random.randint(46, 55)
+
         l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
         l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
         l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
+        progress = random.randint(56, 70)
+
         snort_rules_json, snort_top_src_ip, snort_top_dst_ip, snort_top_rule_id, snort_priority_1_count, snort_priority_2_count, snort_priority_3_count = snort_rules(filepath)
+        progress = random.randint(71, 80)
 
         file_info = {
             "name": file_name + file_extension,
@@ -124,10 +146,12 @@ def upload_file():
 
         # Remove original file after processing
         os.remove(filepath)
+        progress = 100
 
         # Save file references in session
         session['file_info'] = info_filepath
 
+        progress = 0
         # Return a response with a redirect URL (includes filename)
         return jsonify({
             "success": True, 
@@ -135,12 +159,23 @@ def upload_file():
         })
 
     except Exception as e:
-
-        # Remove original file after processing
+        progress = 0
         os.remove(filepath)
 
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
+
+@app.route("/progress")
+def progress_stream():
+    """Provides real-time progress updates."""
+    def stream():
+        global progress
+        while progress < 100:
+            yield f"data: {progress}\n\n"
+            time.sleep(1)
+        yield f"data: {progress}\n\n"
+
+    return Response(stream(), mimetype='text/event-stream')
 
 # Summary Page
 @app.route("/analysis/<filename>/summary")
