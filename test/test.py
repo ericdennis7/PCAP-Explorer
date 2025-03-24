@@ -73,46 +73,18 @@
 # if __name__ == '__main__':
 #     app.run(debug=True)
 
-import re
-import subprocess
-import json
+import ipaddress
 
-def parse_snort_output(pcap_filename):
-    # Run the Snort command and capture its output
-    command = [
-        "sudo", "snort", "-q", "-r", pcap_filename, "-c", "/etc/snort/snort.conf", "-A", "console"
-    ]
-
-    # Run Snort command and capture stdout
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-    # Get the Snort output from stdout
-    snort_output = result.stdout
-
-    # Regular expression pattern to capture each part
-    pattern = re.compile(r'(?P<Date>\d{2}/\d{2})-(?P<Time>\d{2}:\d{2}:\d{2}\.\d+)  \[\*\*] \[(?P<RuleID>\d+:\d+:\d+)\] (?P<Message>.*?) \[\*\*] \[Classification: (?P<Classification>.*?)\] \[Priority: (?P<Priority>\d+)\] \{(?P<Protocol>\w+)\} (?P<Source>[\d\.\:]+) -> (?P<Dest>[\d\.\:]+)')
-
-    # List to store parsed data
-    data = []
-
-    # Parse each log entry in the Snort output
-    for log in snort_output.splitlines():
-        match = pattern.match(log)
-        if match:
-            # Directly extract Source and Dest as they are
-            log_data = match.groupdict()
-            data.append(log_data)
-
-    # Convert list to JSON
-    json_output = json.dumps(data, indent=4)
-
-    # Return JSON output
-    return json_output
+def is_public_ip(ip_address):
+    try:
+        ip_object = ipaddress.ip_address(ip_address)
+        return ip_object.is_global 
+    except ValueError:
+        return False
 
 # Example usage
-pcap_filename = "/workspaces/pcap-visualizer-ed/PCAP-Visualizer/uploads/botnet-capture-20110810-neris.pcap"
-json_output = parse_snort_output(pcap_filename)
+ip_address1 = "8.8.8.8"
+ip_address2 = "192.168.1.1"
 
-# Print JSON output
-print(json_output)
-
+print(f"Is {ip_address1} a public IP? {is_public_ip(ip_address1)}")
+print(f"Is {ip_address2} a public IP? {is_public_ip(ip_address2)}")

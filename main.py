@@ -22,7 +22,7 @@ from functions.data_extraction import *
 
 # Creating Flask app & app settings
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024 * 1024
 app.secret_key = os.urandom(24)
 
 # Set upload directory
@@ -58,16 +58,16 @@ def upload_file():
     if file.filename == "" or not file.filename.endswith((".pcap", ".pcapng")):
         return jsonify({"error": "Invalid file type. Only .pcap or .pcapng files are allowed."}), 400
 
-    if request.content_length > 50 * 1024 * 1024:
+    if request.content_length > 50 * 1024 * 1024:  # 50MB limit
         return jsonify({"error": "File too large. Max size is 50MB."}), 400
 
     try:
         status = "Validating file"
-        progress = 5
+        progress = random.randint(1, 5)
         
         status = "Calculating file stats"
         file_md5 = md5_hash(file)
-        progress = 10
+        progress =random.randint(11, 15)
 
         current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         file_name, file_extension = os.path.splitext(file.filename)
@@ -75,35 +75,36 @@ def upload_file():
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
         file.save(filepath)
         
-        progress = 20
+        progress = random.randint(16, 20)
         status = "Extracting packet data"
         
         packet_data = raw_pcap_pd(filepath)
-        progress = 30
+        progress = random.randint(21, 35)
         status = "Analyzing timestamps"
         
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
-        progress = 40
+        progress = random.randint(36, 40)
         status = "Analyzing network traffic"
         
         packet_total = total_packets(packet_data)
         ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, unique_ip_addresses = unique_ips_and_flows(filepath)
-        progress = 50
+        top_conversations = get_top_conversations(filepath)
+        progress = random.randint(41, 65)
         status = "Parsing transport layer"
         
         tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
         udp_min_flow, udp_max_flow, udp_avg_flow = udp_min_max_avg(filepath)
-        progress = 60
+        progress = random.randint(66, 70)
         status = "Extracting application layer protocols"
 
         l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
         l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
         l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
-        progress = 70
+        progress = random.randint(71, 90)
         status = "Performing Snort scan"
 
         snort_rules_json, snort_top_src_ip, snort_top_dst_ip, snort_top_rule_id, snort_priority_1_count, snort_priority_2_count, snort_priority_3_count = snort_rules(filepath)
-        progress = 80
+        progress = random.randint(95, 99)
         status = "Preparing data"
         
         # Save analysis results
@@ -143,7 +144,8 @@ def upload_file():
             "snort_top_rule_id": snort_top_rule_id,
             "snort_priority_1_count": snort_priority_1_count,
             "snort_priority_2_count": snort_priority_2_count,
-            "snort_priority_3_count": snort_priority_3_count
+            "snort_priority_3_count": snort_priority_3_count,
+            "top_conversations": top_conversations
         }
 
         # Save file data
@@ -158,11 +160,9 @@ def upload_file():
         # Remove original file after processing
         os.remove(filepath)
         progress = 100
-        status = "Upload Complete..."
+        status = "Uploading file"
 
         session['file_info'] = info_filepath
-        
-        status = "Uploading file"
 
         progress = 0
         return jsonify({"success": True, "redirect": url_for('analysis', filename=info_filename)})

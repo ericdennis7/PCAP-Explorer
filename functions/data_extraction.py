@@ -1,15 +1,22 @@
 import re
+import os
 import csv
 import json
 import shlex
 import hashlib
 import requests
 import humanize
+import ipaddress
 import subprocess
 import pandas as pd
 from io import StringIO
+from pathlib import Path
+from netaddr import IPAddress
+from dotenv import load_dotenv
 from datetime import datetime
 from collections import Counter, defaultdict
+
+load_dotenv()
 
 # Convert the .pcap file to DataFrame using TShark
 def raw_pcap_pd(filepath):
@@ -269,7 +276,7 @@ def unique_ips_and_flows(pcap_file):
         # Fetch additional information about each IP (e.g., location)
         def probe_ip(ip):
             try:
-                response = requests.get(f"https://ipinfo.io/{ip}/json", timeout=2)
+                response = requests.get(f"https://ipinfo.io/{ip}/json{os.getenv('IP_INFO')}", timeout=3)
                 if response.status_code == 200:
                     return response.json()
             except requests.RequestException:
@@ -300,6 +307,10 @@ def unique_ips_and_flows(pcap_file):
         print(f"Error running tshark: {e}")
         return 0, 0, 0, 0, 0, {}
     
+# Function to get the top conversations from a .pcap file (TCP and UDP)
+def top_conversations(pcap_file):
+    return None    
+
 # Load protocol numbers into a dictionary
 def load_protocol_mapping(csv_file):
     protocol_mapping = {}
@@ -547,46 +558,87 @@ def snort_rules(pcap_file):
     # Return both json_output and summary values
     return json_output, result_data["top_source_ip"], result_data["top_dest_ip"], result_data["top_rule_id"], result_data["priority_1_count"], result_data["priority_2_count"], result_data["priority_3_count"]
 
-# Function to get all TCP conversations from a .pcap file
-def get_top_ipv4_conversations(pcap_file, limit=100):
-    # Run tshark to extract IPv4 conversation data in JSON format
-    command = [
-        "tshark", "-r", pcap_file, "-T", "json",
-        "-e", "ip.src", "-e", "ip.dst", "-e", "frame.number"
-    ]
-
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-    # Check for errors
-    if result.returncode != 0:
-        return f"Error: {result.stderr.strip()}"
-
+# Get location information for an IP address
+def get_ip_location(ip_address):
+    """Fetch the location of the IP address using the ipinfo.io API."""
     try:
-        json_output = json.loads(result.stdout)
-    except json.JSONDecodeError:
-        return "Error: Failed to parse JSON output from tshark"
+        response = requests.get(f"https://ipinfo.io/{ip_address}/json/?token={os.getenv('IP_INFO')}", timeout=3)
+        data = response.json()
 
-    # Dictionary to store conversation counts
-    conversations = defaultdict(int)
+        return data.get('loc', None)  # Check if 'loc' key exists
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching location for {ip_address}: {e}")
+        return None
 
-    # Process packets to count conversations
-    for packet in json_output:
-        layers = packet["_source"]["layers"]
-        src = layers.get("ip.src", ["N/A"])[0]
-        dst = layers.get("ip.dst", ["N/A"])[0]
+# Function to check if the IP falls under any of the categories to exclude
+def is_excluded_ip(ip_address):
+    try:
+        ip_object = ipaddress.ip_address(ip_address)
+        return ip_object.is_global
+    except ValueError:
+        return False
 
-        # Use a sorted tuple to count bidirectional traffic
-        key = tuple(sorted([src, dst]))
-        conversations[key] += 1
+# Function to parse conversations from tshark output
+def parse_conversations(protocol, tshark_output):
+    conversations = []
 
-    # Sort by packet count (descending) and take the top `limit`
-    top_conversations = sorted(conversations.items(), key=lambda x: x[1], reverse=True)[:limit]
+    for line in tshark_output[1:]:  # Skip header line
+        fields = line.split()
+        if len(fields) >= 10:  # Ensure there are enough fields (packet count in 10th column)
+            try:
+                src_ip = fields[0].split(":")[0]
+                dst_ip = fields[2].split(":")[0]
+                packet_count = int(fields[9])  # Packet count
 
-    # Format the output as a list of dictionaries
-    conversation_list = [
-        {"IP A": key[0], "IP B": key[1], "Packets": count}
-        for key, count in top_conversations
-    ]
+                # Skip excluded (non-public) IPs
+                if is_excluded_ip(src_ip) == False or is_excluded_ip(dst_ip) == False:
+                    continue
 
-    return conversation_list  # Return structured JSON
+                conversations.append({
+                    "IP A": src_ip,
+                    "IP B": dst_ip,
+                    "Packets": packet_count,
+                    "Protocol": protocol
+                })
+            except ValueError:
+                continue
 
+    return conversations
+
+# Function to get the top conversations from a .pcap file (TCP and UDP)
+def get_top_conversations(pcap_file, limit=50):
+    # Run tshark to extract TCP and UDP conversations
+    tcp_command = ["tshark", "-r", pcap_file, "-qz", "conv,tcp"]
+    udp_command = ["tshark", "-r", pcap_file, "-qz", "conv,udp"]
+
+    tcp_result = subprocess.run(tcp_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    udp_result = subprocess.run(udp_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    if tcp_result.returncode != 0:
+        return f"Error: {tcp_result.stderr.strip()}"
+    if udp_result.returncode != 0:
+        return f"Error: {udp_result.stderr.strip()}"
+
+    # Parse TCP and UDP results
+    tcp_conversations = parse_conversations("TCP", tcp_result.stdout.splitlines())
+    udp_conversations = parse_conversations("UDP", udp_result.stdout.splitlines())
+
+    # Combine and apply limit before fetching locations
+    all_conversations = sorted(tcp_conversations + udp_conversations, key=lambda x: x['Packets'], reverse=True)[:limit]
+
+    # Collect unique public IPs from the top conversations
+    unique_ips = {conv["IP A"] for conv in all_conversations}.union({conv["IP B"] for conv in all_conversations})
+
+    # Fetch IP locations only for those in the final list
+    ip_locations = {ip: get_ip_location(ip) for ip in unique_ips}
+    
+    # Append location data
+    for conv in all_conversations:
+        conv["IP A Loc"] = ip_locations.get(conv["IP A"])
+        conv["IP B Loc"] = ip_locations.get(conv["IP B"])
+
+    return json.dumps(all_conversations, indent=4)
+
+# Example call
+# get_top_conversations("/workspaces/pcap-visualizer-ed/PCAP-Visualizer/uploads/large_snort.pcap")
+# print(get_top_conversations("/workspaces/pcap-visualizer-ed/PCAP-Visualizer/uploads/large_snort.pcap"))
