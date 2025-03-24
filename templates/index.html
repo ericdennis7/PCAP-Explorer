@@ -76,7 +76,7 @@
             <!-- Loader -->
             <div id="progress-container" class="mx-auto flex flex-col items-center justify-center max-w-2xl w-full p-4 rounded-lg" style="display: none;">
                 <div class="flex w-full justify-between mb-2">
-                    <span class="text-sm font-semibold">In progress<span class="blinking">...</span></span>
+                    <p><span id="progress-status" class="text-sm font-semibold">In progress</span><span class="blinking">...</span></p>
                     <span id="progress-text" class="text-sm font-semibold">0%</span>
                 </div>
                 <progress id="progress-bar" class="w-full" value="0" max="100"></progress>
@@ -163,38 +163,40 @@
             let progressContainer = document.getElementById("progress-container");
             let progressBar = document.getElementById("progress-bar");
             let progressText = document.getElementById("progress-text");
-
+            let progressStatus = document.getElementById("progress-status"); // Added status display
+        
             // Ensure progress container is hidden by default
             progressContainer.style.display = "none";
-
+        
             document.getElementById("dropzone-file").addEventListener("change", function () {
                 let file = this.files[0];
                 let errorMessage = document.getElementById("error-message");
                 let uploadBox = document.getElementById("upload-box");
-
+        
                 // Reset progress and show progress container only when a file is selected
                 progressBar.value = 0;
                 progressText.innerText = "0%";
+                progressStatus.innerText = "Starting upload"; // Set initial status
                 progressContainer.style.display = "block"; // Show progress container only during upload
-
+        
                 if (!file) {
                     progressContainer.style.display = "none"; // Hide progress container if no file is selected
                     return;
                 }
-
+        
                 if (!file.name.endsWith(".pcap") && !file.name.endsWith(".pcapng")) {
                     errorMessage.textContent = "Invalid file type. Please upload a .pcap or .pcapng file.";
                     errorMessage.classList.remove("hidden");
                     progressContainer.style.display = "none"; // Hide progress container if file type is invalid
                     return;
                 }
-
+        
                 errorMessage.classList.add("hidden");
                 uploadBox.style.display = "none";
-
+        
                 let formData = new FormData();
                 formData.append("file", file);
-
+        
                 // Upload the file via AJAX
                 fetch("/upload", { method: "POST", body: formData })
                     .then(response => {
@@ -211,18 +213,22 @@
                         }
                     })
                     .catch(error => console.error("Error:", error));
-
+        
                 // Listen for progress updates from the server
                 let eventSource = new EventSource("/progress");
                 eventSource.onmessage = function (event) {
-                    let progress = parseInt(event.data);
+                    let data = JSON.parse(event.data); // Parse JSON response
+                    let progress = parseInt(data.progress);
+                    let status = data.status; // Extract status message
+        
                     progressBar.value = progress;
-
+                    progressStatus.innerText = status; // Update status message
+        
                     // Gradually increment the progress text
                     let currentProgress = parseInt(progressText.innerText);
                     let increment = Math.ceil((progress - currentProgress) / 5); // Smooth increment in 5 steps
                     let counter = currentProgress;
-
+        
                     // Gradual count up using setInterval
                     let interval = setInterval(() => {
                         counter += increment;
@@ -232,14 +238,14 @@
                         }
                         progressText.innerText = counter + "%";
                     }, 50); // Update every 50ms
-
+        
                     // When progress reaches 100%, stop EventSource and hide the progress bar
                     if (progress >= 100) {
                         eventSource.close();
                         progressContainer.style.display = "none"; // Hide progress container when done
                     }
                 };
-
+        
                 eventSource.onerror = function () {
                     // Handle error if EventSource fails
                     console.error("EventSource error occurred.");
