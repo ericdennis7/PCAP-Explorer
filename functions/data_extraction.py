@@ -611,8 +611,8 @@ def parse_conversations(protocol, tshark_output):
 # Function to get the top conversations from a .pcap file (TCP and UDP)
 def get_top_conversations(pcap_file, limit=50):
     # Run tshark to extract TCP and UDP conversations
-    tcp_command = ["tshark", "-r", pcap_file, "-qz", "conv,tcp"]
-    udp_command = ["tshark", "-r", pcap_file, "-qz", "conv,udp"]
+    tcp_command = ["tshark", "-r", pcap_file, "-qz", "conv,ipv4"]
+    udp_command = ["tshark", "-r", pcap_file, "-qz", "conv,ipv6"]
 
     tcp_result = subprocess.run(tcp_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     udp_result = subprocess.run(udp_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

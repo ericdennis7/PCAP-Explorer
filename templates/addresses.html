@@ -51,9 +51,9 @@
             
                     let chart = root.container.children.push(
                         am5map.MapChart.new(root, {
-                            panX: "translateX",
-                            panY: "translateY",
-                            projection: am5map.geoNaturalEarth1(),
+                            panX: "rotateX", // Enable globe rotation on X-axis
+                            panY: "rotateY", // Enable globe rotation on Y-axis
+                            projection: am5map.geoOrthographic(), // Keep the globe projection
                             paddingBottom: 20,
                             paddingTop: 20,
                             paddingLeft: 20,
@@ -192,10 +192,6 @@
                             let locACorrected = [locA[1], locA[0]];
                             let locBCorrected = [locB[1], locB[0]];
                     
-                            // Log locations to verify
-                            console.log(`IP A: ${conv["IP A"]}, Corrected Location: ${locACorrected}`);
-                            console.log(`IP B: ${conv["IP B"]}, Corrected Location: ${locBCorrected}`);
-                    
                             // Add line
                             let lineDataItem = lineSeries.pushDataItem({
                                 geometry: {
@@ -297,7 +293,7 @@
                     cont.children.push(
                         am5.Label.new(root, {
                             centerY: am5.p50,
-                            text: "Map",
+                            text: "Globe",
                             fill: am5.color(0xffffff),
                             fontFamily: "monospace",
                             fontSize: 16
@@ -316,11 +312,11 @@
 
                     switchButton.on("active", function () {
                         if (!switchButton.get("active")) {
-                            chart.set("projection", am5map.geoNaturalEarth1());
+                            chart.set("projection", am5map.geoOrthographic());
                             chart.set("panX", "translateX");
                             chart.set("panY", "translateY");
                         } else {
-                            chart.set("projection", am5map.geoOrthographic());
+                            chart.set("projection", am5map.geoNaturalEarth1());
                             chart.set("panX", "rotateX");
                             chart.set("panY", "rotateY");
                         }
@@ -329,7 +325,7 @@
                     cont.children.push(
                         am5.Label.new(root, {
                             centerY: am5.p50,
-                            text: "Globe",
+                            text: "Natural",
                             fill: am5.color(0xffffff),
                             fontFamily: "monospace",
                             fontSize: 16
