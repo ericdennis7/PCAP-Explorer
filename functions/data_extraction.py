@@ -1,21 +1,26 @@
+# Eric Dennis
+# Started: 3/25/2025
+# Description: This file contains all the data extraction functions for the PCAP Visualizer application.
+
+# Last Updated: 3/25/2025
+# Update Notes: Added the get_top_conversations function to extract the top conversations from a .pcap file.
+
+# Imports
 import re
 import os
 import csv
 import json
-import shlex
 import hashlib
 import requests
-import humanize
 import ipaddress
 import subprocess
 import pandas as pd
 from io import StringIO
-from pathlib import Path
-from netaddr import IPAddress
-from dotenv import load_dotenv
 from datetime import datetime
+from dotenv import load_dotenv
 from collections import Counter, defaultdict
 
+# Getting environment variables
 load_dotenv()
 
 # Convert the .pcap file to DataFrame using TShark
@@ -155,9 +160,6 @@ def udp_min_max_avg(pcap_file):
         return "N/A", "N/A", "N/A"
 
 # Extract the start date and end date, and calculate the time difference
-from datetime import datetime
-
-# Extract the start date and end date, and calculate the time difference
 def packet_times_and_difference(packet_data):
     try:
         # Extract start date (first row)
@@ -276,7 +278,7 @@ def unique_ips_and_flows(pcap_file):
         # Fetch additional information about each IP (e.g., location)
         def probe_ip(ip):
             try:
-                response = requests.get(f"https://ipinfo.io/{ip}/json{os.getenv('IP_INFO')}", timeout=3)
+                response = requests.get(f"https://ipinfo.io/{ip}/json/?token={os.getenv('IP_INFO')}", timeout=3)
                 if response.status_code == 200:
                     return response.json()
             except requests.RequestException:
@@ -307,10 +309,6 @@ def unique_ips_and_flows(pcap_file):
         print(f"Error running tshark: {e}")
         return 0, 0, 0, 0, 0, {}
     
-# Function to get the top conversations from a .pcap file (TCP and UDP)
-def top_conversations(pcap_file):
-    return None    
-
 # Load protocol numbers into a dictionary
 def load_protocol_mapping(csv_file):
     protocol_mapping = {}

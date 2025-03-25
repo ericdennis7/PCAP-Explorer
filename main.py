@@ -58,7 +58,7 @@ def upload_file():
     if file.filename == "" or not file.filename.endswith((".pcap", ".pcapng")):
         return jsonify({"error": "Invalid file type. Only .pcap or .pcapng files are allowed."}), 400
 
-    if request.content_length > 50 * 1024 * 1024:  # 50MB limit
+    if request.content_length > 50 * 1024 * 1024:
         return jsonify({"error": "File too large. Max size is 50MB."}), 400
 
     try:
@@ -83,19 +83,21 @@ def upload_file():
         status = "Analyzing timestamps"
         
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
+        timing = group_packets_by_time_section(packet_data)
         progress = random.randint(36, 40)
-        status = "Analyzing network traffic"
+        status = "Analyzing addresses and conversations"
         
         packet_total = total_packets(packet_data)
         ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, unique_ip_addresses = unique_ips_and_flows(filepath)
         top_conversations = get_top_conversations(filepath)
+        top_mac_addresses = mac_address_counts(packet_data)
         progress = random.randint(41, 65)
-        status = "Parsing transport layer"
+        status = "Analyzing flows"
         
         tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
         udp_min_flow, udp_max_flow, udp_avg_flow = udp_min_max_avg(filepath)
         progress = random.randint(66, 70)
-        status = "Extracting application layer protocols"
+        status = "Analyzing protocols and ports"
 
         l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
         l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
@@ -104,7 +106,7 @@ def upload_file():
         status = "Performing Snort scan"
 
         snort_rules_json, snort_top_src_ip, snort_top_dst_ip, snort_top_rule_id, snort_priority_1_count, snort_priority_2_count, snort_priority_3_count = snort_rules(filepath)
-        progress = random.randint(95, 99)
+        progress = random.randint(91, 99)
         status = "Preparing data"
         
         # Save analysis results
@@ -136,8 +138,8 @@ def upload_file():
             "l4_ports_percentages": l4_ports_percentages,
             "l7_top_protocols": l7_top_protocols,
             "l7_protocol_percentages": l7_protocol_percentages,
-            "mac_addresses": mac_address_counts(packet_data),
-            "time_series": group_packets_by_time_section(packet_data),
+            "mac_addresses": top_mac_addresses,
+            "time_series": timing,
             "snort_rules_json": json.loads(snort_rules_json),
             "snort_top_src_ip": snort_top_src_ip,
             "snort_top_dst_ip": snort_top_dst_ip,
@@ -145,7 +147,7 @@ def upload_file():
             "snort_priority_1_count": snort_priority_1_count,
             "snort_priority_2_count": snort_priority_2_count,
             "snort_priority_3_count": snort_priority_3_count,
-            "top_conversations": top_conversations
+            "top_conversations": json.loads(top_conversations)
         }
 
         # Save file data
@@ -161,6 +163,7 @@ def upload_file():
         os.remove(filepath)
         progress = 100
         status = "Uploading file"
+        time.sleep(1)
 
         session['file_info'] = info_filepath
 
