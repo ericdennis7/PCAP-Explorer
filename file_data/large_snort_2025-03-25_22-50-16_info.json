@@ -1,9 +1,9 @@
 {
     "name": "large_snort.pcap",
-    "data_link": "large_snort_2025-03-25_21-53-33_info.json",
+    "data_link": "large_snort_2025-03-25_22-50-16_info.json",
     "size_mb": "43.2 MB",
     "md5_hash": "3b3d7ea0562d31cf5920c2e80478a11a",
-    "submission_date": "3/25/2025 at 09:54:34 PM",
+    "submission_date": "3/25/2025 at 10:51:22 PM",
     "start_date": "8/10/2011 at 09:01:40 AM",
     "end_date": "8/10/2011 at 12:54:24 PM",
     "time_difference": "3h 52m 43s",
@@ -26,7 +26,7 @@
                 "timezone": "Europe/Prague",
                 "location": "Prague, Prague, CZ",
                 "count": 248616,
-                "percentage": 57.903856903297935
+                "percentage": 56.04331693769809
             },
             "184.154.132.106": {
                 "ip": "184.154.132.106",
@@ -40,7 +40,7 @@
                 "timezone": "America/Chicago",
                 "location": "Chicago, Illinois, US",
                 "count": 41667,
-                "percentage": 9.704443823365008
+                "percentage": 9.392625120036788
             },
             "213.246.53.125": {
                 "ip": "213.246.53.125",
@@ -54,7 +54,7 @@
                 "timezone": "Europe/Paris",
                 "location": "Bezannes, Grand Est, FR",
                 "count": 41441,
-                "percentage": 9.651807341158934
+                "percentage": 9.341679928947238
             },
             "147.32.80.9": {
                 "ip": "147.32.80.9",
@@ -68,7 +68,7 @@
                 "timezone": "Europe/Prague",
                 "location": "Prague, Prague, CZ",
                 "count": 16648,
-                "percentage": 3.8773989193217813
+                "percentage": 3.752812129463903
             },
             "212.117.171.138": {
                 "ip": "212.117.171.138",
@@ -81,7 +81,7 @@
                 "timezone": "Europe/London",
                 "location": "London, England, GB",
                 "count": 15404,
-                "percentage": 3.587665362399851
+                "percentage": 3.4723881572718627
             },
             "174.133.57.141": {
                 "ip": "174.133.57.141",
@@ -95,7 +95,7 @@
                 "timezone": "America/New_York",
                 "location": "Armonk, New York, US",
                 "count": 4430,
-                "percentage": 1.0317682131544623
+                "percentage": 0.9986159138350006
             },
             "209.85.225.27": {
                 "ip": "209.85.225.27",
@@ -108,7 +108,7 @@
                 "timezone": "America/Los_Angeles",
                 "location": "Mountain View, California, US",
                 "count": 4380,
-                "percentage": 1.02012297372834
+                "percentage": 0.9873448538594364
             },
             "212.117.174.7": {
                 "ip": "212.117.174.7",
@@ -121,7 +121,7 @@
                 "timezone": "Europe/Amsterdam",
                 "location": "Lelystad, Flevoland, NL",
                 "count": 4292,
-                "percentage": 0.999627352338364
+                "percentage": 0.967507788302443
             },
             "173.192.170.88": {
                 "ip": "173.192.170.88",
@@ -134,7 +134,7 @@
                 "timezone": "America/New_York",
                 "location": "Armonk, New York, US",
                 "count": 3648,
-                "percentage": 0.849636668529905
+                "percentage": 0.8223365358171744
             },
             "78.129.163.119": {
                 "ip": "78.129.163.119",
@@ -147,7 +147,7 @@
                 "timezone": "Europe/London",
                 "location": "London, England, GB",
                 "count": 3627,
-                "percentage": 0.8447456679709334
+                "percentage": 0.8176026906274374
             },
             "78.129.227.128": {
                 "ip": "78.129.227.128",
@@ -160,7 +160,7 @@
                 "timezone": "Europe/London",
                 "location": "Newport Pagnell, England, GB",
                 "count": 3537,
-                "percentage": 0.8237842370039128
+                "percentage": 0.7973147826714216
             },
             "65.55.196.251": {
                 "ip": "65.55.196.251",
@@ -173,7 +173,7 @@
                 "timezone": "America/New_York",
                 "location": "Washington, Virginia, US",
                 "count": 2892,
-                "percentage": 0.6735606484069312
+                "percentage": 0.6519181089866415
             },
             "193.232.128.6": {
                 "ip": "193.232.128.6",
@@ -187,7 +187,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 2634,
-                "percentage": 0.6134712129681386
+                "percentage": 0.5937594395127296
             },
             "194.85.105.17": {
                 "ip": "194.85.105.17",
@@ -200,7 +200,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 2587,
-                "percentage": 0.6025246879075834
+                "percentage": 0.583164643135699
             },
             "194.85.252.62": {
                 "ip": "194.85.252.62",
@@ -214,7 +214,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 2457,
-                "percentage": 0.5722470653996646
+                "percentage": 0.5538598871992317
             },
             "193.232.142.17": {
                 "ip": "193.232.142.17",
@@ -229,7 +229,7 @@
                 "anycast": true,
                 "location": "Moscow, Moscow, RU",
                 "count": 2397,
-                "percentage": 0.5582727780883175
+                "percentage": 0.5403346152285545
             },
             "193.232.156.17": {
                 "ip": "193.232.156.17",
@@ -243,7 +243,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Saint Petersburg, St.-Petersburg, RU",
                 "count": 2271,
-                "percentage": 0.5289267747344885
+                "percentage": 0.5119315440901324
             },
             "192.93.0.4": {
                 "ip": "192.93.0.4",
@@ -257,7 +257,7 @@
                 "timezone": "Europe/Paris",
                 "location": "Paris, \u00cele-de-France, FR",
                 "count": 2160,
-                "percentage": 0.5030743432084964
+                "percentage": 0.4869097909443796
             },
             "209.85.143.27": {
                 "ip": "209.85.143.27",
@@ -270,7 +270,7 @@
                 "timezone": "Asia/Tokyo",
                 "location": "Tokyo, Tokyo, JP",
                 "count": 1812,
-                "percentage": 0.42202347680268304
+                "percentage": 0.40846321351445175
             },
             "65.55.16.187": {
                 "ip": "65.55.16.187",
@@ -283,7 +283,7 @@
                 "timezone": "America/Los_Angeles",
                 "location": "Moses Lake, Washington, US",
                 "count": 1611,
-                "percentage": 0.3752096143096702
+                "percentage": 0.3631535524126831
             },
             "222.88.205.195": {
                 "ip": "222.88.205.195",
@@ -297,7 +297,7 @@
                 "timezone": "Asia/Shanghai",
                 "location": "Jiaozuo, Henan, CN",
                 "count": 1429,
-                "percentage": 0.33282094279858393
+                "percentage": 0.3221268941016289
             },
             "66.94.237.64": {
                 "ip": "66.94.237.64",
@@ -310,7 +310,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 1314,
-                "percentage": 0.306036892118502
+                "percentage": 0.2962034561578309
             },
             "208.73.210.29": {
                 "ip": "208.73.210.29",
@@ -323,7 +323,7 @@
                 "timezone": "America/New_York",
                 "location": "Baltimore, Maryland, US",
                 "count": 1237,
-                "percentage": 0.2881032234022732
+                "percentage": 0.2788460237954618
             },
             "195.88.191.59": {
                 "ip": "195.88.191.59",
@@ -336,7 +336,7 @@
                 "timezone": "Europe/Amsterdam",
                 "location": "Lelystad, Flevoland, NL",
                 "count": 1168,
-                "percentage": 0.272032792994224
+                "percentage": 0.263291961029183
             },
             "98.139.54.60": {
                 "ip": "98.139.54.60",
@@ -348,7 +348,7 @@
                 "timezone": "America/New_York",
                 "location": "Buffalo, New York, US",
                 "count": 1014,
-                "percentage": 0.23616545556176632
+                "percentage": 0.22857709630444484
             },
             "64.12.139.193": {
                 "ip": "64.12.139.193",
@@ -360,7 +360,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 972,
-                "percentage": 0.22638345444382338
+                "percentage": 0.21910940592497083
             },
             "205.188.190.1": {
                 "ip": "205.188.190.1",
@@ -372,7 +372,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 912,
-                "percentage": 0.21240916713247626
+                "percentage": 0.2055841339542936
             },
             "31.192.109.167": {
                 "ip": "31.192.109.167",
@@ -385,7 +385,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 812,
-                "percentage": 0.18911868828023104
+                "percentage": 0.18304201400316492
             },
             "205.188.103.1": {
                 "ip": "205.188.103.1",
@@ -397,7 +397,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 762,
-                "percentage": 0.17747344885410843
+                "percentage": 0.17177095402760056
             },
             "95.211.58.97": {
                 "ip": "95.211.58.97",
@@ -410,7 +410,7 @@
                 "timezone": "Europe/Amsterdam",
                 "location": "Lelystad, Flevoland, NL",
                 "count": 699,
-                "percentage": 0.16280044717719397
+                "percentage": 0.15756941845838948
             },
             "79.174.74.74": {
                 "ip": "79.174.74.74",
@@ -424,7 +424,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 679,
-                "percentage": 0.15814235140674493
+                "percentage": 0.15306099446816376
             },
             "64.12.90.65": {
                 "ip": "64.12.90.65",
@@ -436,7 +436,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 654,
-                "percentage": 0.15231973169368362
+                "percentage": 0.1474254644803816
             },
             "98.139.175.224": {
                 "ip": "98.139.175.224",
@@ -450,7 +450,7 @@
                 "timezone": "America/New_York",
                 "location": "Buffalo, New York, US",
                 "count": 646,
-                "percentage": 0.15045649338550401
+                "percentage": 0.1456220948842913
             },
             "64.12.90.1": {
                 "ip": "64.12.90.1",
@@ -462,7 +462,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 624,
-                "percentage": 0.14533258803801005
+                "percentage": 0.140662828495043
             },
             "74.125.113.27": {
                 "ip": "74.125.113.27",
@@ -475,7 +475,7 @@
                 "timezone": "America/Chicago",
                 "location": "Council Bluffs, Iowa, US",
                 "count": 602,
-                "percentage": 0.14020868269051612
+                "percentage": 0.13570356210579468
             },
             "79.174.72.172": {
                 "ip": "79.174.72.172",
@@ -488,7 +488,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 590,
-                "percentage": 0.1374138252282467
+                "percentage": 0.13299850771165922
             },
             "95.163.69.51": {
                 "ip": "95.163.69.51",
@@ -501,7 +501,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 525,
-                "percentage": 0.12227501397428732
+                "percentage": 0.11834612974342558
             },
             "64.12.90.33": {
                 "ip": "64.12.90.33",
@@ -513,7 +513,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 524,
-                "percentage": 0.12204210918576486
+                "percentage": 0.11812070854391431
             },
             "98.126.71.122": {
                 "ip": "98.126.71.122",
@@ -527,7 +527,7 @@
                 "timezone": "America/Los_Angeles",
                 "location": "Los Angeles, California, US",
                 "count": 521,
-                "percentage": 0.12134339482019749
+                "percentage": 0.11744444494538045
             },
             "205.188.156.193": {
                 "ip": "205.188.156.193",
@@ -539,7 +539,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 518,
-                "percentage": 0.12064468045463014
+                "percentage": 0.11676818134684658
             },
             "178.218.208.130": {
                 "ip": "178.218.208.130",
@@ -553,7 +553,7 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 508,
-                "percentage": 0.11831563256940562
+                "percentage": 0.11451396935173372
             },
             "74.6.136.244": {
                 "ip": "74.6.136.244",
@@ -567,7 +567,7 @@
                 "timezone": "America/New_York",
                 "location": "Buffalo, New York, US",
                 "count": 498,
-                "percentage": 0.1159865846841811
+                "percentage": 0.11225975735662086
             },
             "67.195.168.230": {
                 "ip": "67.195.168.230",
@@ -580,7 +580,7 @@
                 "timezone": "America/Los_Angeles",
                 "location": "Quincy, Washington, US",
                 "count": 486,
-                "percentage": 0.11319172722191169
+                "percentage": 0.10955470296248541
             },
             "205.188.59.194": {
                 "ip": "205.188.59.194",
@@ -592,7 +592,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 480,
-                "percentage": 0.11179429849077697
+                "percentage": 0.10820217576541769
             },
             "205.188.186.137": {
                 "ip": "205.188.186.137",
@@ -604,7 +604,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 475,
-                "percentage": 0.11062977454816471
+                "percentage": 0.10707506976786124
             },
             "174.36.246.56": {
                 "ip": "174.36.246.56",
@@ -617,7 +617,7 @@
                 "timezone": "America/Chicago",
                 "location": "Dallas, Texas, US",
                 "count": 473,
-                "percentage": 0.1101639649711198
+                "percentage": 0.10662422736883868
             },
             "205.188.146.193": {
                 "ip": "205.188.146.193",
@@ -629,7 +629,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 438,
-                "percentage": 0.10201229737283397
+                "percentage": 0.09873448538594363
             },
             "64.12.90.98": {
                 "ip": "64.12.90.98",
@@ -641,7 +641,7 @@
                 "timezone": "America/New_York",
                 "location": "New York City, New York, US",
                 "count": 438,
-                "percentage": 0.10201229737283397
+                "percentage": 0.09873448538594363
             },
             "60.190.223.75": {
                 "ip": "60.190.223.75",
@@ -654,7 +654,7 @@
                 "timezone": "Asia/Shanghai",
                 "location": "Jiaxing, Zhejiang, CN",
                 "count": 430,
-                "percentage": 0.10014905906465436
+                "percentage": 0.09693111578985333
             },
             "195.24.65.7": {
                 "ip": "195.24.65.7",
@@ -667,7 +667,671 @@
                 "timezone": "Europe/Moscow",
                 "location": "Moscow, Moscow, RU",
                 "count": 421,
-                "percentage": 0.0980529159679523
+                "percentage": 0.09490232499425176
+            },
+            "94.63.149.150": {
+                "ip": "94.63.149.150",
+                "hostname": "150.149.63.94.rev.vodafone.pt",
+                "city": "Lisbon",
+                "region": "Lisbon",
+                "country": "PT",
+                "loc": "38.7167,-9.1333",
+                "org": "AS12353 Vodafone Portugal - Communicacoes Pessoais S.A.",
+                "postal": "1000-001",
+                "timezone": "Europe/Lisbon",
+                "location": "Lisbon, Lisbon, PT",
+                "count": 415,
+                "percentage": 0.09354979779718404
+            },
+            "205.188.159.42": {
+                "ip": "205.188.159.42",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7313,-73.9892",
+                "postal": "10003",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 414,
+                "percentage": 0.09332437659767275
+            },
+            "147.32.96.45": {
+                "ip": "147.32.96.45",
+                "city": "Prague",
+                "region": "Prague",
+                "country": "CZ",
+                "loc": "50.0880,14.4208",
+                "org": "AS2852 CESNET z.s.p.o.",
+                "postal": "110 00",
+                "timezone": "Europe/Prague",
+                "location": "Prague, Prague, CZ",
+                "count": 396,
+                "percentage": 0.08926679500646958
+            },
+            "74.6.136.65": {
+                "ip": "74.6.136.65",
+                "hostname": "unknown.yahoo.com",
+                "city": "Buffalo",
+                "region": "New York",
+                "country": "US",
+                "loc": "42.8865,-78.8784",
+                "org": "AS26101 Oath Holdings Inc.",
+                "postal": "14202",
+                "timezone": "America/New_York",
+                "location": "Buffalo, New York, US",
+                "count": 396,
+                "percentage": 0.08926679500646958
+            },
+            "194.226.96.8": {
+                "ip": "194.226.96.8",
+                "hostname": "ns4.nic.ru",
+                "city": "Moscow",
+                "region": "Moscow",
+                "country": "RU",
+                "loc": "55.7522,37.6156",
+                "org": "AS48287 JSC RU-CENTER",
+                "postal": "101000",
+                "timezone": "Europe/Moscow",
+                "location": "Moscow, Moscow, RU",
+                "count": 392,
+                "percentage": 0.08836511020842444
+            },
+            "66.94.238.147": {
+                "ip": "66.94.238.147",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7313,-73.9892",
+                "postal": "10003",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 388,
+                "percentage": 0.0874634254103793
+            },
+            "64.12.90.97": {
+                "ip": "64.12.90.97",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7313,-73.9892",
+                "postal": "10003",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 382,
+                "percentage": 0.08611089821331157
+            },
+            "64.12.175.136": {
+                "ip": "64.12.175.136",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7143,-74.0060",
+                "postal": "10001",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 375,
+                "percentage": 0.08453294981673257
+            },
+            "193.232.130.14": {
+                "ip": "193.232.130.14",
+                "hostname": "ns8.nic.ru",
+                "city": "Moscow",
+                "region": "Moscow",
+                "country": "RU",
+                "loc": "55.7522,37.6156",
+                "org": "AS48287 JSC RU-CENTER",
+                "postal": "101000",
+                "timezone": "Europe/Moscow",
+                "location": "Moscow, Moscow, RU",
+                "count": 369,
+                "percentage": 0.08318042261966485
+            },
+            "195.113.232.82": {
+                "ip": "195.113.232.82",
+                "hostname": "a195-113-232-82.deploy.akamaitechnologies.com",
+                "city": "Prague",
+                "region": "Prague",
+                "country": "CZ",
+                "loc": "50.0880,14.4208",
+                "org": "AS2852 CESNET z.s.p.o.",
+                "postal": "110 00",
+                "timezone": "Europe/Prague",
+                "location": "Prague, Prague, CZ",
+                "count": 360,
+                "percentage": 0.08115163182406326
+            },
+            "195.113.232.88": {
+                "ip": "195.113.232.88",
+                "hostname": "a195-113-232-88.deploy.akamaitechnologies.com",
+                "city": "Prague",
+                "region": "Prague",
+                "country": "CZ",
+                "loc": "50.0880,14.4208",
+                "org": "AS2852 CESNET z.s.p.o.",
+                "postal": "110 00",
+                "timezone": "Europe/Prague",
+                "location": "Prague, Prague, CZ",
+                "count": 351,
+                "percentage": 0.07912284102846168
+            },
+            "67.214.158.5": {
+                "ip": "67.214.158.5",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7143,-74.0060",
+                "org": "AS4459 KDDI America Inc.",
+                "postal": "10001",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 350,
+                "percentage": 0.07889741982895039
+            },
+            "122.224.6.164": {
+                "ip": "122.224.6.164",
+                "city": "Ningbo",
+                "region": "Zhejiang",
+                "country": "CN",
+                "loc": "29.8782,121.5494",
+                "org": "AS58461 CT-HangZhou-IDC",
+                "postal": "315000",
+                "timezone": "Asia/Shanghai",
+                "location": "Ningbo, Zhejiang, CN",
+                "count": 349,
+                "percentage": 0.0786719986294391
+            },
+            "205.188.59.193": {
+                "ip": "205.188.59.193",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7313,-73.9892",
+                "postal": "10003",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 338,
+                "percentage": 0.07619236543481495
+            },
+            "64.12.168.40": {
+                "ip": "64.12.168.40",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7143,-74.0060",
+                "postal": "10001",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 338,
+                "percentage": 0.07619236543481495
+            },
+            "147.32.84.255": {
+                "ip": "147.32.84.255",
+                "city": "Prague",
+                "region": "Prague",
+                "country": "CZ",
+                "loc": "50.0880,14.4208",
+                "org": "AS2852 CESNET z.s.p.o.",
+                "postal": "110 00",
+                "timezone": "Europe/Prague",
+                "location": "Prague, Prague, CZ",
+                "count": 322,
+                "percentage": 0.07258562624263437
+            },
+            "205.188.190.2": {
+                "ip": "205.188.190.2",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7313,-73.9892",
+                "postal": "10003",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 318,
+                "percentage": 0.07168394144458921
+            },
+            "205.188.186.167": {
+                "ip": "205.188.186.167",
+                "city": "New York City",
+                "region": "New York",
+                "country": "US",
+                "loc": "40.7313,-73.9892",
+                "postal": "10003",
+                "timezone": "America/New_York",
+                "location": "New York City, New York, US",
+                "count": 305,
+                "percentage": 0.06875346585094248
+            },
+            "89.111.166.6": {
+                "ip": "89.111.166.6",
+                "city": "Moscow",
+                "region": "Moscow",
+                "country": "RU",
+                "loc": "55.7522,37.6156",
+                "org": "AS39494 JSC RU-CENTER",
+                "postal": "101000",
+                "timezone": "Europe/Moscow",
+                "location": "Moscow, Moscow, RU",
+                "count": 301,
+                "percentage": 0.06785178105289734
+            },
+            "147.32.84.165,79.174.72.172": {
+                "location": "",
+                "count": 295,
+                "percentage": 0.06649925385582961
+            },
+            "79.174.72.172,147.32.84.165": {
+                "location": "",
+                "count": 295,
+                "percentage": 0.06649925385582961
+            },
+            "65.54.188.72": {
+                "ip": "65.54.188.72",
+                "city": "San Jose",
+                "region": "California",
+                "country": "US",
+                "loc": "37.3394,-121.8950",
+                "org": "AS8075 Microsoft Corporation",
+                "postal": "95025",
+                "timezone": "America/Los_Angeles",
+                "location": "San Jose, California, US",
+                "count": 286,
+                "percentage": 0.06447046306022804
+            },
+            "192.41.162.30": {
+                "ip": "192.41.162.30",
+                "hostname": "l.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS396566 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 285,
+                "percentage": 0.06424504186071675
+            },
+            "192.26.92.30": {
+                "ip": "192.26.92.30",
+                "hostname": "c.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS396549 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 282,
+                "percentage": 0.06356877826218289
+            },
+            "192.33.14.30": {
+                "ip": "192.33.14.30",
+                "hostname": "b.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS396746 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 282,
+                "percentage": 0.06356877826218289
+            },
+            "50.22.198.84": {
+                "ip": "50.22.198.84",
+                "hostname": "54.c6.1632.ip4.static.sl-reverse.com",
+                "city": "Dallas",
+                "region": "Texas",
+                "country": "US",
+                "loc": "32.7831,-96.8067",
+                "postal": "75201",
+                "timezone": "America/Chicago",
+                "location": "Dallas, Texas, US",
+                "count": 277,
+                "percentage": 0.062441672264626456
+            },
+            "192.31.80.30": {
+                "ip": "192.31.80.30",
+                "hostname": "d.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS396549 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 270,
+                "percentage": 0.06086372386804745
+            },
+            "74.125.127.27": {
+                "ip": "74.125.127.27",
+                "hostname": "ov-in-f27.1e100.net",
+                "city": "Tulsa",
+                "region": "Oklahoma",
+                "country": "US",
+                "loc": "36.1540,-95.9928",
+                "org": "AS15169 Google LLC",
+                "postal": "74102",
+                "timezone": "America/Chicago",
+                "location": "Tulsa, Oklahoma, US",
+                "count": 264,
+                "percentage": 0.059511196670979725
+            },
+            "64.120.142.5": {
+                "ip": "64.120.142.5",
+                "city": "Wilmington",
+                "region": "Delaware",
+                "country": "US",
+                "loc": "39.7460,-75.5466",
+                "org": "AS2906 Netflix Streaming Services Inc.",
+                "postal": "19801",
+                "timezone": "America/New_York",
+                "location": "Wilmington, Delaware, US",
+                "count": 258,
+                "percentage": 0.058158669473912
+            },
+            "74.125.43.27": {
+                "ip": "74.125.43.27",
+                "city": "Tulsa",
+                "region": "Oklahoma",
+                "country": "US",
+                "loc": "36.1540,-95.9928",
+                "org": "AS15169 Google LLC",
+                "postal": "74102",
+                "timezone": "America/Chicago",
+                "location": "Tulsa, Oklahoma, US",
+                "count": 252,
+                "percentage": 0.05680614227684429
+            },
+            "192.54.112.30": {
+                "ip": "192.54.112.30",
+                "hostname": "h.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS397197 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 237,
+                "percentage": 0.053424824284174985
+            },
+            "202.12.27.33": {
+                "ip": "202.12.27.33",
+                "hostname": "m.root-servers.net",
+                "city": "Kikuna",
+                "region": "Kanagawa",
+                "country": "JP",
+                "loc": "35.5512,139.6498",
+                "org": "AS7500 WIDE Project",
+                "postal": "223-0061",
+                "timezone": "Asia/Tokyo",
+                "anycast": true,
+                "location": "Kikuna, Kanagawa, JP",
+                "count": 231,
+                "percentage": 0.05207229708710726
+            },
+            "195.113.232.97": {
+                "ip": "195.113.232.97",
+                "city": "Prague",
+                "region": "Prague",
+                "country": "CZ",
+                "loc": "50.0880,14.4208",
+                "org": "AS2852 CESNET z.s.p.o.",
+                "postal": "110 00",
+                "timezone": "Europe/Prague",
+                "location": "Prague, Prague, CZ",
+                "count": 230,
+                "percentage": 0.05184687588759597
+            },
+            "192.35.51.30": {
+                "ip": "192.35.51.30",
+                "hostname": "f.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS397197 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 225,
+                "percentage": 0.05071976989003954
+            },
+            "193.0.14.129": {
+                "ip": "193.0.14.129",
+                "hostname": "k.root-servers.net",
+                "city": "Amsterdam",
+                "region": "North Holland",
+                "country": "NL",
+                "loc": "52.3740,4.8897",
+                "org": "AS25152 Reseaux IP Europeens Network Coordination Centre (RIPE NCC)",
+                "postal": "1012",
+                "timezone": "Europe/Amsterdam",
+                "anycast": true,
+                "location": "Amsterdam, North Holland, NL",
+                "count": 225,
+                "percentage": 0.05071976989003954
+            },
+            "195.113.232.83": {
+                "ip": "195.113.232.83",
+                "hostname": "a195-113-232-83.deploy.akamaitechnologies.com",
+                "city": "Prague",
+                "region": "Prague",
+                "country": "CZ",
+                "loc": "50.0880,14.4208",
+                "org": "AS2852 CESNET z.s.p.o.",
+                "postal": "110 00",
+                "timezone": "Europe/Prague",
+                "location": "Prague, Prague, CZ",
+                "count": 220,
+                "percentage": 0.0495926638924831
+            },
+            "192.48.79.30": {
+                "ip": "192.48.79.30",
+                "hostname": "j.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS396566 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 219,
+                "percentage": 0.04936724269297182
+            },
+            "66.197.230.37": {
+                "ip": "66.197.230.37",
+                "city": "Norfolk",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "36.8468,-76.2852",
+                "org": "AS2906 Netflix Streaming Services Inc.",
+                "postal": "23510",
+                "timezone": "America/New_York",
+                "location": "Norfolk, Virginia, US",
+                "count": 219,
+                "percentage": 0.04936724269297182
+            },
+            "128.63.2.53": {
+                "ip": "128.63.2.53",
+                "hostname": "do-not-reuse.arl.army.mil",
+                "city": "Aberdeen",
+                "region": "Maryland",
+                "country": "US",
+                "loc": "39.5096,-76.1641",
+                "org": "AS13 Headquarters, USAISC",
+                "postal": "21001",
+                "timezone": "America/New_York",
+                "location": "Aberdeen, Maryland, US",
+                "count": 216,
+                "percentage": 0.04869097909443796
+            },
+            "192.203.230.10": {
+                "ip": "192.203.230.10",
+                "hostname": "e.root-servers.net",
+                "city": "Huntsville",
+                "region": "Alabama",
+                "country": "US",
+                "loc": "34.6845,-86.6538",
+                "org": "AS21556 National Aeronautics and Space Administration",
+                "postal": "35808",
+                "timezone": "America/Chicago",
+                "anycast": true,
+                "location": "Huntsville, Alabama, US",
+                "count": 216,
+                "percentage": 0.04869097909443796
+            },
+            "192.43.172.30": {
+                "ip": "192.43.172.30",
+                "hostname": "i.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS397197 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 216,
+                "percentage": 0.04869097909443796
+            },
+            "192.55.83.30": {
+                "ip": "192.55.83.30",
+                "hostname": "m.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS396566 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 216,
+                "percentage": 0.04869097909443796
+            },
+            "207.115.36.22": {
+                "ip": "207.115.36.22",
+                "city": "Dallas",
+                "region": "Texas",
+                "country": "US",
+                "loc": "32.7781,-96.8054",
+                "postal": "75202",
+                "timezone": "America/Chicago",
+                "location": "Dallas, Texas, US",
+                "count": 216,
+                "percentage": 0.04869097909443796
+            },
+            "192.12.94.30": {
+                "ip": "192.12.94.30",
+                "hostname": "e.gtld-servers.net",
+                "city": "Reston",
+                "region": "Virginia",
+                "country": "US",
+                "loc": "38.9687,-77.3411",
+                "org": "AS396549 VeriSign Global Registry Services",
+                "postal": "20190",
+                "timezone": "America/New_York",
+                "anycast": true,
+                "location": "Reston, Virginia, US",
+                "count": 213,
+                "percentage": 0.048014715495904095
+            },
+            "212.176.27.2": {
+                "ip": "212.176.27.2",
+                "city": "Moscow",
+                "region": "Moscow",
+                "country": "RU",
+                "loc": "55.7522,37.6156",
+                "org": "AS2854 LLC Orange Business Services",
+                "postal": "101000",
+                "timezone": "Europe/Moscow",
+                "location": "Moscow, Moscow, RU",
+                "count": 213,
+                "percentage": 0.048014715495904095
+            },
+            "94.127.76.180": {
+                "ip": "94.127.76.180",
+                "city": "Cambridge",
+                "region": "Massachusetts",
+                "country": "US",
+                "loc": "42.3620,-71.0830",
+                "postal": "02142",
+                "timezone": "America/New_York",
+                "location": "Cambridge, Massachusetts, US",
+                "count": 212,
+                "percentage": 0.04778929429639281
+            },
+            "65.55.88.22": {
+                "ip": "65.55.88.22",
+                "hostname": "mail-pu1apc01lp0022.outbound.protection.outlook.com",
+                "city": "Hong Kong",
+                "region": "Hong Kong",
+                "country": "HK",
+                "loc": "22.2783,114.1747",
+                "org": "AS8075 Microsoft Corporation",
+                "postal": "999077",
+                "timezone": "Asia/Hong_Kong",
+                "location": "Hong Kong, Hong Kong, HK",
+                "count": 210,
+                "percentage": 0.04733845189737024
+            },
+            "77.222.40.2": {
+                "ip": "77.222.40.2",
+                "city": "Saint Petersburg",
+                "region": "St.-Petersburg",
+                "country": "RU",
+                "loc": "59.9386,30.3141",
+                "org": "AS44112 SpaceWeb Ltd",
+                "postal": "195213",
+                "timezone": "Europe/Moscow",
+                "location": "Saint Petersburg, St.-Petersburg, RU",
+                "count": 206,
+                "percentage": 0.046436767099325094
+            },
+            "192.228.79.201": {
+                "ip": "192.228.79.201",
+                "hostname": "b-2004.b.root-servers.org",
+                "city": "Santa Monica",
+                "region": "California",
+                "country": "US",
+                "loc": "33.9779,-118.4525",
+                "org": "AS394353 B.Root-Server-OPS",
+                "postal": "90292",
+                "timezone": "America/Los_Angeles",
+                "anycast": true,
+                "location": "Santa Monica, California, US",
+                "count": 205,
+                "percentage": 0.0462113458998138
+            },
+            "199.7.83.42": {
+                "ip": "199.7.83.42",
+                "hostname": "l.root-servers.net",
+                "city": "Johannesburg",
+                "region": "Gauteng",
+                "country": "ZA",
+                "loc": "-26.1163,28.0603",
+                "org": "AS20144 ICANN",
+                "postal": "2196",
+                "timezone": "Africa/Johannesburg",
+                "anycast": true,
+                "location": "Johannesburg, Gauteng, ZA",
+                "count": 204,
+                "percentage": 0.045985924700302515
             }
         }
     },

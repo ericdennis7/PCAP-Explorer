@@ -259,11 +259,11 @@ def unique_ips_and_flows(pcap_file):
         ipv6_percent = round((total_ipv6_count / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
 
         # Get the top 10 most frequent IPs
-        top_ipv4_ips = dict(ipv4_counts.most_common(50))
-        top_ipv6_ips = dict(ipv6_counts.most_common(50))
+        top_ipv4_ips = dict(ipv4_counts.most_common(100))
+        top_ipv6_ips = dict(ipv6_counts.most_common(100))
 
         # Combine both IPv4 and IPv6 top 10 IPs
-        combined_top_ips = dict(sorted({**top_ipv4_ips, **top_ipv6_ips}.items(), key=lambda x: x[1], reverse=True)[:50])
+        combined_top_ips = dict(sorted({**top_ipv4_ips, **top_ipv6_ips}.items(), key=lambda x: x[1], reverse=True)[:100])
 
         total_count = sum(combined_top_ips.values())
 

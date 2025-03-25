@@ -41,7 +41,129 @@
             </div>
         </div>
 
-        <div id="chartdiv" class="bg-[--clr-surface-a5] rounded-lg font-mono text-white" style="width: 100%; height: 700px;"></div>
+        <div class="p-4 bg-[--clr-surface-a5] rounded-lg font-mono text-white">
+            <div id="ipMap" style="width: 100%; height: 500px;"></div>
+        </div>
+        
+        <!-- <div id="chartdiv" style="width: 100%; height: 700px;"></div> -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Parse snortData
+                const snortData = {{ file_info['unique_ips']['top_ips'] | tojson | safe }};
+                
+                // Process map data
+                const mapData = Object.keys(snortData).map(ip => {
+                    const loc = snortData[ip].loc;
+                    if (!loc || loc.trim() === '') {
+                        console.error(`Missing location data for IP ${ip}`);
+                        return null;
+                    }
+                
+                    const coords = loc.split(',').map(parseFloat);
+                    if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
+                        console.error(`Invalid location format for IP ${ip}: ${loc}`);
+                        return null;
+                    }
+                
+                    const [latitude, longitude] = coords;
+                
+                    console.log(`IP: ${ip}, Latitude: ${latitude}, Longitude: ${longitude}`);
+                
+                    return {
+                        title: ip,
+                        latitude: latitude,
+                        longitude: longitude,
+                        count: snortData[ip].count,
+                        org: snortData[ip].org
+                    };
+                }).filter(data => data !== null);  // Remove null entries
+        
+                // If no valid data is available, don't proceed
+                if (mapData.length === 0) {
+                    console.error("No valid map data to display.");
+                    return;
+                }
+        
+                // Ensure necessary libraries are loaded
+                if (typeof am5 === 'undefined' || typeof am5map === 'undefined' || typeof am5themes_Animated === 'undefined') {
+                    console.error('AmCharts libraries are not loaded');
+                    return;
+                }
+                
+                // Calculate the center of the map based on average latitude and longitude
+                const avgLatitude = mapData.reduce((sum, data) => sum + data.latitude, 0) / mapData.length;
+                const avgLongitude = mapData.reduce((sum, data) => sum + data.longitude, 0) / mapData.length;
+        
+                // Create root element
+                const root = am5.Root.new("ipMap");
+                
+                // Set themes
+                root.setThemes([am5themes_Animated.new(root)]);
+                
+                // Create the map chart
+                const chart = root.container.children.push(
+                    am5map.MapChart.new(root, {
+                        projection: am5map.geoMercator()  // Switch to geoMercator projection
+                    })
+                );
+                
+                // Add a polygon series for the world map
+                const polygonSeries = chart.series.push(
+                    am5map.MapPolygonSeries.new(root, {
+                        geoJSON: am5geodata_worldLow
+                    })
+                );
+                
+                // Set dynamic center based on average location and set zoom level
+                chart.set("center", { latitude: avgLatitude, longitude: avgLongitude });
+                chart.set("zoomLevel", 2);  // Adjust zoom level based on data density
+                
+                // Add a point series for the IP locations
+                const pointSeries = chart.series.push(
+                    am5map.MapPointSeries.new(root, {})
+                );
+                
+                // Add markers for each IP location
+                pointSeries.bullets.push(() => {
+                    const circle = am5.Circle.new(root, {
+                        radius: 5,
+                        tooltipText: "{title}\nOrg: {org}\nCount: {count}",
+                        tooltipY: 0,
+                        fill: am5.color(0xff0000),
+                        stroke: am5.color(0xffffff),
+                        strokeWidth: 2
+                    });
+                
+                    return am5.Bullet.new(root, {
+                        sprite: circle
+                    });
+                });
+                
+                // Make sure the coordinates are in [longitude, latitude] format for the map
+                pointSeries.data.setAll(mapData.map(item => ({
+                    title: item.title,
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                    count: item.count,
+                    org: item.org,
+                    geometry: {
+                        type: "Point",
+                        coordinates: [item.longitude, item.latitude]  // Ensure it's [longitude, latitude]
+                    }
+                })));
+                
+                // Make the chart responsive
+                chart.appear(1000, 100);
+            });
+        </script>
+        
+        
+        
+
+        <!--
+        <div class="p-4 bg-[--clr-surface-a5] rounded-lg font-mono text-white">
+            <div id="chartdiv" style="width: 100%; height: 700px;"></div>
+        </div>
         <script>
             window.onload = function () {
                 am5.ready(function () {
@@ -51,13 +173,9 @@
             
                     let chart = root.container.children.push(
                         am5map.MapChart.new(root, {
-                            panX: "rotateX", // Enable globe rotation on X-axis
-                            panY: "rotateY", // Enable globe rotation on Y-axis
-                            projection: am5map.geoOrthographic(), // Keep the globe projection
-                            paddingBottom: 20,
-                            paddingTop: 20,
-                            paddingLeft: 20,
-                            paddingRight: 20
+                            panX: "rotateX",
+                            panY: "rotateY",
+                            projection: am5map.geoOrthographic()
                         })
                     );
             
@@ -281,6 +399,7 @@
                     });
 
                     zoomControl = chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
+                    zoomControl.homeButton.set("visible", true);
 
                     var cont = chart.children.push(
                         am5.Container.new(root, {
@@ -338,6 +457,7 @@
                 });
             };
         </script>
+        -->
 
         <!-- Top IP Address and MAC address tables -->
         <div class="flex items-center justify-between mb-6">
