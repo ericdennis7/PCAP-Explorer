@@ -16,6 +16,11 @@
     <link rel="stylesheet" href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css">
     <link rel="stylesheet" href="/static/css/analysis.css">
     <title>PCAP Analysis</title>
+
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 </head>
 
 <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0] [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
@@ -35,6 +40,308 @@
                 <a href="{{ url_for('addresses', filename=file_info.data_link) }}"><button role="link" class="relative text-white border-b-2 border-[var(--clr-primary-a50)]">Addresses</button></a>                    
             </div>
         </div>
+
+        <div id="chartdiv" class="bg-[--clr-surface-a5] rounded-lg font-mono text-white" style="width: 100%; height: 800px;"></div>
+        <script>
+            window.onload = function () {
+                am5.ready(function () {
+                    let root = am5.Root.new("chartdiv");
+            
+                    root.setThemes([am5themes_Animated.new(root)]);
+            
+                    let chart = root.container.children.push(
+                        am5map.MapChart.new(root, {
+                            panX: "translateX",
+                            panY: "translateY",
+                            projection: am5map.geoNaturalEarth1(),
+                            paddingBottom: 20,
+                            paddingTop: 20,
+                            paddingLeft: 20,
+                            paddingRight: 20
+                        })
+                    );
+            
+                    chart.set("zoomLevel", 1);
+            
+                    // Background world map
+                    let polygonSeries = chart.series.push(
+                        am5map.MapPolygonSeries.new(root, {
+                            geoJSON: am5geodata_worldLow
+                        })
+                    );
+            
+                    let polygonTemplate = polygonSeries.mapPolygons.template;
+                    polygonTemplate.setAll({
+                        tooltipText: "{name}",
+                        toggleKey: "active",
+                        interactive: true,
+                        fill: am5.color(0x282828),
+                    });
+            
+                    polygonTemplate.states.create("hover", {
+                        fill: am5.color(0x54478C)
+                    });
+            
+                    // Add graticules (grid lines on the map)
+                    let graticuleSeries = chart.series.push(am5map.GraticuleSeries.new(root, {}));
+                    graticuleSeries.mapLines.template.setAll({
+                        stroke: root.interfaceColors.get("alternativeBackground"),
+                        strokeOpacity: 0.08
+                    });
+    
+                    // Series for lines (Connections)
+                    let lineSeries = chart.series.push(am5map.MapLineSeries.new(root, {}));
+                    lineSeries.mapLines.template.setAll({
+                        stroke: am5.color(0xffffff),
+                        strokeOpacity: 1,
+                        strokeWidth: 2,
+                        strokeDasharray: [10, 5], // Define the dash pattern
+                        strokeDashoffset: 0 // Ensure the offset is initialized
+                    });
+
+                    // Animate the dashes using setInterval
+                    lineSeries.events.on("datavalidated", function () {
+                        lineSeries.mapLines.each(function (line) {
+                            let dashOffset = 0;
+                            setInterval(function () {
+                                dashOffset = (dashOffset + 1) % 15; // Increment offset and loop back to 0 after 15
+                                line.set("strokeDashoffset", dashOffset);
+                            }, 50); // Adjust the interval for animation speed
+                        });
+                    });
+
+                    // Series for animated points
+                    let animatedBulletSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
+                    animatedBulletSeries.bullets.push(function () {
+                        return am5.Bullet.new(root, {
+                            sprite: am5.Circle.new(root, {
+                                radius: 5,
+                                fill: am5.color(0xffba00),
+                                stroke: root.interfaceColors.get("background"),
+                                strokeWidth: 2
+                            })
+                        });
+                    });
+    
+                    // Series for city points (IP Locations)
+                    let pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
+    
+                    pointSeries.bullets.push(function () {
+                        return am5.Bullet.new(root, {
+                            sprite: am5.Circle.new(root, {
+                                radius: 5,
+                                fill: am5.color(0x000000),
+                                stroke: root.interfaceColors.get("background"),
+                                strokeWidth: 2,
+                                tooltipText: "{title}"
+                            })
+                        });
+                    });
+    
+                    // Arrow series for animations
+                    let arrowSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
+                    arrowSeries.bullets.push(function () {
+                        let arrow = am5.Graphics.new(root, {
+                            fill: am5.color(0xffffff),
+                            stroke: am5.color(0xffffff),
+                            draw: function (display) {
+                                display.moveTo(0, -3);
+                                display.lineTo(8, 0);
+                                display.lineTo(0, 3);
+                                display.lineTo(0, -3);
+                            }
+                        });
+
+                    });
+    
+                    // Get data from Flask
+                    let conversations;
+                    try {
+                        conversations = JSON.parse('{{ file_info["top_conversations"] | tojson | safe }}');
+                    } catch (error) {
+                        console.error("Error parsing JSON:", error);
+                        return;
+                    }
+    
+                    if (!Array.isArray(conversations) || conversations.length === 0) {
+                        console.error("No valid conversation data found.");
+                        return;
+                    }
+    
+                    // Function to animate points along the line
+                    function animatePoint(startDataItem, endDataItem, duration) {
+                        let startAnimation = startDataItem.animate({
+                            key: "positionOnLine",
+                            from: 0,
+                            to: 1,
+                            duration: duration
+                        });
+
+                        startAnimation.events.on("stopped", function () {
+                            animatePoint(endDataItem, startDataItem, duration);
+                        });
+                    }
+
+                    // Iterate over conversations and add animations
+                    conversations.forEach(conv => {
+                        if (conv["IP A Loc"] && conv["IP B Loc"]) {
+                            let locA = conv["IP A Loc"].split(",").map(Number);
+                            let locB = conv["IP B Loc"].split(",").map(Number);
+                    
+                            // Swap to [longitude, latitude] format
+                            let locACorrected = [locA[1], locA[0]];
+                            let locBCorrected = [locB[1], locB[0]];
+                    
+                            // Log locations to verify
+                            console.log(`IP A: ${conv["IP A"]}, Corrected Location: ${locACorrected}`);
+                            console.log(`IP B: ${conv["IP B"]}, Corrected Location: ${locBCorrected}`);
+                    
+                            // Add line
+                            let lineDataItem = lineSeries.pushDataItem({
+                                geometry: {
+                                    type: "LineString",
+                                    coordinates: [locACorrected, locBCorrected]
+                                }
+                            });
+                    
+                            // Add points
+                            pointSeries.pushDataItem({
+                                title: conv["IP A"],
+                                geometry: {
+                                    type: "Point",
+                                    coordinates: locACorrected
+                                }
+                            });
+                    
+                            pointSeries.pushDataItem({
+                                title: conv["IP B"],
+                                geometry: {
+                                    type: "Point",
+                                    coordinates: locBCorrected
+                                }
+                            });
+                    
+                            // Add moving arrows
+                            arrowSeries.pushDataItem({
+                                lineDataItem: lineDataItem,
+                                positionOnLine: 0.5,
+                                autoRotate: true
+                            });
+
+                            // Add animated points
+                            let startDataItem = animatedBulletSeries.pushDataItem({
+                                lineDataItem: lineDataItem,
+                                positionOnLine: 0
+                            });
+
+                            let endDataItem = animatedBulletSeries.pushDataItem({
+                                lineDataItem: lineDataItem,
+                                positionOnLine: 1
+                            });
+
+                            // Store the data items for periodic animation
+                            setInterval(function () {
+                                animatePoint(startDataItem, endDataItem, 2000); // Adjust duration as needed
+                            }, 3000); // Trigger animation every 2 seconds
+                        } else {
+                            console.warn("Skipping entry due to missing location data:", conv);
+                        }
+                    });  
+                    
+                    function animatePoint(startDataItem, endDataItem, duration) {
+                        let startAnimation = startDataItem.animate({
+                            key: "positionOnLine",
+                            from: 0,
+                            to: 1,
+                            duration: duration
+                        });
+
+                        startAnimation.events.on("stopped", function () {
+                            animatePoint(endDataItem, startDataItem, duration);
+                        });
+                    }
+
+                    // Force animations to start after the map is fully loaded
+                    chart.events.on("datavalidated", function () {
+                        animatedBulletSeries.dataItems.each(function (dataItem) {
+                            let startDataItem = dataItem.get("lineDataItem");
+                            if (startDataItem) {
+                                animatePoint(dataItem, startDataItem, 2000); // Ensure animation starts
+                            }
+                        });
+                    });
+
+                    let backgroundSeries = chart.series.unshift(
+                        am5map.MapPolygonSeries.new(root, {})
+                    );
+
+                    backgroundSeries.mapPolygons.template.setAll({
+                        fill: am5.color(0x3f3f3f),
+                        stroke: am5.color(0x3f3f3f),
+                    });
+
+                    backgroundSeries.data.push({
+                        geometry: am5map.getGeoRectangle(90, 180, -90, -180)
+                    });
+
+                    zoomControl = chart.set("zoomControl", am5map.ZoomControl.new(root, {}));
+
+                    var cont = chart.children.push(
+                        am5.Container.new(root, {
+                            layout: root.horizontalLayout,
+                            x: 20,
+                            y: 40
+                        })
+                    );
+
+                    cont.children.push(
+                        am5.Label.new(root, {
+                            centerY: am5.p50,
+                            text: "Map",
+                            fill: am5.color(0xffffff),
+                            fontFamily: "monospace",
+                            fontSize: 16
+                        })
+                    );
+
+                    var switchButton = cont.children.push(
+                        am5.Button.new(root, {
+                            themeTags: ["switch"],
+                            centerY: am5.p50,
+                            icon: am5.Circle.new(root, {
+                                themeTags: ["icon"]
+                            })
+                        })
+                    );
+
+                    switchButton.on("active", function () {
+                        if (!switchButton.get("active")) {
+                            chart.set("projection", am5map.geoNaturalEarth1());
+                            chart.set("panX", "translateX");
+                            chart.set("panY", "translateY");
+                        } else {
+                            chart.set("projection", am5map.geoOrthographic());
+                            chart.set("panX", "rotateX");
+                            chart.set("panY", "rotateY");
+                        }
+                    });
+
+                    cont.children.push(
+                        am5.Label.new(root, {
+                            centerY: am5.p50,
+                            text: "Globe",
+                            fill: am5.color(0xffffff),
+                            fontFamily: "monospace",
+                            fontSize: 16
+                        })
+                    );
+
+                    chart.appear(1000, 100);
+    
+                    root._logo.dispose(); // Removes amCharts watermark
+                });
+            };
+        </script>
 
         <!-- Top IP Address and MAC address tables -->
         <div class="flex items-center justify-between mb-6">

@@ -560,10 +560,15 @@ def snort_rules(pcap_file):
 def get_ip_location(ip_address):
     """Fetch the location of the IP address using the ipinfo.io API."""
     try:
+        # Request location data from ipinfo.io API
         response = requests.get(f"https://ipinfo.io/{ip_address}/json/?token={os.getenv('IP_INFO')}", timeout=3)
         data = response.json()
 
-        return data.get('loc', None)  # Check if 'loc' key exists
+        # Return relevant information (including country)
+        return {
+            "location": data.get("loc", None),
+            "country": data.get("country", None),
+        }
     except requests.exceptions.RequestException as e:
         print(f"Error fetching location for {ip_address}: {e}")
         return None
@@ -630,10 +635,14 @@ def get_top_conversations(pcap_file, limit=50):
     # Fetch IP locations only for those in the final list
     ip_locations = {ip: get_ip_location(ip) for ip in unique_ips}
     
-    # Append location data
+    # Append location and country data
     for conv in all_conversations:
-        conv["IP A Loc"] = ip_locations.get(conv["IP A"])
-        conv["IP B Loc"] = ip_locations.get(conv["IP B"])
+        loc_a = ip_locations.get(conv["IP A"], {})
+        loc_b = ip_locations.get(conv["IP B"], {})
+        conv["IP A Loc"] = loc_a.get("location", None)
+        conv["IP B Loc"] = loc_b.get("location", None)
+        conv["IP A Country"] = loc_a.get("country", None)
+        conv["IP B Country"] = loc_b.get("country", None)
 
     return json.dumps(all_conversations, indent=4)
 
