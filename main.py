@@ -1,11 +1,11 @@
 # Eric Dennis
 # Started: 1/30/2025
-# Description: This is a flask app that allows users to analyze their .pcap data with visuals and statistics.
+# Description: This is a flask app that allows users to analyze their .pcap(ng) data with visuals and statistics.
 
-# Last Updated: 2/25/2025
+# Last Updated: 3/26/2025
 # Update Notes: Changed loader, added L4 port distribution, and changed secret key to os.urandom(24).
 
-# Imports
+# Dependencies
 import os
 import json
 import time
@@ -17,7 +17,7 @@ from datetime import datetime
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask, request, render_template, jsonify, redirect, url_for, session, Response
 
-# Function imports
+# Data processing functions
 from functions.data_extraction import *
 
 # Creating Flask app & app settings
@@ -31,7 +31,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
-# Index Page
+# This route is used to render the index page
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -40,7 +40,7 @@ def index():
 progress = 0
 status = "Uploading file"
 
-# Upload route
+# This route is used to upload files asynchronously and process them
 @app.route("/upload", methods=["POST"])
 def upload_file():
     """Handles AJAX file uploads asynchronously."""
@@ -50,25 +50,30 @@ def upload_file():
     progress = 0
     status = "Uploading file"
     
+    # Check if a file was uploaded
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files["file"]
 
+    # Check if the file is empty or not a .pcap or .pcapng file
     if file.filename == "" or not file.filename.endswith((".pcap", ".pcapng")):
         return jsonify({"error": "Invalid file type. Only .pcap or .pcapng files are allowed."}), 400
 
     if request.content_length > 50 * 1024 * 1024:
         return jsonify({"error": "File too large. Max size is 50MB."}), 400
 
+    # Process the file
     try:
         status = "Validating file"
         progress = random.randint(1, 5)
         
+        # Calculate MD5 hash of the file
         status = "Calculating file stats"
         file_md5 = md5_hash(file)
         progress =random.randint(11, 15)
 
+        # Save the file to the upload folder
         current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         file_name, file_extension = os.path.splitext(file.filename)
         new_filename = f"{file_name}_{current_datetime}{file_extension}"
@@ -78,15 +83,18 @@ def upload_file():
         progress = random.randint(16, 20)
         status = "Extracting packet data"
         
+        # Extract packet data from the file into JSON format
         packet_data = raw_pcap_pd(filepath)
         progress = random.randint(21, 35)
         status = "Analyzing timestamps"
         
+        # Get packet times and time difference
         start_date, end_date, time_diff = packet_times_and_difference(packet_data)
         timing = group_packets_by_time_section(packet_data)
         progress = random.randint(36, 40)
         status = "Analyzing addresses and conversations"
         
+        # Get total packets, calculate IP and MAC addresses, and top IP conversations
         packet_total = total_packets(packet_data)
         ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, unique_ip_addresses = unique_ips_and_flows(filepath)
         top_conversations = get_top_conversations(filepath)
@@ -94,22 +102,25 @@ def upload_file():
         progress = random.randint(41, 65)
         status = "Analyzing flows"
         
+        # Get TCP and UDP flow statistics
         tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
         udp_min_flow, udp_max_flow, udp_avg_flow = udp_min_max_avg(filepath)
         progress = random.randint(66, 70)
         status = "Analyzing protocols and ports"
 
+        # Get L4 and L7 protocol distributions
         l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
         l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
         l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
         progress = random.randint(71, 90)
         status = "Performing Snort scan"
 
+        # Get broken Snort rules, top source and destination IPs, and top rule ID
         snort_rules_json, snort_top_src_ip, snort_top_dst_ip, snort_top_rule_id, snort_priority_1_count, snort_priority_2_count, snort_priority_3_count = snort_rules(filepath)
         progress = random.randint(91, 99)
         status = "Preparing data"
         
-        # Save analysis results
+        # Save analysis results into a JSON file
         file_info = {
             "name": file_name + file_extension,
             "data_link": new_filename.replace(".pcapng", "").replace(".pcap", "") + "_info.json",
@@ -150,7 +161,7 @@ def upload_file():
             "top_conversations": json.loads(top_conversations)
         }
 
-        # Save file data
+        # Save file data to JSON file
         file_data_folder = os.path.join(app.root_path, 'file_data')
         os.makedirs(file_data_folder, exist_ok=True)
 
@@ -165,17 +176,21 @@ def upload_file():
         status = "Uploading file"
         time.sleep(1)
 
+        # Save file info path to session
         session['file_info'] = info_filepath
 
+        # Redirect to the analysis page
         progress = 0
         return jsonify({"success": True, "redirect": url_for('analysis', filename=info_filename)})
 
+    # Handle exceptions
     except Exception as e:
         progress = 0
         os.remove(filepath)
 
         return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
+# This route is used to stream progress updates to the client
 @app.route("/progress")
 def progress_stream():
     """Provides real-time progress updates with status messages."""
@@ -188,7 +203,7 @@ def progress_stream():
 
     return Response(stream(), mimetype='text/event-stream')
 
-# Summary Page
+# This route is used to show a summary of the user's uploaded file
 @app.route("/analysis/<filename>/summary")
 def analysis(filename):
     file_info_path = os.path.join(app.root_path, 'file_data', filename)
@@ -201,10 +216,9 @@ def analysis(filename):
     with open(file_info_path, 'r', encoding='utf-8') as f:
         file_info = json.load(f)
 
-    # Pass only file_info to the template
     return render_template("analysis.html", file_info=file_info)
 
-# Security Page
+# This route is used to show the security analysis of the user's uploaded file using Snort
 @app.route("/analysis/<filename>/security")
 def security(filename):
     file_info_path = os.path.join(app.root_path, 'file_data', filename)
@@ -217,10 +231,9 @@ def security(filename):
     with open(file_info_path, 'r', encoding='utf-8') as f:
         file_info = json.load(f)
 
-    # Pass only file_info to the template
     return render_template("security.html", file_info=file_info)
 
-# Addresses Page
+# This route is used to show the address statistics of the user's uploaded file
 @app.route("/analysis/<filename>/addresses")
 def addresses(filename):
     file_info_path = os.path.join(app.root_path, 'file_data', filename)
@@ -233,7 +246,6 @@ def addresses(filename):
     with open(file_info_path, 'r', encoding='utf-8') as f:
         file_info = json.load(f)
 
-    # Pass only file_info to the template
     return render_template("addresses.html", file_info=file_info)
 
 
@@ -266,6 +278,6 @@ def addresses(filename):
 #         'data': paginated_data  # Data to display on the current page
 #     })
 
-# Run the app
+# Run the app using Flask development server
 if __name__ == "__main__":
     app.run(debug=True)
