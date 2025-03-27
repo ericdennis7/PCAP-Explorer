@@ -267,15 +267,7 @@ def unique_ips_and_flows(pcap_file):
 
         total_count = sum(combined_top_ips.values())
 
-        top_ips_data = {
-            ip: {
-                "count": count,
-                "percentage": (count / total_count) * 100 if total_count > 0 else 0
-            }
-            for ip, count in combined_top_ips.items()
-        }
-
-        # Fetch additional information about each IP (e.g., location)
+        # Add rank and fetch additional information about each IP
         def probe_ip(ip):
             try:
                 response = requests.get(f"https://ipinfo.io/{ip}/json/?token={os.getenv('IP_INFO')}", timeout=3)
@@ -285,8 +277,9 @@ def unique_ips_and_flows(pcap_file):
                 return {}
             return {}
 
-        # Add location data to top IPs
-        for ip in top_ips_data:
+        # Add location data and rank to top IPs
+        top_ips_data = {}
+        for rank, (ip, count) in enumerate(combined_top_ips.items(), start=1):
             ip_info = probe_ip(ip)
             if ip_info.get("bogon", False):
                 ip_info.update({
@@ -300,7 +293,11 @@ def unique_ips_and_flows(pcap_file):
             country = ip_info.get("country", "")
             ip_info["location"] = ", ".join(filter(None, [city, region, country]))  # Filters out empty values
 
-            ip_info.update(top_ips_data[ip])
+            ip_info.update({
+                "count": count,
+                "percentage": (count / total_count) * 100 if total_count > 0 else 0,
+                "rank": rank  # Add rank here
+            })
             top_ips_data[ip] = ip_info
             
         return sum(ipv4_counts.values()), sum(ipv6_counts.values()), ipv4_percent, ipv6_percent, combined_ip_count, {"top_ips": top_ips_data}
