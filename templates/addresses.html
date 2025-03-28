@@ -166,9 +166,35 @@
                         radius: 5,
                         tooltipText: "Rank: {rank}\nPackets: {count}\nPercentage: {percentage}%\n\nLocation: {location}\nTimezone: {timezone}\n\nIP Address: {title}\nHostname: {hostname}\nASN: {org}",
                         tooltipY: 0,
-                        fill: am5.color(0x16DB93),
+                        fill: am5.color(0x16DB93), // Default color
                         stroke: am5.color(0xffffff),
                         strokeWidth: 2
+                    });
+
+                    // Change the color based on the rank value
+                    circle.adapters.add("fill", (fill, target) => {
+                        const rank = target.dataItem.dataContext.rank; // Access the rank value
+
+                        // Assign specific colors for ranks 1, 2, and 3
+                        if (rank === 1) {
+                            return am5.color(0xD9BE4C); // Gold for rank 1
+                        } else if (rank === 2) {
+                            return am5.color(0xB3B4BA); // Silver for rank 2
+                        } else if (rank === 3) {
+                            return am5.color(0xC07A50); // Bronze for rank 3
+                        }
+
+                        // Apply gradient for ranks 4 to 100
+                        const minRank = 4; // Minimum rank for gradient
+                        const maxRank = 100; // Maximum rank for gradient
+                        const startColor = am5.color(0x54478C); // Start color for gradient
+                        const endColor = am5.color(0x83E377); // End color for gradient
+
+                        // Normalize the rank value between 0 and 1
+                        const normalizedRank = Math.min(Math.max((rank - minRank) / (maxRank - minRank), 0), 1);
+
+                        // Interpolate between the start and end colors
+                        return am5.Color.interpolate(normalizedRank, startColor, endColor);
                     });
 
                     return am5.Bullet.new(root, {
