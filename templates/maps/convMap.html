@@ -1,0 +1,204 @@
+<script> // convMap
+    window.onload = function () {
+        am5.ready(function () {
+            let root = am5.Root.new("convMap");
+
+            // Remove animation theme
+            root.setThemes([]);
+
+            let chart = root.container.children.push(
+                am5map.MapChart.new(root, {
+                    panX: "translateX",
+                    panY: "translateY",
+                    projection: am5map.geoNaturalEarth1()
+                })
+            );
+
+            chart.set("zoomLevel", 1);
+
+            // Background world map
+            let polygonSeries = chart.series.push(
+                am5map.MapPolygonSeries.new(root, {
+                    geoJSON: am5geodata_worldLow,
+                    exclude: ["AQ"],
+                    panX: "translateX",
+                    panY: "translateY"
+                })
+            );
+
+            let polygonTemplate = polygonSeries.mapPolygons.template;
+            polygonTemplate.setAll({
+                tooltipText: "{name}",
+                interactive: true,
+                fill: am5.color(0x282828),
+                stroke: am5.color(0x888888), 
+                strokeWidth: 1, 
+            });
+
+            polygonTemplate.states.create("hover", {
+                fill: am5.color(0x54478C)
+            });
+
+            // Grid lines on the map
+            let graticuleSeries = chart.series.push(am5map.GraticuleSeries.new(root, {}));
+            graticuleSeries.mapLines.template.setAll({
+                stroke: root.interfaceColors.get("alternativeBackground"),
+                strokeOpacity: 0.08
+            });
+
+            // Series for connection lines
+            let lineSeries = chart.series.push(am5map.MapLineSeries.new(root, {}));
+            lineSeries.mapLines.template.setAll({
+                stroke: am5.color(0x818589),
+                strokeOpacity: 1,
+                strokeWidth: 2,
+                strokeDasharray: [5, 3] // Keeps dashed effect but static
+            });
+
+            // Series for clustered city points (IP locations)
+            let pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {
+                clustered: true
+            }));
+
+            // Set clustered bullet
+            pointSeries.set("clusteredBullet", function (root) {
+                let container = am5.Container.new(root, {
+                    cursorOverStyle: "pointer"
+                });
+
+                container.children.push(am5.Circle.new(root, {
+                    radius: 12,
+                    fill: am5.color(0x2C699A)
+                }));
+
+                let label = container.children.push(am5.Label.new(root, {
+                    centerX: am5.p50,
+                    centerY: am5.p50,
+                    fill: am5.color(0xffffff),
+                    fontSize: "12",
+                    text: "{value}"
+                }));
+
+                container.events.on("click", function (e) {
+                    pointSeries.zoomToCluster(e.target.dataItem);
+                });
+
+                return am5.Bullet.new(root, { sprite: container });
+            });
+
+            // Get data from Flask
+            let conversations;
+            try {
+                conversations = JSON.parse('{{ file_info["top_conversations"] | tojson | safe }}');
+            } catch (error) {
+                console.error("Error parsing JSON:", error);
+                return;
+            }
+
+            if (!Array.isArray(conversations) || conversations.length === 0) {
+                console.error("No valid conversation data found.");
+                return;
+            }
+
+            // Iterate over conversations and add points and lines
+            conversations.forEach(conv => {
+                if (conv["IP A Loc"] && conv["IP B Loc"]) {
+                    let locA = conv["IP A Loc"].split(",").map(Number);
+                    let locB = conv["IP B Loc"].split(",").map(Number);
+
+                    // Swap to [longitude, latitude] format
+                    let locACorrected = [locA[1], locA[0]];
+                    let locBCorrected = [locB[1], locB[0]];
+
+                    // Add line
+                    lineSeries.pushDataItem({
+                        geometry: {
+                            type: "LineString",
+                            coordinates: [locACorrected, locBCorrected]
+                        }
+                    });
+
+                    // Add points
+                    pointSeries.pushDataItem({
+                        title: conv["IP A"],
+                        geometry: {
+                            type: "Point",
+                            coordinates: locACorrected
+                        }
+                    });
+
+                    pointSeries.pushDataItem({
+                        title: conv["IP B"],
+                        geometry: {
+                            type: "Point",
+                            coordinates: locBCorrected
+                        }
+                    });
+
+                } else {
+                    console.warn("Skipping entry due to missing location data:", conv);
+                }
+            });
+
+            // Background styling
+            let backgroundSeries = chart.series.unshift(
+                am5map.MapPolygonSeries.new(root, {})
+            );
+
+            backgroundSeries.mapPolygons.template.setAll({
+                fill: am5.color(0x3f3f3f),
+                stroke: am5.color(0x3f3f3f),
+            });
+
+            let zoomControl = chart.set("zoomControl", am5map.ZoomControl.new(root, {
+                layout: root.horizontalLayout 
+            }));
+
+            zoomControl.homeButton.set("visible", true);
+            zoomControl.setAll({
+                x: 50,
+                y: 125,
+            });
+
+            // Highlight specific countries involved in conversations
+            let uniqueCountries = new Set();
+            conversations.forEach(conv => {
+                if (conv["IP A Country"]) uniqueCountries.add(conv["IP A Country"]);
+                if (conv["IP B Country"]) uniqueCountries.add(conv["IP B Country"]);
+            });
+
+            polygonSeries.mapPolygons.template.adapters.add("fill", (fill, target) => {
+                let countryId = target.dataItem.get("id");
+                if (uniqueCountries.has(countryId)) {
+                    return am5.color(0x54478C);
+                }
+                return fill;
+            });
+
+            // Add a polygon series for US states
+            const usPolygonSeries = chart.series.insertIndex(
+                am5map.MapPolygonSeries.new(root, {
+                    geoJSON: am5geodata_usaLow,
+                }),
+                0
+            );
+
+            usPolygonSeries.mapPolygons.template.setAll({
+                tooltipText: "{name}",
+                fill: am5.color(0x282828),
+                stroke: am5.color(0x888888),
+                strokeWidth: 1,
+            });
+
+            if (uniqueCountries.has("US")) {
+                usPolygonSeries.mapPolygons.template.adapters.add("fill", (fill, target) => {
+                    return am5.color(0x54478C);
+                });
+            }
+
+            chart.appear(1000, 100);
+
+            root._logo.dispose(); // Removes amCharts watermark
+        });
+    };
+</script>

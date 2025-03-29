@@ -157,3 +157,27 @@
         }
     }
 </script>
+
+<!-- IP and IP Conversations Maps -->
+
+<script>
+    function toggleMaps() {
+        const ipMap = document.getElementById('ipMap');
+        const ipConv = document.getElementById('convMap');
+        const button = document.getElementById('toggleMaps');
+        const title = document.getElementById('mapTitle');
+    
+        if (ipMap.classList.contains('hidden')) {
+            ipMap.classList.remove('hidden');
+            ipConv.classList.add('hidden');
+            title.innerHTML = 'Top 100 IP Addresses Map';
+            button.innerHTML = 'Show Top Conversations Map';
+        } else {
+            ipMap.classList.add('hidden');
+            ipConv.classList.remove('hidden');
+            title.innerHTML = 'Top 100 IP Conversations Map'; 
+            button.innerHTML = 'Show IP Map';
+        }
+    }
+    
+</script>
