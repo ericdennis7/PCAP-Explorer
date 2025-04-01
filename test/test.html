@@ -1,31 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
-    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
-    <title>Flask + Grid.js Example</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Canvas Flowmap Example</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; right: 0; left: 0; }
+    </style>
 </head>
 <body>
-    <div id="table-container"></div>
+
+    <div id="map"></div>
+
+    <!-- Load Required Libraries -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet@3.0.0/dist/esri-leaflet.js"></script>
+    <script src="https://unpkg.com/@tweenjs/tween.js@18.6.4/dist/tween.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/GeorgFrei/Leaflet.Canvas-Flowmap-Layer/dist/leaflet.canvas-flowmap-layer.min.js"></script>
+    <script src="https://unpkg.com/papaparse@5.3.0/papaparse.min.js"></script>
 
     <script>
-        // Fetch data from Flask route
-        fetch('/data')
-            .then(response => response.json())
-            .then(data => {
-                // Create Grid.js table
-                new gridjs.Grid({
-                    columns: ["ID", "Name", "Age"],
-                    data: data.map(row => [row.id, row.name, row.age]),
-                    search: true,
-                    sort: true,
-                    pagination: {
-                        limit: 5
+        var map = L.map('map').setView([0, 0], 2);
+        L.esri.basemapLayer('DarkGray').addTo(map);
+
+        // Load the CSV data
+        Papa.parse('https://yourserver.com/path-to/Flowmap_Cities_one_to_many.csv', {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                var geoJsonFeatureCollection = {
+                    type: 'FeatureCollection',
+                    features: results.data.map(function(datum) {
+                        return {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [datum.s_lon, datum.s_lat]
+                            },
+                            properties: datum
+                        };
+                    })
+                };
+
+                var flowmapLayer = L.canvasFlowmapLayer(geoJsonFeatureCollection, {
+                    originAndDestinationFieldIds: {
+                        originUniqueIdField: 's_city_id',
+                        originGeometry: { x: 's_lon', y: 's_lat' },
+                        destinationUniqueIdField: 'e_city_id',
+                        destinationGeometry: { x: 'e_lon', y: 'e_lat' }
+                    },
+                    pathDisplayMode: 'selection',
+                    animationStarted: true,
+                    animationEasingFamily: 'Cubic',
+                    animationEasingType: 'In',
+                    animationDuration: 2000
+                }).addTo(map);
+
+                // Handle clicks to show paths
+                flowmapLayer.on('click', function(e) {
+                    if (e.sharedOriginFeatures.length) {
+                        flowmapLayer.selectFeaturesForPathDisplay(e.sharedOriginFeatures, 'SELECTION_NEW');
                     }
-                }).render(document.getElementById("table-container"));
-            });
+                    if (e.sharedDestinationFeatures.length) {
+                        flowmapLayer.selectFeaturesForPathDisplay(e.sharedDestinationFeatures, 'SELECTION_NEW');
+                    }
+                });
+
+                // Auto-select an origin for visualization
+                flowmapLayer.selectFeaturesForPathDisplayById('s_city_id', 562, true, 'SELECTION_NEW');
+            }
+        });
+
     </script>
+
 </body>
 </html>

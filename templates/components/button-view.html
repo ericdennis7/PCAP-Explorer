@@ -177,7 +177,11 @@
             ipConv.classList.remove('hidden');
             title.innerHTML = 'Top 100 IP Conversations Map'; 
             button.innerHTML = 'Show IP Map';
+    
+            // Wait a bit before forcing Leaflet to recalculate size
+            setTimeout(() => {
+                convMap.invalidateSize();
+            }, 1);
         }
     }
-    
 </script>

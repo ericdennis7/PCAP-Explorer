@@ -34,8 +34,40 @@ document.addEventListener("DOMContentLoaded", function () {
         minZoom: 2
     });
 
+    // Setting the boundries to focus on 
     map.setMaxBounds(L.latLngBounds(L.latLng(-60, -180), L.latLng(90, 180)));
-
+    
+    map.locate({
+        enableHighAccuracy: true,
+    })
+    // if location found show marker and circle
+    .on("locationfound", (e) => {
+        console.log(e);
+    
+        // Custom marker icon
+        const customIcon = L.icon({
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png", // Change this URL for different colors
+            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+    
+        // marker with custom icon
+        const marker = L.marker([e.latitude, e.longitude], { icon: customIcon }).bindPopup(
+            "You're Here :)"
+        );
+    
+        map.addLayer(marker);
+    })
+    
+    // if error show alert
+    .on("locationerror", (e) => {
+        console.log(e);
+        alert("Location access denied.");
+    });
+    
     // Store the initial view
     const initialView = {
         center: map.getCenter(),
@@ -60,13 +92,13 @@ document.addEventListener("DOMContentLoaded", function () {
     mapData.forEach(item => {
         const marker = L.marker([item.latitude, item.longitude])
             .bindPopup(`
-                <strong>IP:</strong> ${item.title}<br>
-                <strong>Packets:</strong> ${item.count}<br>
                 <strong>Rank:</strong> ${item.rank}<br>
+                <strong>Packets:</strong> ${item.count}<br>
+                <strong>Percentage:</strong> ${item.percentage}%<br><br>
+                <strong>IP:</strong> ${item.title}<br>
                 <strong>Location:</strong> ${item.location}<br>
                 <strong>Organization:</strong> ${item.org}<br>
                 <strong>Timezone:</strong> ${item.timezone}<br>
-                <strong>Percentage:</strong> ${item.percentage}%
             `);
         markers.addLayer(marker);
     });
