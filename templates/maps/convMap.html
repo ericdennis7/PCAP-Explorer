@@ -5,10 +5,10 @@
         zoom: 2,
         minZoom: 2
     });
-    
-    // Set boundaries to focus on
-    convMap.setMaxBounds(L.latLngBounds(L.latLng(-60, -180), L.latLng(90, 180)));
-    
+
+    // Set soft boundaries to allow smooth panning
+    convMap.setMaxBounds(convMap.getBounds().pad(0.1));
+
     // Dark-themed tile layer (CartoDB Dark Matter)
     L.tileLayer('https://tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token=AmpvthQfCvrciGf9uwOxVxLJtBM5tAPzFQku70CODOsifZEhI5yTk2hpQ9zFwRb3', {
         attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
@@ -16,68 +16,74 @@
         maxZoom: 20,
         noWrap: true
     }).addTo(convMap);
-    
-    // Initialize marker cluster group with a smaller cluster radius
+
+    // Initialize marker cluster group with optimized settings
     const markers = L.markerClusterGroup({
-        maxClusterRadius: 20,
-        disableClusteringAtZoom: 10
+        maxClusterRadius: 40,  // Increase radius to reduce jittery re-clustering
+        disableClusteringAtZoom: 8 // Lower value to allow clusters at higher zooms
     });
 
-    convMap.locate({
-        enableHighAccuracy: true,
-    })
-    // if location found show marker and circle
+    convMap.locate({ enableHighAccuracy: true })
     .on("locationfound", (e) => {
-        console.log(e);
-    
-        // Custom marker icon
         const customIcon = L.icon({
-            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png", // Change this URL for different colors
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
             shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
             iconSize: [25, 41],
             iconAnchor: [12, 41],
             popupAnchor: [1, -34],
             shadowSize: [41, 41]
         });
-    
-        // marker with custom icon
-        const marker = L.marker([e.latitude, e.longitude], { icon: customIcon }).bindPopup(
-            "You're Here :)"
-        );
-    
-        map.addLayer(marker);
+        const marker = L.marker([e.latitude, e.longitude], { icon: customIcon }).bindPopup("You're Here :)");
+        convMap.addLayer(marker);
     })
-    
-    // if error show alert
     .on("locationerror", (e) => {
         console.log(e);
         alert("Location access denied.");
     });
-    
+
     // Sample data (Replace with Flask-generated JSON)
     let conversations = JSON.parse('{{ file_info["top_conversations"] | tojson | safe }}');
-    
     let uniqueLocations = new Set();
-    
-    conversations.forEach(conv => {
+    const totalConversations = conversations.length;
+
+    conversations.forEach((conv, index) => {
         if (conv["IP A Loc"] && conv["IP B Loc"]) {
             let locA = conv["IP A Loc"].split(",").map(Number);
             let locB = conv["IP B Loc"].split(",").map(Number);
-    
-            let locACorrected = [locA[0], locA[1]]; // Leaflet uses [lat, lng]
+            let locACorrected = [locA[0], locA[1]];
             let locBCorrected = [locB[0], locB[1]];
-    
-            // Add a polyline between two IP locations
-            L.polyline([locACorrected, locBCorrected], {
-                color: "#818589",
-                weight: 2,
-                dashArray: "5, 3"
-            }).addTo(convMap);
-    
-            // Avoid duplicate markers
+
+            // Optimized delay scaling
+            const minDelay = 50;
+            const maxDelay = 500;
+            const scaledDelay = totalConversations <= 1 ? minDelay : 
+                minDelay + (index / (totalConversations - 1)) * (maxDelay - minDelay);
+            const finalDelay = Math.round(scaledDelay);
+
+            // Define the ant path options
+            const antPathOptions = {
+                "delay": finalDelay,
+                "dashArray": [10, 20],
+                "weight": 2,
+                "color": "#818589",
+                "pulseColor": "#ffffff",
+                "paused": false,
+                "reverse": false,
+                "hardwareAccelerated": true
+            };
+
+            const antPath = L.polyline.antPath([locACorrected, locBCorrected], antPathOptions).addTo(convMap);
+            antPath.bindPopup(`
+                <strong>Rank:</strong> ${index + 1} of ${totalConversations}<br>
+                <strong>Animation Delay:</strong> ${finalDelay}ms<br>
+                <strong>Connection:</strong> ${conv["IP A"]} → ${conv["IP B"]}<br>
+                <strong>Packets:</strong> ${conv["Packets"]}<br>
+                <strong>Protocol:</strong> ${conv["Protocol"]}
+            `);
+
             let keyA = locACorrected.join(",");
             let keyB = locBCorrected.join(",");
-    
+            
             if (!uniqueLocations.has(keyA)) {
                 uniqueLocations.add(keyA);
                 let markerA = L.circleMarker(locACorrected, {
@@ -87,14 +93,14 @@
                     weight: 2,
                     fillOpacity: 1
                 }).bindPopup(`
-                    <strong>IP:</strong> ${conv["IP A"]} <br>
-                    <strong>Country:</strong> ${conv["IP A Country"]} <br>
-                    <strong>Packets:</strong> ${conv["Packets"]} <br>
+                    <strong>IP:</strong> ${conv["IP A"]}<br>
+                    <strong>Country:</strong> ${conv["IP A Country"]}<br>
+                    <strong>Packets:</strong> ${conv["Packets"]}<br>
                     <strong>Protocol:</strong> ${conv["Protocol"]}
                 `);
-                markers.addLayer(markerA); // Add to cluster group
+                markers.addLayer(markerA);
             }
-    
+
             if (!uniqueLocations.has(keyB)) {
                 uniqueLocations.add(keyB);
                 let markerB = L.circleMarker(locBCorrected, {
@@ -104,19 +110,16 @@
                     weight: 2,
                     fillOpacity: 1
                 }).bindPopup(`
-                    <strong>IP:</strong> ${conv["IP B"]} <br>
-                    <strong>Country:</strong> ${conv["IP B Country"]} <br>
-                    <strong>Packets:</strong> ${conv["Packets"]} <br>
+                    <strong>IP:</strong> ${conv["IP B"]}<br>
+                    <strong>Country:</strong> ${conv["IP B Country"]}<br>
+                    <strong>Packets:</strong> ${conv["Packets"]}<br>
                     <strong>Protocol:</strong> ${conv["Protocol"]}
                 `);
-                markers.addLayer(markerB); // Add to cluster group
+                markers.addLayer(markerB);
             }
-        } else {
-            console.warn("Skipping entry due to missing location data:", conv);
         }
     });
-    
-    // Add clustered markers to the convMap
+
     convMap.addLayer(markers);
 
     // Store the initial view
@@ -125,10 +128,21 @@
         zoom: convMap.getZoom()
     };
 
+    // Optimize zoom handling to reduce animation stutter
+    convMap.on("zoomstart", () => {
+        document.querySelectorAll(".leaflet-ant-path").forEach(path => {
+            path.style.transition = "none";
+        });
+    });
+
+    convMap.on("zoomend", () => {
+        document.querySelectorAll(".leaflet-ant-path").forEach(path => {
+            path.style.transition = "";
+        });
+    });
+
     // Reset map button functionality
     document.getElementById('resetConvMap').addEventListener('click', function() {
         convMap.setView(initialConvView.center, initialConvView.zoom);
     });
-    
-    </script>
-    
+</script>
