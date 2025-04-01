@@ -1,8 +1,3 @@
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css' rel='stylesheet' />
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -32,21 +27,32 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }).filter(data => data !== null);
     
-    console.log(mapData)
+    // Initialize Leaflet map with minimum zoom
+    const map = L.map('ipMap', {
+        center: [45, 0],
+        zoom: 2,
+        minZoom: 2
+    });
 
-    // Initialize Leaflet map
-    const map = L.map('ipMap').setView([20, 0], 2);
+    map.setMaxBounds(L.latLngBounds(L.latLng(-60, -180), L.latLng(90, 180)));
 
+    // Store the initial view
+    const initialView = {
+        center: map.getCenter(),
+        zoom: map.getZoom()
+    };
+    
     // Dark-themed tile layer (CartoDB Dark Matter)
     L.tileLayer('https://tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token=AmpvthQfCvrciGf9uwOxVxLJtBM5tAPzFQku70CODOsifZEhI5yTk2hpQ9zFwRb3', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
         subdomains: 'abcd',
-        maxZoom: 20
+        maxZoom: 20,
+        noWrap: true
     }).addTo(map);
 
     // Initialize marker cluster group with smaller cluster radius
     const markers = L.markerClusterGroup({
-        maxClusterRadius: 40,
+        maxClusterRadius: 20,
         disableClusteringAtZoom: 10
     });
 
@@ -68,5 +74,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add marker cluster group to the map
     map.addLayer(markers);
 
+    // Reset map button functionality
+    document.getElementById('resetMap').addEventListener('click', function() {
+        map.setView(initialView.center, initialView.zoom);
+    });
 });
 </script>

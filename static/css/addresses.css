@@ -1,0 +1,76 @@
+/* Scrollbar for IP/Mac Table */
+
+.gridjs-wrapper::-webkit-scrollbar {
+    width: 3px;
+  }
+  
+  .gridjs-wrapper::-webkit-scrollbar-track {
+    background-color: var(--clr-surface-a10);
+    border-radius: 9999px;
+  }
+  
+  .gridjs-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--clr-surface-a20);
+    border-radius: 9999px;
+  }  
+
+/* IP Map */
+
+#ipMap {
+    border-radius: 8px !important;
+}
+
+#resetMap {
+    color: white;
+    margin-left: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 2px solid var(--clr-surface-a20);
+    background: var(--clr-surface-a10);
+}
+
+.leaflet-container {
+    background-color: #191A1A !important;
+}
+
+.leaflet-bottom.leaflet-right {
+    display: none;
+}
+
+.leaflet-control-zoom-in, .leaflet-control-zoom-out {
+    color: white !important;
+    background: var(--clr-surface-a10) !important;
+}
+
+.leaflet-bar a:first-child {
+    border-bottom: 1px solid var(--clr-surface-a20) !important;
+}
+
+.leaflet-control-zoom.leaflet-bar.leaflet-control {
+    border: 2px solid var(--clr-surface-a20) !important;
+}
+
+/* Marker Cluster Colors */
+
+.marker-cluster-small {
+	background-color: rgba(22, 219, 147, 0.6) !important;
+}
+
+.marker-cluster-small div {
+	background-color: rgba(22, 219, 147, 0.3) !important;
+}
+
+.marker-cluster-medium {
+	background-color: rgba(4, 139, 168, 0.6) !important;
+}
+
+.marker-cluster-medium div {
+	background-color: rgba(4, 139, 168, 0.3) !important;
+}
+
+.marker-cluster-large {
+	background-color: rgba(84, 71, 140, 0.6) !important;
+}
+.marker-cluster-large div {
+	background-color: rgba(84, 71, 140, 0.3) !important;
+}
