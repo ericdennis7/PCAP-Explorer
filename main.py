@@ -200,6 +200,11 @@ def error():
 def about():
     return render_template("about.html")
 
+# This is the help page route
+@app.route("/help")
+def help():
+    return render_template("help.html")
+
 # This route is used to stream progress updates to the client
 @app.route("/progress")
 def progress_stream():

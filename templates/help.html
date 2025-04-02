@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script> <!-- Tailwind CSS -->
+        <link rel="stylesheet" href="/static/css/colors.css"> <!-- Custom colors CSS -->
+    </head>
+    <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]  [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
+        <!-- Include the navbar.html file -->
+        {% include 'components/navbar.html' %}
+
+        <div class="max-w-[800px] w-full mx-auto mt-10 p-6 animate__animated animate__fadeInUpBig">
+            <h1 class="font-bold text-3xl mt-6">Need Help? 🤔</h1>
+            <p class="mt-6">
+                Having trouble understanding the data? Below is a list detailing each data point.
+            </p>
+            <br>
+            <h1 class="font-bold text-2xl">General Help</h1>
+            <p class="mt-2 mb-2">
+                Here is a detailed list of general website information.
+            </p>
+
+            <h1 class="font-bold text-2xl mt-4">Summary Page</h1>
+            <p class="mt-2">
+                <span class="mb-2 font-bold text-xl underline">File Information Section:</span>
+                <ul class="list-disc pl-6">
+                    <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">File Name:</strong> This shows the name of the file uploaded for analysis.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">File Size:</strong> This indicates the size of the file in megabytes (MB).</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Total Packets:</strong> This represents the total number of network packets contained in the file.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Upload:</strong> This shows the date and time when the file was uploaded to the website for processing.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Start:</strong> This is the timestamp when the packet capture (PCAP) recording began.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Finish:</strong> This shows the timestamp when the packet capture (PCAP) recording ended.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Time Span:</strong> This calculates and displays the time difference between the start and finish of the network capture.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">MD5:</strong> This is the MD5 hash of the file, a unique identifier created based on the file content for verifying its integrity.</li>
+                </ul>
+                <br>
+                <span class="mb-2 font-bold text-xl underline">Packet Structure Stats Charts/Tables:</span>
+                <ul class="list-disc pl-6">
+                    <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top Internet Protocol (IP) Versions:</strong> This chart shows which IP versions are being used the most in the captured data, like how much traffic is using IPv4 versus IPv6.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Top Transport Layer Protocols (L4):</strong> This chart shows the most common transport protocols (like TCP or UDP) used to send data between devices. It gives a look into how data is getting around.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Top Application Layer Protocols (L7):</strong> This chart shows which application protocols are being used the most, such as HTTP or FTP. It helps you see what types of services are being accessed.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Top Transport Layer Ports (L4):</strong> This chart shows the most used transport ports in the data, helping you figure out which services are using certain ports, like FTP on port 21.</li>
+                </ul>
+                <br>
+                <span class="mb-2 font-bold text-xl underline">Timing Stats</span>
+                <ul class="list-disc pl-6">
+                    <li class="pb-1 pt-1 pt-4"><strong class="text-[--clr-primary-a50]">Network Traffic Over Time: Bytes & Packets:</strong> This chart shows how the amount of data and packets change over time, giving you an idea of how busy the network was during the capture. It divides the capture into 15 even chunks.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">TCP Min Conversation Duration:</strong> This is the shortest time a TCP conversation lasted. It helps you see the fastest data transfers between devices using TCP.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">TCP Avg Conversation Duration:</strong> This shows the average time of all TCP conversations. It gives you a general idea of how long data transfers took on average using TCP.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">TCP Max Conversation Duration:</strong> This is the longest time a TCP conversation lasted. It highlights the slowest or most delayed data transfers using TCP.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">UDP Min Conversation Duration:</strong> This shows the shortest duration for a UDP conversation. However, if there's no data for this, it’s marked as N/A (Not Available) because there were no UDP conversations in the capture.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">UDP Avg Conversation Duration:</strong> This shows the average duration for all UDP conversations. Just like with TCP, if no UDP data is available, it’ll be listed as N/A.</li>
+                    <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">UDP Max Conversation Duration:</strong> This is the longest time a UDP conversation lasted. If there are no UDP conversations in the capture, it’ll be marked as N/A.</li>
+                </ul>
+            </p>
+            <h1 class="font-bold text-2xl mt-4">Security Page</h1>
+            <p class="mt-2">
+            <span class="mb-2 font-bold text-xl underline">Timing Stats</span>
+            <ul class="list-disc pl-6">
+                <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Most Suspicious Source IP:</strong> This is the source IP address that triggered the most suspicious activity. In this case, it is <code>10.10.30.26:43958</>, indicating that this IP is sending a potentially concerning amount of traffic.</li>
+                <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Most Suspicious Destination IP:</strong> This is the destination IP address that received the most suspicious activity. Here, <code>129.21.171.72:21</> shows the IP and port being targeted, likely associated with an FTP service on port 21.</li>
+                <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Top Snort Rule Violated:</strong> This refers to the specific Snort intrusion detection rule that was most frequently violated during the capture. In this case, <code>1:553:7</> represents the rule ID, indicating a particular security violation.</li>
+                <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Snort Priority 1 Violation Counts:</strong> This shows the number of violations detected with Snort's highest priority (priority 1), which typically indicates severe security threats. In this case, there were <strong>0</strong> priority 1 violations.</li>
+                <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Snort Priority 2 Violation Counts:</strong> This shows the number of violations with medium severity (priority 2). These violations are notable but may not pose an immediate threat. Here, there were <strong>0</strong> priority 2 violations.</li>
+                <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Snort Priority 3 Violation Counts:</strong> This counts the number of violations with the lowest priority (priority 3). These are typically less critical issues but still noteworthy. In this case, there was <strong>1</strong> priority 3 violation detected.</li>
+            </ul>
+            </p>
+            
+            <h1 class="font-bold text-2xl mt-4">Addresses Page</h1>
+            <p class="mt-2">
+                Here is a detailed list of the data displayed on the summary page.
+            </p>
+        </div>
+            
+        {% include 'components/footer.html' %}
+</html>
