@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script> <!-- Tailwind CSS -->
+        <link rel="stylesheet" href="/static/css/colors.css"> <!-- Custom colors CSS -->
+    </head>
+    <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]  [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
+        <!-- Include the navbar.html file -->
+        {% include 'components/navbar.html' %}
+
+        <div class="max-w-[800px] w-full mx-auto mt-10 p-6 animate__animated animate__fadeInUpBig">
+            <h1 class="font-bold text-3xl mt-6">Hi, I'm Eric! 👋🏻</h1>
+            <p class="mt-6">
+                I'm a senior at Georgia Southern University, pursuing a Bachelor's degree in Information Technology with a focus on Cybersecurity at 
+                the Allen E. Paulson College of Engineering & Computing.
+                Additionally, 
+                I'm a <a href="https://drive.google.com/file/d/1fspcDgKkU316F5LQU78Tjy_lOb4YizuD/view" target="_blank" class="text-[--clr-primary-a50] underline">GSU Elite Scholar</a>, 
+                a <span class="text-[#16DB93]">4.0 GPA student</span>, <span class="text-[#16DB93]">8x President's List recipient</span>, a <span class="text-[#16DB93]">Summa Cum Laude honoree</span>, 
+                and <a href="https://www.credly.com/badges/4a37419b-c4c2-4963-8471-365852b20a17/public_url" target="_blank" class="text-[--clr-primary-a50] underline">CompTIA A+ certified</a>!
+                </br>  
+                </br>  
+                I started this project as part of my capstone course, where we were allowed to choose a project that fits our interests.  
+                Since I’ve always been passionate about networking, I wanted to create a tool that makes analyzing  
+                network traffic easier and more accessible for students, IT professionals, and security researchers.  
+                </br>  
+                </br>  
+                This PCAP Analyzer helps users inspect network packets, find unusual activity, and better understand  
+                how data moves through a network. I built it using modern web technologies and Python-based tools to  
+                make network analysis simple and user-friendly.  
+                </br>  
+                </br>  
+                Working on this project has helped me apply what I’ve learned about networking, security, and web  
+                development. It’s been a great experience, and I hope this tool is helpful for anyone who wants  
+                to learn more about network traffic analysis.  
+                </br>  
+                </br>  
+                Thanks for checking out my project! If you have any feedback or ideas, feel free to reach out. My contact information can be found in the footer below.
+            </p>
+            <img src="{{ url_for('static', filename='images/Eric&Simon.png') }}" alt="A picture of me and my dog Simon." class="rounded-lg max-w-lg mt-10 m-auto">
+            <p class="text-[--clr-surface-a30] mt-1 text-center">A picture of me and my dog Simon.</p>
+        </div>
+            
+        {% include 'components/footer.html' %}
+    </body>
+</html>

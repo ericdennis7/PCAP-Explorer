@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -98,7 +97,7 @@
             <div class="p-6 bg-[--clr-surface-a10] rounded-2xl flex flex-col items-center text-center shadow-md hover:scale-105 transition-transform duration-300">
                 <div class="w-12 h-12 mb-4 flex items-center justify-center text-3xl font-bold">2.</div>
                 <h3 class="text-xl font-semibold text-[--clr-primary-a50]">Upload Your .pcapng or .pcap</h3>
-                <p class="text-gray-100 mt-2">Drag and drop your file or browse to select it. The max file size is 50MB.</p>
+                <p class="text-gray-100 mt-2">Click the upload section to select your PCAP(ng) file. The max file size is 50MB.</p>
             </div>
 
             <div class="p-6 bg-[--clr-surface-a10] rounded-2xl flex flex-col items-center text-center shadow-md hover:scale-105 transition-transform duration-300">
@@ -156,43 +155,52 @@
 
         <!-- JavaScript for file upload -->
         <script>
-            let progressContainer = document.getElementById("progress-container");
-            let progressBar = document.getElementById("progress-bar");
-            let progressText = document.getElementById("progress-text");
-            let progressStatus = document.getElementById("progress-status"); // Added status display
-        
-            // Ensure progress container is hidden by default
-            progressContainer.style.display = "none";
-        
             document.getElementById("dropzone-file").addEventListener("change", function () {
                 let file = this.files[0];
                 let errorMessage = document.getElementById("error-message");
                 let uploadBox = document.getElementById("upload-box");
-        
-                // Reset progress and show progress container only when a file is selected
-                progressBar.value = 0;
-                progressText.innerText = "0%";
-                progressStatus.innerText = "Uploading file"; // Set initial status
-                progressContainer.style.display = "block"; // Show progress container only during upload
-        
+                let progressContainer = document.getElementById("progress-container");
+                let progressBar = document.getElementById("progress-bar");
+                let progressText = document.getElementById("progress-text");
+                let progressStatus = document.getElementById("progress-status");
+            
                 if (!file) {
-                    progressContainer.style.display = "none"; // Hide progress container if no file is selected
                     return;
                 }
-        
+            
+                // Reset error message and show the upload box
+                errorMessage.classList.add("hidden");
+                uploadBox.style.display = "flex";
+                
+                // Reset progress UI
+                progressBar.value = 0;
+                progressText.innerText = "0%";
+                progressStatus.innerText = "Uploading file";
+                progressContainer.style.display = "none"; // Hide until upload starts
+            
+                // Validate file type
                 if (!file.name.endsWith(".pcap") && !file.name.endsWith(".pcapng")) {
                     errorMessage.textContent = "Invalid file type. Please upload a .pcap or .pcapng file.";
                     errorMessage.classList.remove("hidden");
-                    progressContainer.style.display = "none"; // Hide progress container if file type is invalid
+                    this.value = ""; // Reset file input
                     return;
                 }
-        
-                errorMessage.classList.add("hidden");
+            
+                // Validate file size (max 50MB)
+                if (file.size > 50 * 1024 * 1024) {
+                    errorMessage.textContent = "File is too large. Maximum allowed size is 50MB.";
+                    errorMessage.classList.remove("hidden");
+                    this.value = ""; // Reset file input
+                    return;
+                }
+            
+                // Hide upload box, show progress
                 uploadBox.style.display = "none";
-        
+                progressContainer.style.display = "block";
+            
                 let formData = new FormData();
                 formData.append("file", file);
-        
+            
                 // Upload the file via AJAX
                 fetch("/upload", { method: "POST", body: formData })
                     .then(response => {
@@ -203,29 +211,29 @@
                         if (data.success) {
                             window.location.href = data.redirect;
                         } else {
-                            alert(data.error);
+                            errorMessage.textContent = data.error;
+                            errorMessage.classList.remove("hidden");
                             uploadBox.style.display = "flex";
-                            progressContainer.style.display = "none"; // Hide progress container on error
+                            progressContainer.style.display = "none";
+                            document.getElementById("dropzone-file").value = ""; // Reset file input
                         }
                     })
                     .catch(error => console.error("Error:", error));
-        
-                // Listen for progress updates from the server
+            
+                // Progress tracking
                 let eventSource = new EventSource("/progress");
                 eventSource.onmessage = function (event) {
-                    let data = JSON.parse(event.data); // Parse JSON response
+                    let data = JSON.parse(event.data);
                     let progress = parseInt(data.progress);
-                    let status = data.status; // Extract status message
-        
+                    let status = data.status;
+            
                     progressBar.value = progress;
-                    progressStatus.innerText = status; // Update status message
-        
-                    // Gradually increment the progress text
+                    progressStatus.innerText = status;
+            
                     let currentProgress = parseInt(progressText.innerText);
-                    let increment = Math.ceil((progress - currentProgress) / 5); // Smooth increment in 5 steps
+                    let increment = Math.ceil((progress - currentProgress) / 5);
                     let counter = currentProgress;
-        
-                    // Gradual count up using setInterval
+            
                     let interval = setInterval(() => {
                         counter += increment;
                         if (counter >= progress) {
@@ -233,21 +241,20 @@
                             clearInterval(interval);
                         }
                         progressText.innerText = counter + "%";
-                    }, 50); // Update every 50ms
-        
-                    // When progress reaches 100%, stop EventSource and hide the progress bar
+                    }, 50);
+            
                     if (progress >= 100) {
                         eventSource.close();
-                        progressContainer.style.display = "none"; // Hide progress container when done
+                        progressContainer.style.display = "none";
                     }
                 };
-        
+            
                 eventSource.onerror = function () {
-                    // Handle error if EventSource fails
                     console.error("EventSource error occurred.");
                     eventSource.close();
                 };
             });
+            
         </script>
         
     </body>

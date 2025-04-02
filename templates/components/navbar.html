@@ -1,6 +1,6 @@
 <nav class="bg-[--clr-surface-a0] border-gray-200">
     <div class="max-w-[1600px] flex flex-wrap items-center justify-between mx-auto p-4">
-      <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+      <a href="{{ url_for('index') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
           <img src="/static/images/logo.png" class="h-8" alt="Flowbite Logo" />
           <span class="self-center text-2xl font-semibold whitespace-nowrap">PCAP Visualizer</span>
       </a>
@@ -13,13 +13,13 @@
       <div class="hidden w-full md:block md:w-auto" id="navbar-default">
         <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0">
           <li class="hover:scale-105 transition-transform duration-300">
-            <a href="index.html" class="block py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[--clr-primary-a50] md:p-0" aria-current="page">Home</a>
+            <a href="{{ url_for('index') }}" class="block py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[--clr-primary-a50] md:p-0" aria-current="page">Home</a>
           </li>
           <li class="hover:scale-105 transition-transform duration-300">
-            <a href="about.html" class="block py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[--clr-primary-a50] md:p-0">About</a>
+            <a href="{{ url_for('about') }}" class="block py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[--clr-primary-a50] md:p-0">About</a>
           </li>
           <li class="hover:scale-105 transition-transform duration-300">
-            <a href="index.html" class="block py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[--clr-primary-a50] md:p-0">Upload</a>
+            <a href="{{ url_for('index') }}" class="block py-2 px-3 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-[--clr-primary-a50] md:p-0">Upload</a>
           </li>
         </ul>
       </div>

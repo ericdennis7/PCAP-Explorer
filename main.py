@@ -188,7 +188,17 @@ def upload_file():
         progress = 0
         os.remove(filepath)
 
-        return jsonify({"error": f"Error processing file: {str(e)}"}), 500
+        return render_template("error.html", error_message=str(e)), 500
+
+# This is the error page route
+@app.route("/error")
+def error():
+    return render_template("error.html")
+
+# This is the about page route
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 # This route is used to stream progress updates to the client
 @app.route("/progress")

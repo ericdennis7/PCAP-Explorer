@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script> <link rel="stylesheet" href="/static/css/colors.css"> <style>
+        .sub-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full height of viewport */
+            font-family: "Poppins", sans-serif;
+            text-align: center; /* Ensures text is centered */
+        }
+        
+        .text-wrapper h1 {
+            text-transform: uppercase;
+            color: #fff;
+            font-size: 6em;
+            text-shadow: 6px 5px 10px rgba(0, 0, 0, 0.8);
+            
+            line-height: 90px;
+            user-select: none;
+            font-family: "Poppins", sans-serif;
+            letter-spacing:-22px;
+        }
+        
+        
+    </style>
+</head>
+<body class="bg-[--clr-surface-a0] text-[--clr-light-a0] [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
+    {% include 'components/navbar.html' %}
+
+    <div class="sub-body">
+        <div class="text-wrapper">
+            <h1>
+                <div>
+                    <span>E</span>
+                    <span>R</span>
+                    <span>R</span>
+                    <span>O</span>
+                    <span>R</span>
+                </div>
+            </h1>
+            <p>{{ error_message }}</p>
+            <a href="{{ url_for('index') }}">Go Back</a>
+        </div>
+    </div>
+</body>
+</html>
