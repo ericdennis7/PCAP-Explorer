@@ -147,12 +147,12 @@
         if (ipTable.classList.contains('hidden')) {
             ipTable.classList.remove('hidden');
             macTable.classList.add('hidden');
-            title.innerHTML = 'Top 50 IP Addresses';
+            title.innerHTML = 'Top 100 IP Addresses (Table)';
             button.innerHTML = 'Show MAC Table';
         } else {
             ipTable.classList.add('hidden');
             macTable.classList.remove('hidden');
-            title.innerHTML = 'Top 50 MAC Addresses'; 
+            title.innerHTML = 'Top 100 MAC Addresses (Table)'; 
             button.innerHTML = 'Show IP Table';
         }
     }
@@ -170,12 +170,12 @@
         if (ipMap.classList.contains('hidden')) {
             ipMap.classList.remove('hidden');
             ipConv.classList.add('hidden');
-            title.innerHTML = 'Top 100 IP Addresses Map';
-            button.innerHTML = 'Show Top Conversations Map';
+            title.innerHTML = 'Top 100 IP Addresses (Map)';
+            button.innerHTML = 'Show Conversations Map';
         } else {
             ipMap.classList.add('hidden');
             ipConv.classList.remove('hidden');
-            title.innerHTML = 'Top 100 IP Conversations Map'; 
+            title.innerHTML = 'Top 100 IP Conversations (Map)'; 
             button.innerHTML = 'Show IP Map';
     
             // Wait a bit before forcing Leaflet to recalculate size

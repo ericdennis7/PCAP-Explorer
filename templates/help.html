@@ -18,7 +18,10 @@
             <br>
             <h1 class="font-bold text-2xl">General Help</h1>
             <p class="mt-2 mb-2">
-                Here is a detailed list of general website information.
+                <span class="mb-2 font-bold text-xl underline">File Information Section:</span>
+                <ul class="list-disc pl-6">
+                    <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">File Name:</strong> This shows the name of the file uploaded for analysis.</li>
+                </ul>
             </p>
 
             <h1 class="font-bold text-2xl mt-4">Summary Page</h1>
@@ -45,7 +48,7 @@
                 <br>
                 <span class="mb-2 font-bold text-xl underline">Timing Stats</span>
                 <ul class="list-disc pl-6">
-                    <li class="pb-1 pt-1 pt-4"><strong class="text-[--clr-primary-a50]">Network Traffic Over Time: Bytes & Packets:</strong> This chart shows how the amount of data and packets change over time, giving you an idea of how busy the network was during the capture. It divides the capture into 15 even chunks.</li>
+                    <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Network Traffic Over Time: Bytes & Packets:</strong> This chart shows how the amount of data and packets change over time, giving you an idea of how busy the network was during the capture. It divides the capture into 15 even chunks.</li>
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">TCP Min Conversation Duration:</strong> This is the shortest time a TCP conversation lasted. It helps you see the fastest data transfers between devices using TCP.</li>
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">TCP Avg Conversation Duration:</strong> This shows the average time of all TCP conversations. It gives you a general idea of how long data transfers took on average using TCP.</li>
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">TCP Max Conversation Duration:</strong> This is the longest time a TCP conversation lasted. It highlights the slowest or most delayed data transfers using TCP.</li>
@@ -56,7 +59,7 @@
             </p>
             <h1 class="font-bold text-2xl mt-4">Security Page</h1>
             <p class="mt-2">
-            <span class="mb-2 font-bold text-xl underline">Timing Stats</span>
+            <span class="mb-2 font-bold text-xl underline">Snort Rule Violation Summary</span>
             <ul class="list-disc pl-6">
                 <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Most Suspicious Source IP:</strong> This is the source IP address that triggered the most suspicious activity. In this case, it is <code>10.10.30.26:43958</>, indicating that this IP is sending a potentially concerning amount of traffic.</li>
                 <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Most Suspicious Destination IP:</strong> This is the destination IP address that received the most suspicious activity. Here, <code>129.21.171.72:21</> shows the IP and port being targeted, likely associated with an FTP service on port 21.</li>
@@ -65,12 +68,26 @@
                 <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Snort Priority 2 Violation Counts:</strong> This shows the number of violations with medium severity (priority 2). These violations are notable but may not pose an immediate threat. Here, there were <strong>0</strong> priority 2 violations.</li>
                 <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Snort Priority 3 Violation Counts:</strong> This counts the number of violations with the lowest priority (priority 3). These are typically less critical issues but still noteworthy. In this case, there was <strong>1</strong> priority 3 violation detected.</li>
             </ul>
+            <br>
+            <span class="mb-2 font-bold text-xl underline">Packets Caught by Snort Rules</span>
+                <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Packets Caught by Snort Rules (Table):</strong> This table displays all the packets identified by Snort, including details like priority, packet date and time, rule ID triggered, message, classification, protocol, and the source/destination IP addresses and ports. PCAPs are scanned with Snort (v2.9.15.1) via the <a class="underline" href="https://www.snort.org/downloads" target="_blank">Community Ruleset</a> (snort3-community-rules.tar.gz).</li>
             </p>
             
             <h1 class="font-bold text-2xl mt-4">Addresses Page</h1>
             <p class="mt-2">
-                Here is a detailed list of the data displayed on the summary page.
+            <span class="mb-2 font-bold text-xl underline">Maps</span>
+            <ul class="list-disc pl-6">
+                <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top 100 IP Addresses (Map):</strong> This map displays the top 100 public IP addresses found within the packet capture file. Close points are group together and can be further expanded by clicking on the circles. The location data is gathered via <a class="underline" href="https://ipinfo.io/" target="_blank">ipinfo.io</a></li>
+                <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top 100 IP Conversations (Map):</strong> This map displays the top 100 public IP conversations (IP-to-IP flows) found within the packet capture file. Close points are group together and can be further expanded by clicking on the circles. The location data is gathered via <a class="underline" href="https://ipinfo.io/" target="_blank">ipinfo.io</a></li>
+            </ul>
+            <br>
+            <span class="mb-2 font-bold text-xl underline">Tables</span>
+            <ul class="list-disc pl-6">
+                <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top 100 IP Addresses:</strong> This table displays the top 100 IP addresses found within the PCAP file. It includes the IP's organization, location, the number of times the IP address appears in the file (Count), and its percentage of the total captured traffic. The location data is gathered via <a class="underline" href="https://ipinfo.io/" target="_blank">ipinfo.io</a>.</li>
+                <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top 100 MAC Addresses:</strong> This table displays the top 100 MAC addresses found within the PCAP file. It includes the MAC address, the Organizationally Unique Identifier (OUI) if resolved, the number of times the MAC address appears in the file (Count), and its percentage of the total captured traffic.</li>
+            </ul>
             </p>
+
         </div>
             
         {% include 'components/footer.html' %}
