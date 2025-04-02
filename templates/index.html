@@ -44,10 +44,10 @@
                 <span style="text-decoration: underline #b1cffb; -webkit-text-decoration-color: #b1cffb;" class="rotate-1 p-1">.pcap</span> File</h1>
             <p class="text-lg text-gray-100 mt-4 text-[--clr-light-a0]">Gain <span class="font-bold">detailed insights</span> into your <span class="font-bold">network traffic</span> with a simple file upload!</p>
             
-            <button data-tooltip-target="tooltip-default" type="button" class="mt-4 text-[#9a0026] border-[#9a0026] border font-medium rounded-lg text-sm px-5 py-2.5 text-center">WARNING</button>
+            <button data-tooltip-target="tooltip-default" data-tooltip-placement="top" type="button" class="mt-4 text-[--clr-primary-a30] font-medium rounded-lg text-sm px-5 py-2.5 text-center">CLICK HERE BEFORE UPLOADING</button>
 
             <div id="tooltip-default" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-[--clr-surface-a10] rounded-lg shadow-xs opacity-0 tooltip">
-                <p class="text-sm ">Avoid uploading sensitive information, as it will be publicly accessible for up to an hour!
+                <p class="text-sm">Avoid uploading sensitive information, as it will be publicly accessible for up to an hour!
                     <br>I am not responsible for any stolen, misused, or exposed data resulting from the upload of sensitive information. Please use this tool responsibly.
                 </p>
                 <div class="tooltip-arrow" data-popper-arrow></div>
@@ -56,7 +56,7 @@
         </div>
 
         <!-- Upload container -->
-        <div class="max-w-7xl m-auto mt-16">
+        <div class="max-w-7xl m-auto mt-12">
             <!-- Dropzone container -->
             <div id="upload-box" class="m-auto flex flex-col items-center justify-center max-w-2xl p-[2px] rounded-xl gradient-background">
                 <label for="dropzone-file" class="flex flex-col items-center justify-center py-12 w-full h-full cursor-pointer rounded-xl bg-[--clr-surface-a10]">
