@@ -3,3 +3,4 @@ requests
 pandas
 humanize
 python-dotenv
+gunicorn
