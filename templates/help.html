@@ -17,7 +17,7 @@
                 Having trouble understanding the data? Below is a list detailing each data point.
             </p>
             <br>
-            <h1 class="font-bold text-2xl">General Help</h1>
+            <h1 class="font-bold text-2xl underline">General Help</h1>
             <p class="mt-2 mb-2">
                 <ul class="list-disc pl-6">
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Upload Size:</strong> As of now, the upload size is limited to 50MB.</li>
@@ -26,9 +26,9 @@
                 </ul>
             </p>
 
-            <h1 class="font-bold text-2xl mt-4">Summary Page</h1>
+            <h1 class="font-bold text-2xl mt-4 underline">Summary Page</h1>
             <p class="mt-2">
-                <span class="mb-2 font-bold text-xl underline">File Information Section:</span>
+                <span class="mb-2 font-bold text-xl">File Information Section:</span>
                 <ul class="list-disc pl-6">
                     <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">File Name:</strong> This shows the name of the file uploaded for analysis.</li>
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">File Size:</strong> This indicates the size of the file in megabytes (MB).</li>
@@ -40,7 +40,7 @@
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">MD5:</strong> This is the MD5 hash of the file, a unique identifier created based on the file content for verifying its integrity.</li>
                 </ul>
                 <br>
-                <span class="mb-2 font-bold text-xl underline">Packet Structure Stats Charts/Tables:</span>
+                <span class="mb-2 font-bold text-xl">Packet Structure Stats Charts/Tables:</span>
                 <ul class="list-disc pl-6">
                     <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top Internet Protocol (IP) Versions:</strong> This chart shows which IP versions are being used the most in the captured data, like how much traffic is using IPv4 versus IPv6.</li>
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Top Transport Layer Protocols (L4):</strong> This chart shows the most common transport protocols (like TCP or UDP) used to send data between devices. It gives a look into how data is getting around.</li>
@@ -48,7 +48,7 @@
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Top Transport Layer Ports (L4):</strong> This chart shows the most used transport ports in the data, helping you figure out which services are using certain ports, like FTP on port 21.</li>
                 </ul>
                 <br>
-                <span class="mb-2 font-bold text-xl underline">Timing Stats</span>
+                <span class="mb-2 font-bold text-xl">Timing Stats</span>
                 <ul class="list-disc pl-6">
                     <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Network Traffic Over Time: Bytes & Packets:</strong> This chart shows how the amount of data and packets change over time, giving you an idea of how busy the network was during the capture. It divides the capture into 15 even chunks.</li>
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">TCP Min Conversation Duration:</strong> This is the shortest time a TCP conversation lasted. It helps you see the fastest data transfers between devices using TCP.</li>
@@ -59,9 +59,9 @@
                     <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">UDP Max Conversation Duration:</strong> This is the longest time a UDP conversation lasted. If there are no UDP conversations in the capture, it’ll be marked as N/A.</li>
                 </ul>
             </p>
-            <h1 class="font-bold text-2xl mt-4">Security Page</h1>
+            <h1 class="font-bold text-2xl mt-4 underline">Security Page</h1>
             <p class="mt-2">
-            <span class="mb-2 font-bold text-xl underline">Snort Rule Violation Summary</span>
+            <span class="mb-2 font-bold text-xl">Snort Rule Violation Summary</span>
             <ul class="list-disc pl-6">
                 <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Most Suspicious Source IP:</strong> This is the source IP address that triggered the most suspicious activity. In this case, it is <code>10.10.30.26:43958</>, indicating that this IP is sending a potentially concerning amount of traffic.</li>
                 <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Most Suspicious Destination IP:</strong> This is the destination IP address that received the most suspicious activity. Here, <code>129.21.171.72:21</> shows the IP and port being targeted, likely associated with an FTP service on port 21.</li>
@@ -71,19 +71,19 @@
                 <li class="pb-1 pt-1"><strong class="text-[--clr-primary-a50]">Snort Priority 3 Violation Counts:</strong> This counts the number of violations with the lowest priority (priority 3). These are typically less critical issues but still noteworthy. In this case, there was <strong>1</strong> priority 3 violation detected.</li>
             </ul>
             <br>
-            <span class="mb-2 font-bold text-xl underline">Packets Caught by Snort Rules</span>
+            <span class="mb-2 font-bold text-xl">Packets Caught by Snort Rules</span>
                 <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Packets Caught by Snort Rules (Table):</strong> This table displays all the packets identified by Snort, including details like priority, packet date and time, rule ID triggered, message, classification, protocol, and the source/destination IP addresses and ports. PCAPs are scanned with Snort (v2.9.15.1) via the <a class="underline" href="https://www.snort.org/downloads" target="_blank">Community Ruleset</a> (snort3-community-rules.tar.gz).</li>
             </p>
             
-            <h1 class="font-bold text-2xl mt-4">Addresses Page</h1>
+            <h1 class="font-bold text-2xl mt-4 underline">Addresses Page</h1>
             <p class="mt-2">
-            <span class="mb-2 font-bold text-xl underline">Maps</span>
+            <span class="mb-2 font-bold text-xl">Maps</span>
             <ul class="list-disc pl-6">
                 <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top 100 IP Addresses (Map):</strong> This map displays the top 100 public IP addresses found within the packet capture file. Close points are group together and can be further expanded by clicking on the circles. The location data is gathered via <a class="underline" href="https://ipinfo.io/" target="_blank">ipinfo.io</a></li>
                 <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top 100 IP Conversations (Map):</strong> This map displays the top 100 public IP conversations (IP-to-IP flows) found within the packet capture file. Close points are group together and can be further expanded by clicking on the circles. The location data is gathered via <a class="underline" href="https://ipinfo.io/" target="_blank">ipinfo.io</a></li>
             </ul>
             <br>
-            <span class="mb-2 font-bold text-xl underline">Tables</span>
+            <span class="mb-2 font-bold text-xl">Tables</span>
             <ul class="list-disc pl-6">
                 <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top 100 IP Addresses:</strong> This table displays the top 100 IP addresses found within the PCAP file. It includes the IP's organization, location, the number of times the IP address appears in the file (Count), and its percentage of the total captured traffic. The location data is gathered via <a class="underline" href="https://ipinfo.io/" target="_blank">ipinfo.io</a>.</li>
                 <li class="pb-1 pt-4"><strong class="text-[--clr-primary-a50]">Top 100 MAC Addresses:</strong> This table displays the top 100 MAC addresses found within the PCAP file. It includes the MAC address, the Organizationally Unique Identifier (OUI) if resolved, the number of times the MAC address appears in the file (Count), and its percentage of the total captured traffic.</li>

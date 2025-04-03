@@ -2,7 +2,7 @@
 # Started: 1/30/2025
 # Description: This is a flask app that allows users to analyze their .pcap(ng) data with visuals and statistics.
 
-# Last Updated: 3/26/2025
+# Last Updated: 4/3/2025
 # Update Notes: Changed loader, added L4 port distribution, and changed secret key to os.urandom(24).
 
 # Dependencies
