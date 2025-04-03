@@ -1,0 +1,6 @@
+flask
+requests
+pandas
+humanize
+requests
+python-dotenv

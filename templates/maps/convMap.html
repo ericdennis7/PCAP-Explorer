@@ -16,15 +16,28 @@ const convMap = L.map('convMap', {
 // Set soft boundaries to allow smooth panning
 convMap.setMaxBounds(L.latLngBounds(L.latLng(-65, -180), L.latLng(90, 180)).pad(0.1));
 
-// Dark-themed tile layer (CartoDB Dark Matter)
-L.tileLayer('https://tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token=AmpvthQfCvrciGf9uwOxVxLJtBM5tAPzFQku70CODOsifZEhI5yTk2hpQ9zFwRb3', {
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-    subdomains: 'abcd',
-    maxZoom: 20,
-    noWrap: true,
-    updateWhenIdle: true,    // Only update when user is done moving
-    updateWhenZooming: false // Don't update during zoom animation
-}).addTo(convMap);
+// Fetch the API key from the Flask backend
+fetch('/get_map_api')
+    .then(response => response.json())
+    .then(data => {
+        if (data.api_key) {
+            // Add the access token dynamically into the tile URL
+            const tileLayerUrl = `https://tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token=${data.api_key}`;
+            
+            // Create and add the tile layer with the API key
+            L.tileLayer(tileLayerUrl, {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20,
+                noWrap: true,
+                updateWhenIdle: true,    // Only update when user is done moving
+                updateWhenZooming: false // Don't update during zoom animation
+            }).addTo(convMap);
+        } else {
+            console.error('Error: API key not found');
+        }
+    })
+    .catch(error => console.error('Error fetching API key:', error));
 
 // Initialize marker cluster group with optimized settings
 const markers = L.markerClusterGroup({
@@ -39,8 +52,6 @@ const markers = L.markerClusterGroup({
 
 function updateProgressBar(processed, total, elapsed) {
     if (processed === total) {
-        // Loading complete
-        console.log(`Loaded ${processed} markers in ${elapsed} ms`);
     }
 }
 
@@ -55,7 +66,7 @@ convMap.locate({ enableHighAccuracy: true })
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
     });
-    const marker = L.marker([e.latitude, e.longitude], { icon: customIcon }).bindPopup("You're Here :)");
+    const marker = L.marker([e.latitude, e.longitude], { icon: customIcon }).bindPopup("You're Here");
     convMap.addLayer(marker);
 })
 .on("locationerror", (e) => {

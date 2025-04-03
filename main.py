@@ -30,6 +30,8 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+# Map key
+app.config['JAWG_MAPS'] = os.getenv('JAWG_MAPS')
 
 # This route is used to render the index page
 @app.route("/")
@@ -262,6 +264,14 @@ def addresses(filename):
         file_info = json.load(f)
 
     return render_template("addresses.html", file_info=file_info)
+
+# API key for Jawg Maps
+@app.route('/get_map_api', methods=['GET'])
+def get_map_api():
+    if app.config['JAWG_MAPS']:
+        return jsonify({'api_key': app.config['JAWG_MAPS']})
+    else:
+        return jsonify({'error': 'API key not set'}), 400
 
 
 # @app.route('/api/pcap_data', methods=['GET'])

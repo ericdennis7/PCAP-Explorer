@@ -1,114 +1,128 @@
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    // Parse ipMapData
-    const ipMapData = {{ file_info['unique_ips']['top_ips'] | tojson | safe }};
-    
-    // Process map data
-    const mapData = Object.keys(ipMapData).map(ip => {
-        const loc = ipMapData[ip].loc;
-        if (!loc || loc.trim() === '') return null;
+    document.addEventListener("DOMContentLoaded", function () {
+        // Parse ipMapData
+        const ipMapData = {{ file_info['unique_ips']['top_ips'] | tojson | safe }};
         
-        const coords = loc.split(',').map(parseFloat);
-        if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) return null;
+        // Process map data
+        const mapData = Object.keys(ipMapData).map(ip => {
+            const loc = ipMapData[ip].loc;
+            if (!loc || loc.trim() === '') return null;
+            
+            const coords = loc.split(',').map(parseFloat);
+            if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) return null;
+            
+            return {
+                rank: ipMapData[ip].rank,
+                title: ip,
+                latitude: coords[0],
+                longitude: coords[1],
+                country: ipMapData[ip].country,
+                count: ipMapData[ip].count,
+                org: ipMapData[ip].org,
+                hostname: ipMapData[ip].hostname,
+                location: ipMapData[ip].location,
+                timezone: ipMapData[ip].timezone,
+                percentage: parseFloat(ipMapData[ip].percentage.toFixed(2))
+            };
+        }).filter(data => data !== null);
         
-        return {
-            rank: ipMapData[ip].rank,
-            title: ip,
-            latitude: coords[0],
-            longitude: coords[1],
-            country: ipMapData[ip].country,
-            count: ipMapData[ip].count,
-            org: ipMapData[ip].org,
-            hostname: ipMapData[ip].hostname,
-            location: ipMapData[ip].location,
-            timezone: ipMapData[ip].timezone,
-            percentage: parseFloat(ipMapData[ip].percentage.toFixed(2))
-        };
-    }).filter(data => data !== null);
-    
-    // Initialize Leaflet map with minimum zoom
-    const map = L.map('ipMap', {
-        center: [45, 0],
-        zoom: 2,
-        minZoom: 2
-    });
-
-    // Setting the boundries to focus on 
-    map.setMaxBounds(L.latLngBounds(L.latLng(-60, -180), L.latLng(90, 180)));
-    
-    map.locate({
-        enableHighAccuracy: true,
-    })
-    // if location found show marker and circle
-    .on("locationfound", (e) => {
-        console.log(e);
-    
-        // Custom marker icon
-        const customIcon = L.icon({
-            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png", // Change this URL for different colors
-            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
+        // Initialize Leaflet map with minimum zoom
+        const map = L.map('ipMap', {
+            center: [45, 0],
+            zoom: 2,
+            minZoom: 2,
+            maxZoom: 18
         });
     
-        // marker with custom icon
-        const marker = L.marker([e.latitude, e.longitude], { icon: customIcon }).bindPopup(
-            "You're Here :)"
-        );
+        // Setting the boundaries to focus on
+        map.setMaxBounds(L.latLngBounds(L.latLng(-60, -180), L.latLng(90, 180)));
+        
+        map.locate({
+            enableHighAccuracy: true,
+        })
+        // if location found show marker and circle
+        .on("locationfound", (e) => {
+            console.log(e);
+        
+            // Custom marker icon
+            const customIcon = L.icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png", // Change this URL for different colors
+                shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+        
+            // marker with custom icon
+            const marker = L.marker([e.latitude, e.longitude], { icon: customIcon }).bindPopup(
+                "You're Here"
+            );
+        
+            map.addLayer(marker);
+        })
+        
+        // if error show alert
+        .on("locationerror", (e) => {
+            console.log(e);
+            alert("Location access denied.");
+        });
+        
+        // Store the initial view
+        const initialView = {
+            center: map.getCenter(),
+            zoom: map.getZoom()
+        };
     
-        map.addLayer(marker);
-    })
+        // Fetch the API key from Flask backend
+        fetch('/get_map_api')
+            .then(response => response.json())
+            .then(data => {
+                if (data.api_key) {
+                    // Add the access token dynamically into the tile URL
+                    const tileLayerUrl = `https://tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token=${data.api_key}`;
+                    
+                    // Dark-themed tile layer (CartoDB Dark Matter) with dynamic access token
+                    L.tileLayer(tileLayerUrl, {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                        subdomains: 'abcd',
+                        maxZoom: 20,
+                        noWrap: true
+                    }).addTo(map);
+                } else {
+                    console.error('Error: API key not found');
+                }
+            })
+            .catch(error => console.error('Error fetching API key:', error));
     
-    // if error show alert
-    .on("locationerror", (e) => {
-        console.log(e);
-        alert("Location access denied.");
-    });
+        // Initialize marker cluster group with smaller cluster radius
+        const markers = L.markerClusterGroup({
+            maxClusterRadius: 20,
+            disableClusteringAtZoom: 10
+        });
     
-    // Store the initial view
-    const initialView = {
-        center: map.getCenter(),
-        zoom: map.getZoom()
-    };
+        // Add markers to the cluster group
+        mapData.forEach(item => {
+            const marker = L.marker([item.latitude, item.longitude])
+                .bindPopup(`
+                    <strong>Rank:</strong> ${item.rank}<br>
+                    <strong>Packets:</strong> ${item.count}<br>
+                    <strong>Percentage:</strong> ${item.percentage}%<br><br>
+                    <strong>IP:</strong> ${item.title}<br>
+                    <strong>Location:</strong> ${item.location}<br>
+                    <strong>Organization:</strong> ${item.org}<br>
+                    <strong>Timezone:</strong> ${item.timezone}<br>
+                `);
+            markers.addLayer(marker);
+        });
     
-    // Dark-themed tile layer (CartoDB Dark Matter)
-    L.tileLayer('https://tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token=AmpvthQfCvrciGf9uwOxVxLJtBM5tAPzFQku70CODOsifZEhI5yTk2hpQ9zFwRb3', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20,
-        noWrap: true
-    }).addTo(map);
-
-    // Initialize marker cluster group with smaller cluster radius
-    const markers = L.markerClusterGroup({
-        maxClusterRadius: 20,
-        disableClusteringAtZoom: 10
+        // Add marker cluster group to the map
+        map.addLayer(markers);
+    
+        // Reset map button functionality
+        document.getElementById('resetMap').addEventListener('click', function() {
+            map.setView(initialView.center, initialView.zoom);
+        });
     });
-
-    // Add markers to the cluster group
-    mapData.forEach(item => {
-        const marker = L.marker([item.latitude, item.longitude])
-            .bindPopup(`
-                <strong>Rank:</strong> ${item.rank}<br>
-                <strong>Packets:</strong> ${item.count}<br>
-                <strong>Percentage:</strong> ${item.percentage}%<br><br>
-                <strong>IP:</strong> ${item.title}<br>
-                <strong>Location:</strong> ${item.location}<br>
-                <strong>Organization:</strong> ${item.org}<br>
-                <strong>Timezone:</strong> ${item.timezone}<br>
-            `);
-        markers.addLayer(marker);
-    });
-
-    // Add marker cluster group to the map
-    map.addLayer(markers);
-
-    // Reset map button functionality
-    document.getElementById('resetMap').addEventListener('click', function() {
-        map.setView(initialView.center, initialView.zoom);
-    });
-});
 </script>
