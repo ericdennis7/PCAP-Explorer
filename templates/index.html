@@ -196,7 +196,7 @@
 
         </div>
 
-        <!-- JavaScript for file upload -->
+        <!-- JavaScript for file upload and progress tracking -->
         <script>
             document.getElementById("dropzone-file").addEventListener("change", function () {
                 let file = this.files[0];
@@ -206,98 +206,132 @@
                 let progressBar = document.getElementById("progress-bar");
                 let progressText = document.getElementById("progress-text");
                 let progressStatus = document.getElementById("progress-status");
-            
+                let eventSource = null;
+
+                function resetUI() {
+                    progressBar.value = 0;
+                    progressText.innerText = "0%";
+                    progressStatus.innerText = "Preparing upload";
+                    progressContainer.style.display = "none";
+                }
+
+                function closeEventSource() {
+                    if (eventSource) {
+                        eventSource.close();
+                        eventSource = null;
+                    }
+                }
+
                 if (!file) {
                     return;
                 }
-            
-                // Reset error message and show the upload box
+
                 errorMessage.classList.add("hidden");
                 uploadBox.style.display = "flex";
-                
-                // Reset progress UI
-                progressBar.value = 0;
-                progressText.innerText = "0%";
-                progressStatus.innerText = "Uploading file";
-                progressContainer.style.display = "none"; // Hide until upload starts
-            
-                // Validate file type
+
+                resetUI();
+
                 if (!file.name.endsWith(".pcap") && !file.name.endsWith(".pcapng")) {
                     errorMessage.textContent = "Invalid file type. Please upload a .pcap or .pcapng file.";
                     errorMessage.classList.remove("hidden");
-                    this.value = ""; // Reset file input
+                    this.value = "";
                     return;
                 }
-            
-                // Validate file size (max 50MB)
+
                 if (file.size > 50 * 1024 * 1024) {
                     errorMessage.textContent = "File is too large. Maximum allowed size is 50MB.";
                     errorMessage.classList.remove("hidden");
-                    this.value = ""; // Reset file input
+                    this.value = "";
                     return;
                 }
-            
-                // Hide upload box, show progress
+
                 uploadBox.style.display = "none";
                 progressContainer.style.display = "block";
-            
-                let formData = new FormData();
-                formData.append("file", file);
-            
-                // Upload the file via AJAX
-                fetch("/upload", { method: "POST", body: formData })
-                    .then(response => {
-                        if (!response.ok) throw new Error("Upload failed");
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = data.redirect;
-                        } else {
-                            errorMessage.textContent = data.error;
-                            errorMessage.classList.remove("hidden");
-                            uploadBox.style.display = "flex";
-                            progressContainer.style.display = "none";
-                            document.getElementById("dropzone-file").value = ""; // Reset file input
-                        }
-                    })
-                    .catch(error => console.error("Error:", error));
-            
-                // Progress tracking
-                let eventSource = new EventSource("/progress");
+
+                // Initialize EventSource for progress updates
+                eventSource = new EventSource("/progress");
+
+                eventSource.onopen = function () {
+                    // EventSource connection established
+                };
+
                 eventSource.onmessage = function (event) {
-                    let data = JSON.parse(event.data);
-                    let progress = parseInt(data.progress);
-                    let status = data.status;
-            
-                    progressBar.value = progress;
-                    progressStatus.innerText = status;
-            
-                    let currentProgress = parseInt(progressText.innerText);
-                    let increment = Math.ceil((progress - currentProgress) / 5);
-                    let counter = currentProgress;
-            
-                    let interval = setInterval(() => {
-                        counter += increment;
-                        if (counter >= progress) {
-                            counter = progress;
-                            clearInterval(interval);
+                    try {
+                        let data = JSON.parse(event.data);
+
+                        // Update progress bar and status
+                        progressBar.value = data.progress;
+                        progressStatus.innerText = data.status;
+                        progressText.innerText = `${data.progress}%`;
+
+                        // Close EventSource when progress reaches 100
+                        if (data.progress >= 100) {
+                            closeEventSource();
                         }
-                        progressText.innerText = counter + "%";
-                    }, 50);
-            
-                    if (progress >= 100) {
-                        eventSource.close();
+                    } catch (error) {
+                        // Error processing event data
+                    }
+                };
+
+                eventSource.onerror = function (error) {
+                    if (eventSource.readyState === 2) {
+                        closeEventSource();
+                        errorMessage.textContent = "Connection to server lost. Please try again.";
+                        errorMessage.classList.remove("hidden");
+                        uploadBox.style.display = "flex";
                         progressContainer.style.display = "none";
                     }
                 };
-            
-                eventSource.onerror = function () {
-                    console.error("EventSource error occurred.");
-                    eventSource.close();
-                };
+
+                let formData = new FormData();
+                formData.append("file", file);
+
+                let uploadTimeout = setTimeout(() => {
+                    closeEventSource();
+                    errorMessage.textContent = "Upload process timed out. Please try again.";
+                    errorMessage.classList.remove("hidden");
+                    uploadBox.style.display = "flex";
+                    progressContainer.style.display = "none";
+                    this.value = "";
+                }, 300000);
+
+                fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.error || "Upload failed");
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        clearTimeout(uploadTimeout);
+                        if (data.success) {
+                            setTimeout(() => {
+                                window.location.href = data.redirect;
+                            }, 1000);
+                        } else {
+                            closeEventSource();
+                            errorMessage.textContent = data.error || "Unknown error occurred";
+                            errorMessage.classList.remove("hidden");
+                            uploadBox.style.display = "flex";
+                            progressContainer.style.display = "none";
+                            this.value = "";
+                        }
+                    })
+                    .catch(error => {
+                        clearTimeout(uploadTimeout);
+                        closeEventSource();
+                        errorMessage.textContent = error.message || "Upload failed. Please try again.";
+                        errorMessage.classList.remove("hidden");
+                        uploadBox.style.display = "flex";
+                        progressContainer.style.display = "none";
+                        this.value = "";
+                    });
             });
-            
         </script>
 
         <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>

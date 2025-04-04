@@ -4,3 +4,4 @@ pandas
 humanize
 python-dotenv
 gunicorn
+gevent
