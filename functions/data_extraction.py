@@ -48,7 +48,7 @@ def raw_pcap_pd(filepath):
     ]
 
     cmd = [
-        "tshark", "-r", filepath, "-T", "fields",
+        "/usr/bin/tshark", "-r", filepath, "-T", "fields",
         *sum([["-e", field] for field in fields], []),
         "-E", "separator=,", "-E", "quote=d", "-E", "header=y"
     ]
@@ -89,7 +89,7 @@ def tcp_min_max_avg(pcap_file):
     try:
         # Construct the tshark command to get flow statistics for TCP
         command = [
-            'tshark', '-r', pcap_file, '-q', '-z', 'conv,tcp'
+            '/usr/bin/tshark', '-r', pcap_file, '-q', '-z', 'conv,tcp'
         ]
         
         # Run tshark command
@@ -127,7 +127,7 @@ def udp_min_max_avg(pcap_file):
     try:
         # Construct the tshark command to get flow statistics for UDP
         command = [
-            'tshark', '-r', pcap_file, '-q', '-z', 'conv,udp'
+            '/usr/bin/tshark', '-r', pcap_file, '-q', '-z', 'conv,udp'
         ]
         
         # Run tshark command
@@ -222,7 +222,7 @@ def total_packets(df):
 # Function to get the unique IP addresses and their counts
 def unique_ips_and_flows(pcap_file):
     # Full command to run tshark, tr, sort, and uniq
-    command = f"tshark -r {pcap_file} -T fields -e ip.src -e ip.dst | tr '\\t' '\\n' | sort | uniq -c | sort -n"
+    command = f"/usr/bin/tshark -r {pcap_file} -T fields -e ip.src -e ip.dst | tr '\\t' '\\n' | sort | uniq -c | sort -n"
     
     try:
         # Run the command with shell=True to allow pipes
@@ -500,7 +500,7 @@ def group_packets_by_time_section(df, num_sections=20):
 def snort_rules(pcap_file):
     # Run the Snort command and capture its output
     command = [
-        "sudo", "snort", "-q", "-r", pcap_file, "-c", "/etc/snort/snort.conf", "-A", "console"
+        "sudo", "/usr/sbin/snort", "-q", "-r", pcap_file, "-c", "/etc/snort/snort.conf", "-A", "console"
     ]
 
     # Run Snort command and capture stdout
@@ -609,8 +609,8 @@ def parse_conversations(protocol, tshark_output):
 # Function to get the top conversations from a .pcap file (TCP and UDP)
 def get_top_conversations(pcap_file, limit=50):
     # Run tshark to extract TCP and UDP conversations
-    tcp_command = ["tshark", "-r", pcap_file, "-qz", "conv,ipv4"]
-    udp_command = ["tshark", "-r", pcap_file, "-qz", "conv,ipv6"]
+    tcp_command = ["/usr/bin/tshark", "-r", pcap_file, "-qz", "conv,ipv4"]
+    udp_command = ["/usr/bin/tshark", "-r", pcap_file, "-qz", "conv,ipv6"]
 
     tcp_result = subprocess.run(tcp_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     udp_result = subprocess.run(udp_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
