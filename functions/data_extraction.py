@@ -500,7 +500,7 @@ def group_packets_by_time_section(df, num_sections=20):
 def snort_rules(pcap_file):
     # Run the Snort command and capture its output
     command = [
-        "sudo", "/usr/sbin/snort", "-q", "-r", pcap_file, "-c", "/etc/snort/snort.conf", "-A", "console"
+        "/usr/sbin/snort", "-q", "-r", pcap_file, "-c", "/etc/snort/snort.conf", "-A", "console"
     ]
 
     # Run Snort command and capture stdout
