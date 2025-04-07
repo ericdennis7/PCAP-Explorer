@@ -47,207 +47,115 @@ status = "Uploading file"
 def index():
     return render_template("index.html")
 
-@app.route('/test-ipinfo')
-def test_ipinfo():
-    try:
-        # Try with a known IP first to eliminate issues with the client IP
-        response = requests.get("https://ipinfo.io/8.8.8.8/json", timeout=5)
-        return {
-            "status_code": response.status_code,
-            "response": response.text
-        }
-    except Exception as e:
-        return {"error": str(e)}
-
 # This route is used to upload files asynchronously and process them
 @app.route("/upload", methods=["POST"])
 def upload_file():
     """Handles AJAX file uploads asynchronously."""
-    global progress, status
+    
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files["file"]
+
+    # Validate file type and size
+    if file.filename == "" or not file.filename.endswith((".pcap", ".pcapng")):
+        return jsonify({"error": "Invalid file type. Only .pcap or .pcapng files are allowed."}), 400
+
+    if request.content_length > 50 * 1024 * 1024 * 1024:  # 50MB limit
+        return jsonify({"error": "File too large. Max size is 50MB."}), 400
+
     try:
-        # Reset progress
-        progress = 0
-        status = "Starting upload"
+        # Save the uploaded file
+        file_md5 = md5_hash(file)
+        current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        file_name, file_extension = os.path.splitext(file.filename)
+        new_filename = f"{file_name}_{current_datetime}{file_extension}"
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
+        file.save(filepath)
 
-        # Check if a file was uploaded
-        if "file" not in request.files:
-            return jsonify({"error": "No file uploaded"}), 400
+        # Extract packet data
+        packet_data = raw_pcap_pd(filepath)
 
-        file = request.files["file"]
+        # Collect file characteristics
+        start_date, end_date, time_diff = packet_times_and_difference(packet_data)
+        packet_total = total_packets(packet_data)
+        ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, unique_ip_addresses = unique_ips_and_flows(filepath)
+        top_conversations = get_top_conversations(filepath)
+        tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
+        udp_min_flow, udp_max_flow, udp_avg_flow = udp_min_max_avg(filepath)
+        l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
+        l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
+        l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
+        snort_rules_json, snort_top_src_ip, snort_top_dst_ip, snort_top_rule_id, snort_priority_1_count, snort_priority_2_count, snort_priority_3_count = snort_rules(filepath)
 
-        # Validate file
-        if file.filename == "" or not file.filename.endswith((".pcap", ".pcapng")):
-            return jsonify({"error": "Invalid file type. Only .pcap or .pcapng files are allowed."}), 400
+        file_info = {
+            "name": file_name + file_extension,
+            "data_link": new_filename.replace(".pcapng", "").replace(".pcap", "") + "_info.json",
+            "size_mb": humanize.naturalsize(os.path.getsize(filepath)),
+            "md5_hash": file_md5,
+            "submission_date": datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/"),
+            "start_date": start_date,
+            "end_date": end_date,
+            "time_difference": time_diff,
+            "total_packets": total_packets(packet_data),
+            "ipv4": ipv4_addresses,
+            "ipv4percent": ipv4percent,
+            "ipv6": ipv6_addresses,
+            "ipv6percent": ipv6percent,
+            "unique_ips": unique_ip_addresses,
+            "unique_ip_addresses": ip_count,
+            "tcp_min_flow": tcp_min_flow,
+            "tcp_max_flow": tcp_max_flow,
+            "tcp_avg_flow": tcp_avg_flow,
+            "udp_min_flow": udp_min_flow,
+            "udp_max_flow": udp_max_flow,
+            "udp_avg_flow": udp_avg_flow,
+            "l4_top_protocols": l4_top_protocols,
+            "l4_protocol_percentages": l4_protocol_percentages,
+            "l4_top_ports": l4_top_ports,
+            "l4_ports_percentages": l4_ports_percentages,
+            "l7_top_protocols": l7_top_protocols,
+            "l7_protocol_percentages": l7_protocol_percentages,
+            "mac_addresses": mac_address_counts(packet_data),
+            "time_series": group_packets_by_time_section(packet_data),
+            "snort_rules_json": json.loads(snort_rules_json),
+            "snort_top_src_ip": snort_top_src_ip,
+            "snort_top_dst_ip": snort_top_dst_ip,
+            "snort_top_rule_id": snort_top_rule_id,
+            "snort_priority_1_count": snort_priority_1_count,
+            "snort_priority_2_count": snort_priority_2_count,
+            "snort_priority_3_count": snort_priority_3_count,
+            "top_conversations": top_conversations
+        }
 
-        if request.content_length > 50 * 1024 * 1024:
-            return jsonify({"error": "File too large. Max size is 50MB."}), 400
+        # Create `file_data` folder if it doesn't exist
+        file_data_folder = os.path.join(app.root_path, 'file_data')
+        os.makedirs(file_data_folder, exist_ok=True)
 
-        # Process the file
-        try:
-            # Update progress at key points
-            progress = random.randint(3, 7)
-            status = "Uploading file"
-            time.sleep(0.5)
+        # Store file info as JSON in `file_data`
+        info_filename = f"{file_name}_{current_datetime}_info.json"
+        info_filepath = os.path.join(file_data_folder, info_filename)
+        with open(info_filepath, 'w', encoding='utf-8') as f:
+            json.dump(file_info, f, indent=4)
 
-            # Calculate MD5 hash
-            progress = random.randint(9, 11)
-            status = "Calculating MD5 hash"
-            file_md5 = md5_hash(file)
-            time.sleep(0.5)
+        # Remove original file after processing
+        os.remove(filepath)
 
-            # Save file
-            progress = random.randint(14, 17)
-            status = "Saving file for analysis"
-            current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            file_name, file_extension = os.path.splitext(file.filename)
-            new_filename = f"{file_name}_{current_datetime}{file_extension}"
-            filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
-            file.save(filepath)
-            time.sleep(0.5)
-            
-            logging.info(f"File saved to: {filepath}")
+        # Save file references in session
+        session['file_info'] = info_filepath
 
-            # Extract data
-            progress = random.randint(20, 29)
-            status = "Extracting packet data"
-            packet_data = raw_pcap_pd(filepath)
-            time.sleep(0.5)
+        # Return a response with a redirect URL (includes filename)
+        return jsonify({
+            "success": True, 
+            "redirect": url_for('analysis', filename=f"{file_name}_{current_datetime}_info.json")
+        })
 
-            # Remaining processing with progress updates...
-            progress = random.randint(37, 45)
-            status = "Analyzing timestamps"
-            start_date, end_date, time_diff = packet_times_and_difference(packet_data)
-            timing = group_packets_by_time_section(packet_data)
-            time.sleep(0.5)
+    except Exception as e:
 
-            progress = random.randint(51, 63)
-            status = "Analyzing addresses and conversations"
-            packet_total = total_packets(packet_data)
-            ipv4_addresses, ipv6_addresses, ipv4percent, ipv6percent, ip_count, unique_ip_addresses = unique_ips_and_flows(filepath)
-            top_conversations = get_top_conversations(filepath)
-            top_mac_addresses = mac_address_counts(packet_data)
-            time.sleep(0.5)
+        # Remove original file after processing
+        os.remove(filepath)
 
-            progress = random.randint(72, 79)
-            status = "Analyzing protocols, ports, and flows"
-            tcp_min_flow, tcp_max_flow, tcp_avg_flow = tcp_min_max_avg(filepath)
-            udp_min_flow, udp_max_flow, udp_avg_flow = udp_min_max_avg(filepath)
-            l7_top_protocols, l7_protocol_percentages = application_layer_protocols(packet_data).values()
-            l4_top_ports, l4_ports_percentages = transport_layer_ports(packet_data, packet_total).values()
-            l4_top_protocols, l4_protocol_percentages = protocol_distribution(packet_data, packet_total).values()
-            time.sleep(0.5)
-
-            progress = random.randint(86, 93)
-            status = "Performing Snort scan"
-            snort_rules_json, snort_top_src_ip, snort_top_dst_ip, snort_top_rule_id, snort_priority_1_count, snort_priority_2_count, snort_priority_3_count = snort_rules(filepath)
-            time.sleep(0.5)
-
-            # Prepare final data
-            progress = random.randint(97, 99)
-            status = "Preparing data"
-            time.sleep(0.5)
-
-            # Create file_info dictionary
-            file_info = {
-                "name": file_name + file_extension,
-                "data_link": new_filename.replace(".pcapng", "").replace(".pcap", "") + "_info.json",
-                "size_mb": humanize.naturalsize(os.path.getsize(filepath)),
-                "md5_hash": file_md5,
-                "submission_date": datetime.now().strftime("%m/%d/%Y at %I:%M:%S %p").lstrip("0").replace("/0", "/"),
-                "start_date": start_date,
-                "end_date": end_date,
-                "time_difference": time_diff,
-                "total_packets": packet_total,
-                "ipv4": ipv4_addresses,
-                "ipv4percent": ipv4percent,
-                "ipv6": ipv6_addresses,
-                "ipv6percent": ipv6percent,
-                "unique_ips": unique_ip_addresses,
-                "unique_ip_addresses": ip_count,
-                "tcp_min_flow": tcp_min_flow,
-                "tcp_max_flow": tcp_max_flow,
-                "tcp_avg_flow": tcp_avg_flow,
-                "udp_min_flow": udp_min_flow,
-                "udp_max_flow": udp_max_flow,
-                "udp_avg_flow": udp_avg_flow,
-                "l4_top_protocols": l4_top_protocols,
-                "l4_protocol_percentages": l4_protocol_percentages,
-                "l4_top_ports": l4_top_ports,
-                "l4_ports_percentages": l4_ports_percentages,
-                "l7_top_protocols": l7_top_protocols,
-                "l7_protocol_percentages": l7_protocol_percentages,
-                "mac_addresses": top_mac_addresses,
-                "time_series": timing,
-                "snort_rules_json": json.loads(snort_rules_json),
-                "snort_top_src_ip": snort_top_src_ip,
-                "snort_top_dst_ip": snort_top_dst_ip,
-                "snort_top_rule_id": snort_top_rule_id,
-                "snort_priority_1_count": snort_priority_1_count,
-                "snort_priority_2_count": snort_priority_2_count,
-                "snort_priority_3_count": snort_priority_3_count,
-                "top_conversations": json.loads(top_conversations)
-            }
-
-            # Save to JSON
-            file_data_folder = os.path.join(app.root_path, 'file_data')
-            os.makedirs(file_data_folder, exist_ok=True)
-            info_filename = f"{file_name}_{current_datetime}_info.json"
-            info_filepath = os.path.join(file_data_folder, info_filename)
-            with open(info_filepath, 'w', encoding='utf-8') as f:
-                json.dump(file_info, f, indent=4)
-
-            # Remove original file after processing
-            os.remove(filepath)
-            progress = 100
-            status = "Upload complete"
-            time.sleep(0.5)  # Ensure final status is sent
-
-            # Save file info path to session
-            session['file_info'] = info_filepath
-
-            # Return success with redirection URL
-            return jsonify({"success": True, "redirect": url_for('analysis', filename=info_filename)})
-
-        except Exception as e:
-            progress = 0
-            status = "Error occurred"
-            if os.path.exists(filepath):
-                os.remove(filepath)
-            return jsonify({"error": str(e)}), 500
-
-    finally:
-        # Reset progress and status after completion
-        progress = 0
-        status = "Idle"
-
-# This route is used to stream progress updates to the client
-@app.route("/progress")
-def progress_stream():
-    def stream():
-        global progress, status  # Declare global variables at the start of the function
-        last_sent = -1
-
-        while True:
-            if progress != last_sent:
-                yield f"data: {json.dumps({'progress': progress, 'status': status})}\n\n"
-                sys.stdout.flush()
-                last_sent = progress
-
-                if progress >= 100:
-                    break
-
-            time.sleep(0.1)
-
-        # Reset progress and status after streaming ends
-        progress = 0
-        status = "Uploading file"
-
-    response = Response(stream(), mimetype='text/event-stream')
-    response.headers.add('Cache-Control', 'no-cache')
-    response.headers.add('X-Accel-Buffering', 'no')  # Disable buffering for Nginx
-    response.headers.add('Connection', 'keep-alive')
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
+        return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
 # This is the error page route
 @app.route("/error")

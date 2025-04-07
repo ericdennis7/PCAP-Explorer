@@ -11,24 +11,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/> <!-- Animate.css -->
         <title>PCAP(NG) Explorer</title>
-        <style>
-            progress[value]::-webkit-progress-value {
-                transition: width 0.5s;
-                background: #267355;
-                border-radius: 0.5rem;
-            }
-
-            progress::-webkit-progress-bar {
-                max-width: 42rem;
-                border-radius: 10px;
-            }
-            
-            progress::-moz-progress-bar {
-                max-width: 42rem;
-                background: #267355;
-                border-radius: 10px;
-            }
-        </style>
     </head>
     <body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0]  [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
         <!-- Include the navbar.html file -->
@@ -77,13 +59,30 @@
             <!-- Error message -->
             <p id="error-message" class="text-red-600 text-center mt-3 hidden">Invalid file. Please upload a .pcapng or .pcap file under 50MB.</p>
 
-            <!-- Loader -->
-            <div id="progress-container" class="mx-auto flex flex-col items-center justify-center max-w-2xl w-full p-4 rounded-lg" style="display: none;">
-                <div class="flex w-full justify-between mb-2">
-                    <p><span id="progress-status" class="text-sm font-semibold">In progress</span><span class="blinking">...</span></p>
-                    <span id="progress-text" class="text-sm font-semibold">0%</span>
-                </div>
-                <progress id="progress-bar" class="w-full" value="0" max="100"></progress>
+            <!-- Magnifying Loader -->
+            <div class="mt-5">
+                <div id="loading" class="text-center" style="display: none;">
+                    <div class="loading-body">
+                        <div class="loading-container">
+                            <span class="load-span"></span>
+                            <div class="center">
+                                <div class="wrap">
+                                    <div class="box-1 box">
+                                        <i class="fa-solid fa-square-binary" style="color: --clr-primary-a30;"></i>
+                                        <i class="fa-solid fa-square-binary" style="color: --clr-primary-a30;"></i>
+                                    </div>
+                                    <div class="box-2 box">
+                                        <i class="fa-solid fa-square-binary" style="color: --clr-primary-a30;"></i>
+                                        <i class="fa-solid fa-square-binary" style="color: --clr-primary-a30;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-24">
+                        <p class="mt-2">This shouldn’t take more than 3 minutes.<span class="blinking">...</span></p>
+                    </div>
+                </div>                
             </div>
 
             <p class="m-auto mt-3 text-center">—— or ——</p>
@@ -184,7 +183,7 @@
 
                 <div class="p-4 rounded-2xl bg-[--clr-surface-a10] hover:scale-105 transition-transform duration-300">
                     <h3 class="text-lg font-semibold text-[--clr-light-a0]">What file formats are supported?</h3>
-                    <p class="mt-2 text-gray-100">
+                    <p class="mt-2 text-white">
                         Currently, we support .pcapng or .pcapng and .pcapng or .pcap files. The maximum file size for uploads is 50MB.
                     </p>
                 </div>            
@@ -196,142 +195,60 @@
 
         </div>
 
-        <!-- JavaScript for file upload and progress tracking -->
+        <!-- JavaScript for file upload -->
         <script>
             document.getElementById("dropzone-file").addEventListener("change", function () {
-                let file = this.files[0];
-                let errorMessage = document.getElementById("error-message");
-                let uploadBox = document.getElementById("upload-box");
-                let progressContainer = document.getElementById("progress-container");
-                let progressBar = document.getElementById("progress-bar");
-                let progressText = document.getElementById("progress-text");
-                let progressStatus = document.getElementById("progress-status");
-                let eventSource = null;
+            let file = this.files[0];
+            let errorMessage = document.getElementById("error-message");
+            let uploadBox = document.getElementById("upload-box");
+            let loading = document.getElementById("loading");
 
-                function resetUI() {
-                    progressBar.value = 0;
-                    progressText.innerText = "0%";
-                    progressStatus.innerText = "Preparing upload";
-                    progressContainer.style.display = "none";
-                }
+            // Validate file type and size
+            if (!file) return;
 
-                function closeEventSource() {
-                    if (eventSource) {
-                        eventSource.close();
-                        eventSource = null;
-                    }
-                }
+            if (!file.name.endsWith(".pcap") && !file.name.endsWith(".pcapng")) {
+                errorMessage.textContent = "Invalid file type. Please upload a .pcapng or .pcap file.";
+                errorMessage.classList.remove("hidden");
+                return;
+            }
 
-                if (!file) {
-                    return;
-                }
+            if (file.size > 50 * 1024 * 1024 * 1024) {  // Max 50MB
+                errorMessage.textContent = "File too large. Max size is 500MB.";
+                errorMessage.classList.remove("hidden");
+                return;
+            }
 
-                errorMessage.classList.add("hidden");
-                uploadBox.style.display = "flex";
+            errorMessage.classList.add("hidden");
 
-                resetUI();
+            // Hide upload box and show loading animation
+            uploadBox.style.display = "none";
+            loading.style.display = "block";
 
-                if (!file.name.endsWith(".pcap") && !file.name.endsWith(".pcapng")) {
-                    errorMessage.textContent = "Invalid file type. Please upload a .pcap or .pcapng file.";
-                    errorMessage.classList.remove("hidden");
-                    this.value = "";
-                    return;
-                }
+            let formData = new FormData();
+            formData.append("file", file);
 
-                if (file.size > 50 * 1024 * 1024) {
-                    errorMessage.textContent = "File is too large. Maximum allowed size is 50MB.";
-                    errorMessage.classList.remove("hidden");
-                    this.value = "";
-                    return;
-                }
-
-                uploadBox.style.display = "none";
-                progressContainer.style.display = "block";
-
-                // Initialize EventSource for progress updates
-                eventSource = new EventSource("/progress");
-
-                eventSource.onopen = function () {
-                    // EventSource connection established
-                };
-
-                eventSource.onmessage = function (event) {
-                    try {
-                        let data = JSON.parse(event.data);
-
-                        // Update progress bar and status
-                        progressBar.value = data.progress;
-                        progressStatus.innerText = data.status;
-                        progressText.innerText = `${data.progress}%`;
-
-                        // Close EventSource when progress reaches 100
-                        if (data.progress >= 100) {
-                            closeEventSource();
-                        }
-                    } catch (error) {
-                        // Error processing event data
-                    }
-                };
-
-                eventSource.onerror = function (error) {
-                    if (eventSource.readyState === 2) {
-                        closeEventSource();
-                        errorMessage.textContent = "Connection to server lost. Please try again.";
-                        errorMessage.classList.remove("hidden");
-                        uploadBox.style.display = "flex";
-                        progressContainer.style.display = "none";
-                    }
-                };
-
-                let formData = new FormData();
-                formData.append("file", file);
-
-                let uploadTimeout = setTimeout(() => {
-                    closeEventSource();
-                    errorMessage.textContent = "Upload process timed out. Please try again.";
-                    errorMessage.classList.remove("hidden");
+            // Send the form data via AJAX
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.error);
+                    // Show upload box again in case of error
                     uploadBox.style.display = "flex";
-                    progressContainer.style.display = "none";
-                    this.value = "";
-                }, 300000);
-
-                fetch("/upload", {
-                    method: "POST",
-                    body: formData
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw new Error(data.error || "Upload failed");
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        clearTimeout(uploadTimeout);
-                        if (data.success) {
-                            setTimeout(() => {
-                                window.location.href = data.redirect;
-                            }, 1000);
-                        } else {
-                            closeEventSource();
-                            errorMessage.textContent = data.error || "Unknown error occurred";
-                            errorMessage.classList.remove("hidden");
-                            uploadBox.style.display = "flex";
-                            progressContainer.style.display = "none";
-                            this.value = "";
-                        }
-                    })
-                    .catch(error => {
-                        clearTimeout(uploadTimeout);
-                        closeEventSource();
-                        errorMessage.textContent = error.message || "Upload failed. Please try again.";
-                        errorMessage.classList.remove("hidden");
-                        uploadBox.style.display = "flex";
-                        progressContainer.style.display = "none";
-                        this.value = "";
-                    });
+                    loading.style.display = "none";
+                }
+            })
+            .catch(error => console.error("Error:", error))
+            .finally(() => {
+                // Hide loading animation if there's an issue
+                loading.style.display = "none";
             });
+        });
         </script>
 
         <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>

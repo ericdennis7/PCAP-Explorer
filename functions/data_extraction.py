@@ -111,8 +111,8 @@ def tcp_min_max_avg(pcap_file):
         # Extract the last value from each line (which is the time value)
         last_values = []
         for line in lines:
-            last_value = line.split()[-1]  # Extract the last element from the split line
-            last_values.append(float(last_value))  # Convert to float for calculations
+            last_value = line.split()[-1]
+            last_values.append(float(last_value))
 
         # Calculate min, max, and average
         if last_values:
@@ -149,8 +149,8 @@ def udp_min_max_avg(pcap_file):
         # Extract the last value from each line (which is the time value)
         last_values = []
         for line in lines:
-            last_value = line.split()[-1]  # Extract the last element from the split line
-            last_values.append(float(last_value))  # Convert to float for calculations
+            last_value = line.split()[-1] 
+            last_values.append(float(last_value)) 
 
         # Calculate min, max, and average
         if last_values:
@@ -191,10 +191,10 @@ def packet_times_and_difference(packet_data):
         # Calculate the time difference
         try:
             time_diff = end_dt - start_dt
-            total_seconds = int(time_diff.total_seconds())  # Convert to integer seconds
+            total_seconds = int(time_diff.total_seconds())
 
-            hours, remainder = divmod(total_seconds, 3600)  # Get hours and remaining seconds
-            minutes, seconds = divmod(remainder, 60)  # Get minutes and remaining seconds
+            hours, remainder = divmod(total_seconds, 3600)
+            minutes, seconds = divmod(remainder, 60)
 
             if hours > 0:
                 time_diff_humanized = f"{hours}h {minutes}m {seconds}s"
@@ -240,10 +240,7 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger(__name__)
 
 def unique_ips_and_flows(pcap_file):
-    """
-    Extracts unique IP addresses and flow information from a pcap file
-    and enriches it with geolocation data from ipinfo.io.
-    """
+
     ip_info_token = os.getenv('IP_INFO')
     if not ip_info_token:
         logger.error("IP_INFO environment variable is not set")
@@ -337,7 +334,6 @@ def unique_ips_and_flows(pcap_file):
             })
 
             top_ips_data[ip] = ip_info
-            time.sleep(0.2)
 
         logger.info("Completed processing all IPs")
         return total_ipv4_count, total_ipv6_count, ipv4_percent, ipv6_percent, combined_ip_count, {"top_ips": sanitize_for_json(top_ips_data)}
