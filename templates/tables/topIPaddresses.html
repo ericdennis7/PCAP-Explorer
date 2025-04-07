@@ -2,7 +2,7 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const snortData = {{ file_info['unique_ips']['top_ips'] | tojson | safe }};
+        const snortData = {{ (file_info.get('unique_ips', {}).get('top_ips', {})) | tojson | safe }};
         
         new gridjs.Grid({
             columns: [

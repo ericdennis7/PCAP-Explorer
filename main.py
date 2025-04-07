@@ -13,6 +13,7 @@ import random
 import humanize
 import pandas as pd
 import sys
+import logging
 
 from datetime import datetime
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -21,10 +22,13 @@ from flask import Flask, request, render_template, jsonify, redirect, url_for, s
 # Data processing functions
 from functions.data_extraction import *
 
+logging.basicConfig(level=logging.INFO)
+
 # Creating Flask app & app settings
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 app.secret_key = os.urandom(24)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 # Set upload directory
 UPLOAD_FOLDER = "uploads"
@@ -42,6 +46,18 @@ status = "Uploading file"
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route('/test-ipinfo')
+def test_ipinfo():
+    try:
+        # Try with a known IP first to eliminate issues with the client IP
+        response = requests.get("https://ipinfo.io/8.8.8.8/json", timeout=5)
+        return {
+            "status_code": response.status_code,
+            "response": response.text
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 # This route is used to upload files asynchronously and process them
 @app.route("/upload", methods=["POST"])
@@ -88,6 +104,8 @@ def upload_file():
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
             file.save(filepath)
             time.sleep(0.5)
+            
+            logging.info(f"File saved to: {filepath}")
 
             # Extract data
             progress = random.randint(20, 29)

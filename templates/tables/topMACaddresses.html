@@ -2,7 +2,7 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const macData = {{ file_info['mac_addresses']['top_macs'] | tojson | safe }};
+        const macData = {{ (file_info.get('mac_addresses', {}).get('top_macs', {})) | tojson | safe }};
         
         new gridjs.Grid({
             columns: [

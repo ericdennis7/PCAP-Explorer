@@ -10,6 +10,8 @@ import re
 import os
 import csv
 import json
+import time
+import logging
 import random
 import hashlib
 import requests
@@ -218,94 +220,138 @@ def total_packets(df):
     except Exception as e:
         print(f"Error: {e}")
         return "-"
+    
+def sanitize_for_json(data):
+    if isinstance(data, dict):
+        return {k: sanitize_for_json(v) for k, v in data.items() if v is not None}
+    elif isinstance(data, list):
+        return [sanitize_for_json(item) for item in data if item is not None]
+    elif data is None:
+        return ""
+    elif isinstance(data, (str, int, float, bool)):
+        return data
+    else:
+        # Convert any other type to string
+        return str(data)
 
 # Function to get the unique IP addresses and their counts
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 def unique_ips_and_flows(pcap_file):
-    # Full command to run tshark, tr, sort, and uniq
-    command = f"/usr/bin/tshark -r {pcap_file} -T fields -e ip.src -e ip.dst | tr '\\t' '\\n' | sort | uniq -c | sort -n"
-    
+    """
+    Extracts unique IP addresses and flow information from a pcap file
+    and enriches it with geolocation data from ipinfo.io.
+    """
+    ip_info_token = os.getenv('IP_INFO')
+    if not ip_info_token:
+        logger.error("IP_INFO environment variable is not set")
+        return 0, 0, 0, 0, 0, {"error": "IP_INFO token not configured"}
+
+    full_path = os.path.join("/home/ubuntu/PCAP-Visualizer", pcap_file)
+    logger.info(f"Processing PCAP file: {full_path}")
+
+    tshark_cmd = ["/usr/bin/tshark", "-r", full_path, "-T", "fields", "-e", "ip.src", "-e", "ip.dst"]
+
     try:
-        # Run the command with shell=True to allow pipes
-        result = subprocess.run(command, shell=True, capture_output=True, text=True, check=True)
-        ip_addresses = result.stdout.splitlines()  # Split the output by lines and return as a list of IP addresses
-        
-        # Process the IPs
-        ipv4_counts = Counter()
-        ipv6_counts = Counter()
+        logger.info("Running tshark command to extract IPs")
+        result = subprocess.run(tshark_cmd, capture_output=True, text=True, check=True)
+        output = result.stdout.strip().splitlines()
 
-        for line in ip_addresses:
-            # Skip empty lines
-            if not line.strip():
-                continue
-            
-            parts = line.split(maxsplit=1)
-            if len(parts) < 2:
-                # Skip malformed lines
-                continue
-            
-            count, ip = parts
+        ip_list = []
+        for line in output:
+            ips = line.split('\t')
+            ip_list.extend(ip for ip in ips if ip)
 
-            # Handle IPs
-            if ':' in ip:  # Check if it's an IPv6 address
-                ipv6_counts[ip] += int(count)
-            else:  # Otherwise, treat it as an IPv4 address
-                ipv4_counts[ip] += int(count)
+        ip_counts = Counter(ip_list)
 
-        # Calculate the total counts and percentages
+        ipv4_counts = Counter({ip: count for ip, count in ip_counts.items() if ':' not in ip})
+        ipv6_counts = Counter({ip: count for ip, count in ip_counts.items() if ':' in ip})
+
         total_ipv4_count = sum(ipv4_counts.values())
         total_ipv6_count = sum(ipv6_counts.values())
         combined_ip_count = total_ipv4_count + total_ipv6_count
-        
+
         ipv4_percent = round((total_ipv4_count / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
         ipv6_percent = round((total_ipv6_count / combined_ip_count) * 100, 2) if combined_ip_count > 0 else 0
 
-        # Get the top 10 most frequent IPs
         top_ipv4_ips = dict(ipv4_counts.most_common(100))
         top_ipv6_ips = dict(ipv6_counts.most_common(100))
-
-        # Combine both IPv4 and IPv6 top 10 IPs
         combined_top_ips = dict(sorted({**top_ipv4_ips, **top_ipv6_ips}.items(), key=lambda x: x[1], reverse=True)[:100])
-
         total_count = sum(combined_top_ips.values())
 
-        # Add rank and fetch additional information about each IP
         def probe_ip(ip):
             try:
-                response = requests.get(f"https://ipinfo.io/{ip}/json/?token={os.getenv('IP_INFO')}", timeout=3)
+                headers = {
+                    'User-Agent': 'Mozilla/5.0'
+                }
+                url = f"https://ipinfo.io/{ip}/json/?token={ip_info_token}"
+                logger.info(f"Requesting info for IP: {ip}")
+                response = requests.get(url, headers=headers, timeout=10)
+                logger.info(f"Response status for {ip}: {response.status_code}")
+
                 if response.status_code == 200:
                     return response.json()
-            except requests.RequestException:
-                return {}
-            return {}
+                else:
+                    logger.error(f"Error response for {ip}: {response.status_code}, {response.text}")
+                    return {
+                        "error": f"Status code: {response.status_code}",
+                        "hostname": "unknown", "city": "", "region": "",
+                        "country": "unknown", "loc": "", "org": "",
+                        "postal": "", "timezone": ""
+                    }
 
-        # Add location data and rank to top IPs
+            except requests.exceptions.Timeout:
+                logger.error(f"Timeout fetching data for {ip}")
+                return {"error": "Request timed out", "hostname": "timeout", "city": "", "region": "", "country": "", "loc": "", "org": "", "postal": "", "timezone": ""}
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Request error fetching data for {ip}: {str(e)}")
+                return {"error": str(e), "hostname": "error", "city": "", "region": "", "country": "", "loc": "", "org": "", "postal": "", "timezone": ""}
+            except Exception as e:
+                logger.error(f"Unexpected error for {ip}: {str(e)}")
+                return {"error": f"Unexpected error: {str(e)}", "hostname": "error", "city": "", "region": "", "country": "", "loc": "", "org": "", "postal": "", "timezone": ""}
+
+        logger.info(f"Fetching geolocation data for {len(combined_top_ips)} IPs")
         top_ips_data = {}
         for rank, (ip, count) in enumerate(combined_top_ips.items(), start=1):
+            logger.info(f"Processing IP {rank}/{len(combined_top_ips)}: {ip}")
             ip_info = probe_ip(ip)
+
             if ip_info.get("bogon", False):
                 ip_info.update({
                     "hostname": "bogon", "city": "", "region": "",
                     "country": "bogon", "loc": "bogon", "org": "bogon",
-                    "postal": "bogon", "timezone": "bogon"
+                    "postal": "", "timezone": ""
                 })
-            
+
             city = ip_info.get("city", "")
             region = ip_info.get("region", "")
             country = ip_info.get("country", "")
-            ip_info["location"] = ", ".join(filter(None, [city, region, country]))  # Filters out empty values
+            ip_info["location"] = ", ".join(filter(None, [city, region, country]))
 
             ip_info.update({
                 "count": count,
-                "percentage": (count / total_count) * 100 if total_count > 0 else 0,
-                "rank": rank  # Add rank here
+                "percentage": round((count / total_count) * 100, 2) if total_count > 0 else 0,
+                "rank": rank
             })
+
             top_ips_data[ip] = ip_info
-            
-        return sum(ipv4_counts.values()), sum(ipv6_counts.values()), ipv4_percent, ipv6_percent, combined_ip_count, {"top_ips": top_ips_data}
+            time.sleep(0.2)
+
+        logger.info("Completed processing all IPs")
+        return total_ipv4_count, total_ipv6_count, ipv4_percent, ipv6_percent, combined_ip_count, {"top_ips": sanitize_for_json(top_ips_data)}
 
     except subprocess.CalledProcessError as e:
-        print(f"Error running tshark: {e}")
-        return 0, 0, 0, 0, 0, {}
+        logger.error(f"Error running tshark: {e}")
+        logger.error(f"Return code: {e.returncode}")
+        logger.error(f"Command: {e.cmd}")
+        logger.error(f"stdout: {e.stdout}")
+        logger.error(f"stderr: {e.stderr}")
+        return 0, 0, 0, 0, 0, {"error": f"Error running tshark: {str(e)}"}
+    except Exception as e:
+        logger.error(f"Unexpected error in unique_ips_and_flows: {str(e)}")
+        return 0, 0, 0, 0, 0, {"error": f"Unexpected error: {str(e)}"}
     
 # Load protocol numbers into a dictionary
 def load_protocol_mapping(csv_file):
@@ -324,7 +370,7 @@ def load_protocol_mapping(csv_file):
     return protocol_mapping
 
 # Function to analyze protocol distribution
-def protocol_distribution(df, total_packets, csv_file="/workspaces/pcap-visualizer-ed/PCAP-Visualizer/information-sheets/protocol-numbers.csv"):
+def protocol_distribution(df, total_packets, csv_file="/home/ubuntuPCAP-Visualizer/information-sheets/protocol-numbers.csv"):
     protocol_counts = {}
     protocol_mapping = load_protocol_mapping(csv_file)
 
