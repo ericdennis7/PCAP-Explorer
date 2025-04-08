@@ -53,7 +53,7 @@
 
                 <!-- Doughnut Charts -->
                 <h2 class="font-bold text-2xl mb-6">Packet Structure Stats (Top 7)</h2>
-                <div class="grid grid-cols-2 gap-4 max-w-[1600px] mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-[1600px] mx-auto">
                     {% include 'charts/ipChart.html' %} <!-- Contains the IP doughnut chart -->
                     {% include 'charts/l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
                     {% include 'charts/l7protocolsChart.html' %} <!-- Contains the L7 protocol doughnut chart -->
