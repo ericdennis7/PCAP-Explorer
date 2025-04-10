@@ -24,15 +24,15 @@
     </script>
 </head>
 
-<body class="font-mono bg-[--clr-surface-a0] text-[--clr-light-a0] [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
+<body class="font-mono animate__animated animate__fadeInUpBig bg-[--clr-surface-a0] text-[--clr-light-a0] [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-[--clr-surface-a10] [&::-webkit-scrollbar-thumb]:bg-[--clr-surface-a20] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full">
     <!-- Navbar -->
     {% include 'components/navbar.html' %}
 
     <!-- Smaller device error -->
-    <p class="md:hidden p-10">Sorry, pcapexplorer.com is designed for larger screens. Please access it from a desktop or tablet.</p>
+    <p class="sm:hidden p-10">Sorry, pcapexplorer.com is designed for larger screens. Please access it from a desktop or tablet.</p>
     
     <!-- Main body -->
-    <div class="max-w-[1600px] w-full mx-auto p-6 animate__animated animate__fadeInUpBig hidden md:block">
+    <div class="max-w-[1600px] w-full mx-auto p-6 md:block hidden">
         <div class="flex flex-col w-full">
             <div class="pb-8 w-full">
 
@@ -53,12 +53,12 @@
 
                 <!-- Doughnut Charts -->
                 <h2 class="font-bold text-2xl mb-6">Packet Structure Stats (Top 7)</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-[1600px] mx-auto">
-                    {% include 'charts/ipChart.html' %} <!-- Contains the IP doughnut chart -->
-                    {% include 'charts/l4protocolChart.html' %} <!-- Contains the L4 protocol doughnut chart -->
-                    {% include 'charts/l7protocolsChart.html' %} <!-- Contains the L7 protocol doughnut chart -->
-                    {% include 'charts/l4portsChart.html' %} <!-- Contains the L4 port doughnut chart -->
-                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mx-auto" id="charts" style="min-height: 500px; overflow: visible;">
+                    {% include 'charts/ipChart.html' %}
+                    {% include 'charts/l4protocolChart.html' %}
+                    {% include 'charts/l7protocolsChart.html' %}
+                    {% include 'charts/l4portsChart.html' %}
+                </div>           
                 
                 <hr class="h-px my-8 bg-[#222222] border-0">
                 
