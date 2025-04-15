@@ -82,7 +82,7 @@ def raw_pcap_pd(filepath):
 
     for field in fields_to_convert:
         if field in df.columns:
-            df[field] = pd.to_numeric(df[field], errors="coerce").astype("Int64")
+            df[field] = pd.to_numeric(df[field], errors="coerce") .astype("Int64")
 
     return df
 
@@ -473,7 +473,7 @@ def application_layer_protocols(df):
 
     return {"top_protocols": top_protocols, "protocol_percentages": protocol_percentages}
 
-# Function to get the top 10 MAC addresses and their percentages, including OUI resolutions
+# Function to get the top 100 MAC addresses and their percentages, including OUI resolutions
 def mac_address_counts(df):
     mac_counts = Counter()
     mac_details = {}
